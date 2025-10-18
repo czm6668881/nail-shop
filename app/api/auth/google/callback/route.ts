@@ -36,7 +36,7 @@ const buildRedirectResponse = (origin: string, path: string) => {
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const origin = url.origin
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const stateValue = cookieStore.get(STATE_COOKIE)?.value
   const queryState = url.searchParams.get("state") ?? ""
   const code = url.searchParams.get("code")
