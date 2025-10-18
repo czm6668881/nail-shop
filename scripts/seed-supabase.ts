@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { randomUUID } from "crypto"
 import type { Database } from "@/types/database"
-import { collections as seedCollections, products as seedProducts } from "@/lib/data/products"
+import { collections as collectionsData, products as productsData } from "@/lib/data/products"
 import { mockAddresses, mockBlogPosts, mockOrders, mockReviews } from "@/lib/data/mock-data"
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -47,7 +47,7 @@ async function seedUsers() {
 }
 
 async function seedCollections() {
-  const payload = seedCollections.map((collection) => ({
+  const payload = collectionsData.map((collection) => ({
     id: collection.id,
     name: collection.name,
     description: collection.description ?? null,
@@ -61,9 +61,9 @@ async function seedCollections() {
 }
 
 async function seedProducts() {
-  const collectionSlugByName = new Map(seedCollections.map((collection) => [collection.name, collection.slug]))
+  const collectionSlugByName = new Map(collectionsData.map((collection) => [collection.name, collection.slug]))
 
-  const payload = seedProducts.map((product) => ({
+  const payload = productsData.map((product) => ({
     id: product.id,
     name: product.name,
     description: product.description,
