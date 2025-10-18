@@ -1,0 +1,1257 @@
+import { randomBytes, randomUUID, createHash } from "crypto"
+import type {
+  Product,
+  Collection,
+  Review,
+  BlogPost,
+  Cart,
+  CartItem,
+  NailSize,
+  User,
+  Order,
+  Address,
+  WishlistItem,
+  SupportTicket,
+  ReturnRequest,
+  NotificationPreferences,
+} from "@/types"
+import { getSupabaseAdminClient } from "@/lib/supabase/admin"
+import type { Database, Json } from "@/types/database"
+
+const supabase = () => getSupabaseAdminClient()
+
+type Tables = Database["public"]["Tables"]
+type ProductRow = Tables["products"]["Row"]
+type CollectionRow = Tables["collections"]["Row"]
+type ReviewRow = Tables["reviews"]["Row"]
+type BlogPostRow = Tables["blog_posts"]["Row"]
+type CartRow = Tables["carts"]["Row"]
+type CartItemRow = Tables["cart_items"]["Row"]
+type OrderRow = Tables["orders"]["Row"]
+type AddressRow = Tables["addresses"]["Row"]
+type WishlistItemRow = Tables["wishlist_items"]["Row"]
+type NotificationPreferenceRow = Tables["notification_preferences"]["Row"]
+type SessionRow = Tables["sessions"]["Row"]
+type UserRow = Tables["users"]["Row"]
+
+const jsonArray = <T>(value: Json | null | undefined, fallback: T): T => {
+  if (Array.isArray(value)) {
+    return value as T
+  }
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+  return fallback
+}
+
+const jsonObject = <T>(value: Json | null | undefined, fallback: T): T => {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as T
+  }
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+  return fallback
+}
+
+const mapProduct = (row: ProductRow): Product => ({
+  id: row.id,
+  name: row.name,
+  description: row.description ?? "",
+  price: row.price,
+  compareAtPrice: row.compare_at_price ?? undefined,
+  images: jsonArray<string[]>(row.images, []),
+  category: row.category as Product["category"],
+  collection: row.collection_slug ?? undefined,
+  inStock: row.in_stock,
+  stockQuantity: row.stock_quantity,
+  sizes: jsonArray<NailSize[]>(row.sizes, []),
+  features: jsonArray<string[]>(row.features, []),
+  application: row.application ?? "",
+  materials: jsonArray<string[]>(row.materials, []),
+  slug: row.slug,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  featured: row.featured,
+  rating: row.rating,
+  reviewCount: row.review_count,
+})
+
+const mapCollection = (row: CollectionRow): Collection => ({
+  id: row.id,
+  name: row.name,
+  description: row.description ?? "",
+  slug: row.slug,
+  image: row.image ?? "",
+  productCount: row.product_count,
+  featured: row.featured,
+})
+
+const mapReview = (row: ReviewRow): Review => ({
+  id: row.id,
+  productId: row.product_id,
+  userId: row.user_id ?? "",
+  userName: row.user_name,
+  rating: row.rating,
+  title: row.title,
+  comment: row.comment,
+  images: jsonArray<string[]>(row.images, []),
+  verified: row.verified,
+  createdAt: row.created_at,
+})
+
+const mapBlogPost = (row: BlogPostRow): BlogPost => ({
+  id: row.id,
+  title: row.title,
+  slug: row.slug,
+  excerpt: row.excerpt,
+  content: row.content,
+  coverImage: row.cover_image ?? "",
+  author: {
+    name: row.author_name,
+    avatar: row.author_avatar ?? "",
+  },
+  category: row.category as BlogPost["category"],
+  tags: jsonArray<string[]>(row.tags, []),
+  published: row.published,
+  publishedAt: row.published_at ?? "",
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  readTime: row.read_time,
+})
+
+const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
+  id: row.id,
+  productId: row.product_id,
+  product,
+  quantity: row.quantity,
+  size: row.size as NailSize,
+  addedAt: row.added_at,
+})
+
+const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const tax = Number((subtotal * 0.09).toFixed(2))
+  const shipping = subtotal > 50 || subtotal === 0 ? 0 : 5.99
+  const total = Number((subtotal + tax + shipping).toFixed(2))
+
+  return {
+    id: cart.id,
+    items,
+    subtotal,
+    tax,
+    shipping,
+    total,
+    updatedAt: cart.updated_at,
+  }
+}
+
+const mapOrder = (row: OrderRow): Order => ({
+  id: row.id,
+  userId: row.user_id ?? undefined,
+  orderNumber: row.order_number,
+  items: jsonArray<Order["items"]>(row.items, []),
+  subtotal: row.subtotal,
+  tax: row.tax,
+  shipping: row.shipping,
+  total: row.total,
+  status: row.status as Order["status"],
+  shippingAddress: jsonObject<Order["shippingAddress"]>(row.shipping_address, {
+    firstName: "",
+    lastName: "",
+    addressLine1: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "",
+    phone: "",
+  }),
+  billingAddress: jsonObject<Order["billingAddress"]>(row.billing_address, {
+    firstName: "",
+    lastName: "",
+    addressLine1: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "",
+    phone: "",
+  }),
+  paymentMethod: row.payment_method,
+  trackingNumber: row.tracking_number ?? undefined,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+})
+
+const mapAddress = (row: AddressRow): Address => ({
+  id: row.id,
+  userId: row.user_id,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  addressLine1: row.address_line1,
+  addressLine2: row.address_line2 ?? undefined,
+  city: row.city,
+  state: row.state,
+  postalCode: row.postal_code,
+  country: row.country,
+  phone: row.phone,
+  isDefault: row.is_default,
+})
+
+const mapWishlistItem = (row: WishlistItemRow, product: Product): WishlistItem => ({
+  id: row.id,
+  userId: row.user_id,
+  productId: row.product_id,
+  product,
+  addedAt: row.added_at,
+})
+
+const mapNotificationPreferences = (row: NotificationPreferenceRow): NotificationPreferences => ({
+  marketingEmails: row.marketing_emails,
+  productAlerts: row.product_alerts,
+  smsUpdates: row.sms_updates,
+})
+
+const mapPublicUserRow = (row: UserRow): User => ({
+  id: row.id,
+  email: row.email,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  avatar: row.avatar ?? "",
+  role: row.role,
+  createdAt: row.created_at,
+})
+
+const mapUserWithPassword = (row: UserRow): User & { passwordHash: string } => ({
+  id: row.id,
+  email: row.email,
+  firstName: row.first_name,
+  lastName: row.last_name,
+  avatar: row.avatar ?? undefined,
+  createdAt: row.created_at,
+  role: row.role,
+  passwordHash: row.password_hash,
+})
+
+export const toPublicUser = (user: User & { passwordHash: string }): User => ({
+  id: user.id,
+  email: user.email,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  avatar: user.avatar,
+  createdAt: user.createdAt,
+  role: user.role,
+})
+
+export const listProducts = async (): Promise<Product[]> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProduct)
+}
+
+export const findProductBySlug = async (slug: string): Promise<Product | null> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapProduct(data) : null
+}
+
+export const findProductById = async (id: string): Promise<Product | null> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapProduct(data) : null
+}
+
+export const listFeaturedProducts = async (): Promise<Product[]> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .eq("featured", true)
+    .order("created_at", { ascending: false })
+    .limit(12)
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProduct)
+}
+
+export const listProductsByCollection = async (collectionSlug: string): Promise<Product[]> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .eq("collection_slug", collectionSlug)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProduct)
+}
+
+export const listProductsByCategory = async (category: string): Promise<Product[]> => {
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .eq("category", category)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProduct)
+}
+
+export const searchProductsByQuery = async (query: string): Promise<Product[]> => {
+  const lowercase = query.toLowerCase()
+  const { data, error } = await supabase()
+    .from("products")
+    .select("*")
+    .or(
+      `name.ilike.%${lowercase}%,description.ilike.%${lowercase}%,category.ilike.%${lowercase}%`,
+    )
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProduct)
+}
+
+export const listCollections = async (): Promise<Collection[]> => {
+  const { data, error } = await supabase().from("collections").select("*").order("name", { ascending: true })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapCollection)
+}
+
+export const listFeaturedCollections = async (): Promise<Collection[]> => {
+  const { data, error } = await supabase()
+    .from("collections")
+    .select("*")
+    .eq("featured", true)
+    .order("name", { ascending: true })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapCollection)
+}
+
+export const findCollectionBySlug = async (slug: string): Promise<Collection | null> => {
+  const { data, error } = await supabase()
+    .from("collections")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle()
+  if (error) {
+    throw error
+  }
+  return data ? mapCollection(data) : null
+}
+
+export const toggleCollectionFeatured = async (id: string, featured: boolean) => {
+  const { error } = await supabase().from("collections").update({ featured }).eq("id", id)
+  if (error) {
+    throw error
+  }
+}
+
+export const removeCollection = async (id: string) => {
+  const { data: collection, error: collectionError } = await supabase()
+    .from("collections")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (collectionError) {
+    throw collectionError
+  }
+
+  if (!collection) {
+    return
+  }
+
+  const client = supabase()
+  const { error: productUpdateError } = await client
+    .from("products")
+    .update({ collection_slug: null })
+    .eq("collection_slug", collection.slug)
+
+  if (productUpdateError) {
+    throw productUpdateError
+  }
+
+  const { error } = await client.from("collections").delete().eq("id", id)
+  if (error) {
+    throw error
+  }
+}
+
+export const listReviews = async (): Promise<Review[]> => {
+  const { data, error } = await supabase().from("reviews").select("*").order("created_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapReview)
+}
+
+export const listReviewsByProductId = async (productId: string): Promise<Review[]> => {
+  const { data, error } = await supabase()
+    .from("reviews")
+    .select("*")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapReview)
+}
+
+export const listFeaturedReviews = async (limit: number): Promise<Review[]> => {
+  const { data, error } = await supabase()
+    .from("reviews")
+    .select("*")
+    .eq("verified", true)
+    .not("images", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(limit)
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapReview)
+}
+
+export const listBlogPosts = async (publishedOnly = true): Promise<BlogPost[]> => {
+  const client = supabase().from("blog_posts").select("*")
+  if (publishedOnly) {
+    client.eq("published", true).order("published_at", { ascending: false })
+  } else {
+    client.order("created_at", { ascending: false })
+  }
+  const { data, error } = await client
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapBlogPost)
+}
+
+export const findBlogPostBySlug = async (slug: string, publishedOnly = true): Promise<BlogPost | null> => {
+  const client = supabase().from("blog_posts").select("*").eq("slug", slug).limit(1)
+  if (publishedOnly) {
+    client.eq("published", true)
+  }
+  const { data, error } = await client.maybeSingle()
+  if (error) {
+    throw error
+  }
+  return data ? mapBlogPost(data) : null
+}
+
+export const listRelatedBlogPosts = async (postId: string, limit = 3): Promise<BlogPost[]> => {
+  const { data: post, error: postError } = await supabase()
+    .from("blog_posts")
+    .select("category")
+    .eq("id", postId)
+    .maybeSingle()
+
+  if (postError) {
+    throw postError
+  }
+
+  if (!post) {
+    return []
+  }
+
+  const { data, error } = await supabase()
+    .from("blog_posts")
+    .select("*")
+    .eq("category", post.category)
+    .neq("id", postId)
+    .eq("published", true)
+    .order("published_at", { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapBlogPost)
+}
+
+export const upsertBlogPost = async (post: BlogPost) => {
+  const payload: Tables["blog_posts"]["Insert"] = {
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt,
+    content: post.content,
+    cover_image: post.coverImage ?? null,
+    author_name: post.author.name,
+    author_avatar: post.author.avatar ?? null,
+    category: post.category,
+    tags: post.tags,
+    published: post.published,
+    published_at: post.publishedAt || null,
+    created_at: post.createdAt,
+    updated_at: post.updatedAt,
+    read_time: post.readTime,
+  }
+
+  const { error } = await supabase().from("blog_posts").upsert(payload, { onConflict: "id" })
+  if (error) {
+    throw error
+  }
+}
+
+export const deleteBlogPost = async (id: string) => {
+  const { error } = await supabase().from("blog_posts").delete().eq("id", id)
+  if (error) {
+    throw error
+  }
+}
+
+export const toggleBlogPublish = async (id: string, published: boolean) => {
+  const now = new Date().toISOString()
+  const { error } = await supabase()
+    .from("blog_posts")
+    .update({
+      published,
+      updated_at: now,
+      published_at: published ? now : null,
+    })
+    .eq("id", id)
+  if (error) {
+    throw error
+  }
+}
+
+export const listOrders = async (): Promise<Order[]> => {
+  const { data, error } = await supabase().from("orders").select("*").order("created_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapOrder)
+}
+
+export const listOrdersByUser = async (userId: string): Promise<Order[]> => {
+  const { data, error } = await supabase()
+    .from("orders")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapOrder)
+}
+
+export const insertOrder = async (order: Order) => {
+  const payload: Tables["orders"]["Insert"] = {
+    id: order.id,
+    user_id: order.userId ?? null,
+    order_number: order.orderNumber,
+    items: order.items,
+    subtotal: order.subtotal,
+    tax: order.tax,
+    shipping: order.shipping,
+    total: order.total,
+    status: order.status,
+    shipping_address: order.shippingAddress,
+    billing_address: order.billingAddress,
+    payment_method: order.paymentMethod,
+    tracking_number: order.trackingNumber ?? null,
+    created_at: order.createdAt,
+    updated_at: order.updatedAt,
+  }
+
+  const { error } = await supabase().from("orders").insert(payload)
+  if (error) {
+    throw error
+  }
+}
+
+export const ensureCart = async (
+  cartId?: string,
+  userId?: string,
+): Promise<{ cart: CartRow; newlyCreated: boolean }> => {
+  if (cartId) {
+    const { data, error } = await supabase().from("carts").select("*").eq("id", cartId).maybeSingle()
+    if (error) {
+      throw error
+    }
+    if (data) {
+      return { cart: data, newlyCreated: false }
+    }
+  }
+
+  const timestamp = new Date().toISOString()
+  const newCart: Tables["carts"]["Insert"] = {
+    id: `cart-${randomUUID()}`,
+    user_id: userId ?? null,
+    created_at: timestamp,
+    updated_at: timestamp,
+  }
+
+  const { data, error } = await supabase().from("carts").insert(newCart).select("*").single()
+  if (error) {
+    throw error
+  }
+
+  return { cart: data, newlyCreated: true }
+}
+
+export const fetchCart = async (cartId: string): Promise<Cart | null> => {
+  const { data: cartRow, error: cartError } = await supabase()
+    .from("carts")
+    .select("*")
+    .eq("id", cartId)
+    .maybeSingle()
+  if (cartError) {
+    throw cartError
+  }
+  if (!cartRow) {
+    return null
+  }
+
+  const { data: itemRows, error: itemError } = await supabase()
+    .from("cart_items")
+    .select("*")
+    .eq("cart_id", cartId)
+    .order("added_at", { ascending: false })
+
+  if (itemError) {
+    throw itemError
+  }
+
+  const items = await Promise.all(
+    (itemRows ?? []).map(async (row) => {
+      const product = await findProductById(row.product_id)
+      if (!product) {
+        return null
+      }
+      return mapCartItem(row, product)
+    }),
+  )
+
+  return mapCart(
+    cartRow,
+    items.filter(Boolean) as CartItem[],
+  )
+}
+
+export const upsertCartItem = async (args: {
+  cartId: string
+  productId: string
+  size: string
+  quantity: number
+}): Promise<string> => {
+  const { data: existing, error: existingError } = await supabase()
+    .from("cart_items")
+    .select("*")
+    .eq("cart_id", args.cartId)
+    .eq("product_id", args.productId)
+    .eq("size", args.size)
+    .maybeSingle()
+
+  if (existingError) {
+    throw existingError
+  }
+
+  const timestamp = new Date().toISOString()
+
+  if (existing) {
+    const newQuantity = existing.quantity + args.quantity
+    const { error } = await supabase()
+      .from("cart_items")
+      .update({ quantity: newQuantity, added_at: timestamp })
+      .eq("id", existing.id)
+    if (error) {
+      throw error
+    }
+    return existing.id
+  }
+
+  const id = `item-${randomUUID()}`
+  const { error } = await supabase()
+    .from("cart_items")
+    .insert({
+      id,
+      cart_id: args.cartId,
+      product_id: args.productId,
+      size: args.size,
+      quantity: args.quantity,
+      added_at: timestamp,
+    })
+  if (error) {
+    throw error
+  }
+  return id
+}
+
+export const updateCartItemQuantity = async (itemId: string, quantity: number) => {
+  const { error } = await supabase()
+    .from("cart_items")
+    .update({ quantity, added_at: new Date().toISOString() })
+    .eq("id", itemId)
+  if (error) {
+    throw error
+  }
+}
+
+export const removeCartItem = async (itemId: string) => {
+  const { error } = await supabase().from("cart_items").delete().eq("id", itemId)
+  if (error) {
+    throw error
+  }
+}
+
+export const clearCartItems = async (cartId: string) => {
+  const { error } = await supabase().from("cart_items").delete().eq("cart_id", cartId)
+  if (error) {
+    throw error
+  }
+}
+
+export const touchCart = async (cartId: string) => {
+  const { error } = await supabase()
+    .from("carts")
+    .update({ updated_at: new Date().toISOString() })
+    .eq("id", cartId)
+  if (error) {
+    throw error
+  }
+}
+
+export const listAddressesByUser = async (userId: string): Promise<Address[]> => {
+  const { data, error } = await supabase()
+    .from("addresses")
+    .select("*")
+    .eq("user_id", userId)
+    .order("is_default", { ascending: false })
+    .order("updated_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map(mapAddress)
+}
+
+export const createAddressForUser = async (
+  userId: string,
+  data: Omit<Address, "id" | "userId">,
+): Promise<Address> => {
+  const timestamp = new Date().toISOString()
+  const id = `addr-${randomUUID()}`
+
+  const { data: defaults, error: defaultsError } = await supabase()
+    .from("addresses")
+    .select("is_default")
+    .eq("user_id", userId)
+
+  if (defaultsError) {
+    throw defaultsError
+  }
+
+  let shouldBeDefault = data.isDefault ?? false
+  if (!shouldBeDefault && (defaults ?? []).every((row) => row.is_default === false)) {
+    shouldBeDefault = true
+  }
+
+  if (shouldBeDefault) {
+    const { error } = await supabase().from("addresses").update({ is_default: false }).eq("user_id", userId)
+    if (error) {
+      throw error
+    }
+  }
+
+  const insertPayload: Tables["addresses"]["Insert"] = {
+    id,
+    user_id: userId,
+    first_name: data.firstName,
+    last_name: data.lastName,
+    address_line1: data.addressLine1,
+    address_line2: data.addressLine2 ?? null,
+    city: data.city,
+    state: data.state,
+    postal_code: data.postalCode,
+    country: data.country,
+    phone: data.phone,
+    is_default: shouldBeDefault,
+    created_at: timestamp,
+    updated_at: timestamp,
+  }
+
+  const { data: inserted, error: insertError } = await supabase()
+    .from("addresses")
+    .insert(insertPayload)
+    .select("*")
+    .single()
+
+  if (insertError || !inserted) {
+    throw insertError ?? new Error("Unable to create address.")
+  }
+
+  return mapAddress(inserted)
+}
+
+export const setDefaultAddressForUser = async (userId: string, addressId: string) => {
+  const { data: address, error: addrError } = await supabase()
+    .from("addresses")
+    .select("id")
+    .eq("id", addressId)
+    .eq("user_id", userId)
+    .maybeSingle()
+  if (addrError) {
+    throw addrError
+  }
+  if (!address) {
+    throw new Error("Address not found.")
+  }
+
+  const client = supabase()
+  const { error: unsetError } = await client.from("addresses").update({ is_default: false }).eq("user_id", userId)
+  if (unsetError) {
+    throw unsetError
+  }
+
+  const { error } = await client
+    .from("addresses")
+    .update({ is_default: true, updated_at: new Date().toISOString() })
+    .eq("id", addressId)
+  if (error) {
+    throw error
+  }
+}
+
+export const deleteAddressForUser = async (userId: string, addressId: string) => {
+  const { data: address, error: fetchError } = await supabase()
+    .from("addresses")
+    .select("is_default")
+    .eq("id", addressId)
+    .eq("user_id", userId)
+    .maybeSingle()
+  if (fetchError) {
+    throw fetchError
+  }
+  if (!address) {
+    throw new Error("Address not found.")
+  }
+
+  const client = supabase()
+  const { error: deleteError } = await client.from("addresses").delete().eq("id", addressId).eq("user_id", userId)
+  if (deleteError) {
+    throw deleteError
+  }
+
+  if (address.is_default) {
+    const { data: nextDefault, error: nextError } = await client
+      .from("addresses")
+      .select("id")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (nextError) {
+      throw nextError
+    }
+
+    if (nextDefault) {
+      const { error } = await client
+        .from("addresses")
+        .update({ is_default: true, updated_at: new Date().toISOString() })
+        .eq("id", nextDefault.id)
+      if (error) {
+        throw error
+      }
+    }
+  }
+}
+
+export const listWishlistItems = async (userId: string): Promise<WishlistItem[]> => {
+  const { data, error } = await supabase()
+    .from("wishlist_items")
+    .select("*")
+    .eq("user_id", userId)
+    .order("added_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+
+  const items = await Promise.all(
+    (data ?? []).map(async (row) => {
+      const product = await findProductById(row.product_id)
+      if (!product) {
+        return null
+      }
+      return mapWishlistItem(row, product)
+    }),
+  )
+
+  return items.filter(Boolean) as WishlistItem[]
+}
+
+export const findWishlistItemByProduct = async (
+  userId: string,
+  productId: string,
+): Promise<WishlistItem | null> => {
+  const { data, error } = await supabase()
+    .from("wishlist_items")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("product_id", productId)
+    .maybeSingle()
+  if (error) {
+    throw error
+  }
+  if (!data) {
+    return null
+  }
+  const product = await findProductById(productId)
+  if (!product) {
+    return null
+  }
+  return mapWishlistItem(data, product)
+}
+
+export const addWishlistItem = async (userId: string, productId: string): Promise<WishlistItem | null> => {
+  const existing = await findWishlistItemByProduct(userId, productId)
+  if (existing) {
+    return existing
+  }
+
+  const product = await findProductById(productId)
+  if (!product) {
+    return null
+  }
+
+  const row: Tables["wishlist_items"]["Insert"] = {
+    id: `wish-${randomUUID()}`,
+    user_id: userId,
+    product_id: productId,
+    added_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("wishlist_items").insert(row)
+  if (error) {
+    throw error
+  }
+
+  return mapWishlistItem(row as WishlistItemRow, product)
+}
+
+export const removeWishlistItem = async (userId: string, itemId: string) => {
+  const { error } = await supabase().from("wishlist_items").delete().eq("id", itemId).eq("user_id", userId)
+  if (error) {
+    throw error
+  }
+}
+
+export const createSupportTicket = async (
+  ticket: Omit<SupportTicket, "id" | "status" | "createdAt" | "updatedAt">,
+) => {
+  const timestamp = new Date().toISOString()
+  const payload: Tables["support_tickets"]["Insert"] = {
+    id: `ticket-${randomUUID()}`,
+    name: ticket.name,
+    email: ticket.email,
+    topic: ticket.topic,
+    order_number: ticket.orderNumber ?? null,
+    message: ticket.message,
+    status: "open",
+    created_at: timestamp,
+    updated_at: timestamp,
+  }
+
+  const { error } = await supabase().from("support_tickets").insert(payload)
+  if (error) {
+    throw error
+  }
+}
+
+export const createReturnRequest = async (
+  request: Omit<ReturnRequest, "id" | "status" | "createdAt">,
+) => {
+  const payload: Tables["return_requests"]["Insert"] = {
+    id: `return-${randomUUID()}`,
+    order_number: request.orderNumber,
+    email: request.email,
+    reason: request.reason,
+    items: request.items,
+    status: "pending",
+    notes: request.notes ?? null,
+    created_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("return_requests").insert(payload)
+  if (error) {
+    throw error
+  }
+}
+
+export const getNotificationPreferences = async (userId: string): Promise<NotificationPreferences> => {
+  const { data, error } = await supabase()
+    .from("notification_preferences")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle()
+  if (error) {
+    throw error
+  }
+  if (!data) {
+    return {
+      marketingEmails: true,
+      productAlerts: true,
+      smsUpdates: false,
+    }
+  }
+  return mapNotificationPreferences(data)
+}
+
+export const upsertNotificationPreferences = async (
+  userId: string,
+  preferences: NotificationPreferences,
+) => {
+  const payload: Tables["notification_preferences"]["Insert"] = {
+    user_id: userId,
+    marketing_emails: preferences.marketingEmails,
+    product_alerts: preferences.productAlerts,
+    sms_updates: preferences.smsUpdates,
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("notification_preferences").upsert(payload, { onConflict: "user_id" })
+  if (error) {
+    throw error
+  }
+}
+
+export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex")
+
+export const createPasswordResetToken = async (userId: string, expiresInMs = 1000 * 60 * 60): Promise<string> => {
+  const token = randomBytes(24).toString("hex")
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + expiresInMs)
+
+  const client = supabase()
+
+  const { error: deleteError } = await client.from("password_reset_tokens").delete().eq("user_id", userId)
+  if (deleteError) {
+    throw deleteError
+  }
+
+  const payload: Tables["password_reset_tokens"]["Insert"] = {
+    id: `pwreset-${randomUUID()}`,
+    user_id: userId,
+    token_hash: hashToken(token),
+    expires_at: expiresAt.toISOString(),
+    created_at: now.toISOString(),
+  }
+
+  const { error } = await client.from("password_reset_tokens").insert(payload)
+  if (error) {
+    throw error
+  }
+
+  return token
+}
+
+export const findPasswordResetToken = async (
+  token: string,
+): Promise<{ id: string; userId: string } | null> => {
+  const hashed = hashToken(token)
+  const { data, error } = await supabase()
+    .from("password_reset_tokens")
+    .select("*")
+    .eq("token_hash", hashed)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    return null
+  }
+
+  if (new Date(data.expires_at).getTime() < Date.now()) {
+    await supabase().from("password_reset_tokens").delete().eq("id", data.id)
+    return null
+  }
+
+  return { id: data.id, userId: data.user_id }
+}
+
+export const deletePasswordResetToken = async (tokenId: string) => {
+  const { error } = await supabase().from("password_reset_tokens").delete().eq("id", tokenId)
+  if (error) {
+    throw error
+  }
+}
+
+export const updateUserPasswordHash = async (userId: string, passwordHash: string) => {
+  const { error } = await supabase().from("users").update({ password_hash: passwordHash }).eq("id", userId)
+  if (error) {
+    throw error
+  }
+}
+
+export const createSession = async (userId: string, token: string, expiresAt: Date) => {
+  const payload: Tables["sessions"]["Insert"] = {
+    id: `session-${randomUUID()}`,
+    user_id: userId,
+    token_hash: hashToken(token),
+    expires_at: expiresAt.toISOString(),
+    created_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("sessions").insert(payload)
+  if (error) {
+    throw error
+  }
+}
+
+export const findSession = async (
+  token: string,
+): Promise<{ session: SessionRow; user: User & { passwordHash: string } } | null> => {
+  const hashed = hashToken(token)
+  const { data: row, error } = await supabase()
+    .from("sessions")
+    .select("*")
+    .eq("token_hash", hashed)
+    .maybeSingle()
+  if (error) {
+    throw error
+  }
+  if (!row) {
+    return null
+  }
+
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    await supabase().from("sessions").delete().eq("id", row.id)
+    return null
+  }
+
+  const { data: userRow, error: userError } = await supabase()
+    .from("users")
+    .select("*")
+    .eq("id", row.user_id)
+    .maybeSingle()
+  if (userError) {
+    throw userError
+  }
+  if (!userRow) {
+    return null
+  }
+
+  return {
+    session: row,
+    user: mapUserWithPassword(userRow),
+  }
+}
+
+export const deleteSessionByToken = async (token: string) => {
+  const { error } = await supabase().from("sessions").delete().eq("token_hash", hashToken(token))
+  if (error) {
+    throw error
+  }
+}
+
+export const findUserByEmail = async (email: string): Promise<(User & { passwordHash: string }) | null> => {
+  const { data, error } = await supabase().from("users").select("*").eq("email", email).maybeSingle()
+  if (error) {
+    throw error
+  }
+  return data ? mapUserWithPassword(data) : null
+}
+
+export const findUserById = async (id: string): Promise<(User & { passwordHash: string }) | null> => {
+  const { data, error } = await supabase().from("users").select("*").eq("id", id).maybeSingle()
+  if (error) {
+    throw error
+  }
+  return data ? mapUserWithPassword(data) : null
+}
+
+export const insertUser = async (user: {
+  id: string
+  email: string
+  passwordHash: string
+  firstName: string
+  lastName: string
+  role?: string
+}) => {
+  const payload: Tables["users"]["Insert"] = {
+    id: user.id,
+    email: user.email,
+    password_hash: user.passwordHash,
+    first_name: user.firstName,
+    last_name: user.lastName,
+    role: (user.role as User["role"]) ?? "customer",
+    created_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("users").insert(payload)
+  if (error) {
+    throw error
+  }
+}
+
+export const updateUserProfile = async (userId: string, data: Partial<User>) => {
+  const existing = await findUserById(userId)
+  if (!existing) {
+    return
+  }
+
+  const { error } = await supabase()
+    .from("users")
+    .update({
+      first_name: data.firstName ?? existing.firstName,
+      last_name: data.lastName ?? existing.lastName,
+      avatar: data.avatar ?? existing.avatar ?? null,
+    })
+    .eq("id", userId)
+  if (error) {
+    throw error
+  }
+}
+
+export const listUsers = async (): Promise<User[]> => {
+  const { data, error } = await supabase().from("users").select("*").order("created_at", { ascending: false })
+  if (error) {
+    throw error
+  }
+  return (data ?? []).map((row) => mapPublicUserRow(row))
+}
