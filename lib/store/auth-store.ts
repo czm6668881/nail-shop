@@ -12,6 +12,7 @@ interface AuthStore {
   initialized: boolean
   init: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: (redirect?: string) => boolean
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>
   logout: () => Promise<void>
   updateProfile: (data: Partial<User>) => void
@@ -69,6 +70,27 @@ export const useAuthStore = create<AuthStore>()(
           set({ loading: false, error: message })
           throw error
         }
+      },
+
+      loginWithGoogle: (redirect = "/account") => {
+        const safeRedirect =
+          redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/account"
+
+        if (typeof window === "undefined") {
+          console.warn("Google login can only be triggered in the browser.")
+          return false
+        }
+
+        set({ loading: true, error: null })
+
+        const params = new URLSearchParams()
+        if (safeRedirect) {
+          params.set("redirect", safeRedirect)
+        }
+
+        const authorizeUrl = `/api/auth/google/authorize?${params.toString()}`
+        window.location.href = authorizeUrl
+        return true
       },
 
       register: async (email, password, firstName, lastName) => {

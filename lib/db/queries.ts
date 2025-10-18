@@ -132,13 +132,17 @@ export const findSession = wrap("findSession")
 export const deleteSessionByToken = wrap("deleteSessionByToken")
 export const findUserByEmail = wrap("findUserByEmail")
 export const findUserById = wrap("findUserById")
+export const findUserByGoogleId = wrap("findUserByGoogleId")
 export const insertUser = wrap("insertUser")
 export const updateUserProfile = wrap("updateUserProfile")
+export const linkGoogleAccount = wrap("linkGoogleAccount")
 export const listUsers = wrap("listUsers")
 
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex")
 
-export const toPublicUser = (user: User & { passwordHash: string }): User => ({
+export type AuthUser = User & { passwordHash: string; googleId: string | null }
+
+export const toPublicUser = (user: AuthUser): User => ({
   id: user.id,
   email: user.email,
   firstName: user.firstName,

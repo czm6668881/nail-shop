@@ -14,6 +14,7 @@ export interface Database {
           id: string
           email: string
           password_hash: string
+          google_id: string | null
           first_name: string
           last_name: string
           avatar: string | null
@@ -24,6 +25,7 @@ export interface Database {
           id?: string
           email: string
           password_hash: string
+          google_id?: string | null
           first_name: string
           last_name: string
           avatar?: string | null
@@ -34,6 +36,7 @@ export interface Database {
           id?: string
           email?: string
           password_hash?: string
+          google_id?: string | null
           first_name?: string
           last_name?: string
           avatar?: string | null

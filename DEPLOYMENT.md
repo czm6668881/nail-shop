@@ -31,10 +31,9 @@
 3. **运行数据库迁移**
    - 项目创建后，点击左侧菜单的 "SQL Editor"
    - 点击 "New Query"
-   - 打开本地项目中的 `supabase/migrations/0001_init.sql` 文件
-   - 复制所有内容，粘贴到 Supabase SQL Editor
-   - 点击 "Run" 按钮执行
-   - 确认执行成功（应该显示 "Success. No rows returned"）
+   - 依次打开本地项目中的 `supabase/migrations/0001_init.sql` 和 `supabase/migrations/0002_google_oauth.sql`
+   - 复制 SQL 内容，分别粘贴到 Supabase SQL Editor 中运行
+   - 两个迁移都应提示 "Success. No rows returned"
 
 4. **获取 API 密钥**
    - 点击左侧菜单的 "Settings" (设置)
@@ -88,11 +87,14 @@
    
    | Name | Value |
    |------|-------|
-   | `DATABASE_PROVIDER` | `supabase` |
-   | `NEXT_PUBLIC_SUPABASE_URL` | 你的 Supabase 项目 URL |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 你的 Supabase anon key |
-   | `SUPABASE_SERVICE_ROLE_KEY` | 你的 Supabase service_role key |
-   | `NODE_ENV` | `production` |
+| `DATABASE_PROVIDER` | `supabase` |
+| `NEXT_PUBLIC_SUPABASE_URL` | 你的 Supabase 项目 URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 你的 Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | 你的 Supabase service_role key |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth Client ID |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID（同上，供服务端使用） |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret |
+| `NODE_ENV` | `production` |
 
    **重要**：对于敏感信息（如 `SUPABASE_SERVICE_ROLE_KEY`），确保只添加到生产环境。
 
@@ -111,9 +113,26 @@
      * 项目 URL（例如：`https://nail-shop.vercel.app`）
    - 点击 "Visit" 访问你的网站
 
+### 第三步：配置 Google 登录
+
+完成基础部署后，继续在 Google Cloud Console 中配置 OAuth：
+
+1. 进入 `APIs & Services → OAuth consent screen`，完善应用名称、支持邮箱，并将生产域名添加到 `Authorized domains`。
+2. 在 `APIs & Services → Credentials` 创建 **OAuth client ID**（类型选择 `Web application`）。
+3. 在 `Authorized redirect URIs` 中添加：
+   - 生产环境：`https://<你的域名>/api/auth/google/callback`
+   - （可选）本地开发：`http://localhost:3000/api/auth/google/callback`
+4. 生成 `Client ID` 与 `Client Secret` 后，将它们填入 Vercel 环境变量（同时更新 `.env.local`）：
+   ```
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=<client id>
+   GOOGLE_CLIENT_ID=<client id>
+   GOOGLE_CLIENT_SECRET=<client secret>
+   ```
+5. 重新部署网站；部署完成后，登录页会显示 “Continue with Google”。完成一次实际登录测试确认流程成功，并在 Google 控制台中发布 OAuth 应用（从 Testing 切换到 Production）。
+
 ---
 
-### 第三步：配置自定义域名（可选）
+### 第四步：配置自定义域名（可选）
 
 如果你有自己的域名：
 
@@ -239,4 +258,3 @@
 - 设置邮件服务（用于订单通知等）
 - 添加 Google Analytics
 - SEO 优化（sitemap、robots.txt）
-

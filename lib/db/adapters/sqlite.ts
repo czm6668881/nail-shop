@@ -1053,13 +1053,18 @@ export const deleteSessionByToken = (token: string) => {
   db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(hashToken(token))
 }
 
-export const findUserByEmail = (email: string): (User & { passwordHash: string }) | null => {
+export const findUserByEmail = (email: string): InternalUser | null => {
   const row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined
   return row ? mapUser(row) : null
 }
 
-export const findUserById = (id: string): (User & { passwordHash: string }) | null => {
+export const findUserById = (id: string): InternalUser | null => {
   const row = db.prepare("SELECT * FROM users WHERE id = ?").get(id) as UserRow | undefined
+  return row ? mapUser(row) : null
+}
+
+export const findUserByGoogleId = (googleId: string): InternalUser | null => {
+  const row = db.prepare("SELECT * FROM users WHERE google_id = ?").get(googleId) as UserRow | undefined
   return row ? mapUser(row) : null
 }
 
@@ -1070,15 +1075,39 @@ export const insertUser = (user: {
   firstName: string
   lastName: string
   role?: string
+  avatar?: string
+  googleId?: string
 }) => {
   db.prepare(
-    "INSERT INTO users (id, email, password_hash, first_name, last_name, role, created_at) VALUES (@id, @email, @password_hash, @first_name, @last_name, @role, @created_at)",
+    `INSERT INTO users (
+      id,
+      email,
+      password_hash,
+      first_name,
+      last_name,
+      avatar,
+      google_id,
+      role,
+      created_at
+    ) VALUES (
+      @id,
+      @email,
+      @password_hash,
+      @first_name,
+      @last_name,
+      @avatar,
+      @google_id,
+      @role,
+      @created_at
+    )`,
   ).run({
     id: user.id,
     email: user.email,
     password_hash: user.passwordHash,
     first_name: user.firstName,
     last_name: user.lastName,
+    avatar: user.avatar ?? null,
+    google_id: user.googleId ?? null,
     role: user.role ?? "customer",
     created_at: new Date().toISOString(),
   })
@@ -1088,6 +1117,7 @@ type UserRow = {
   id: string
   email: string
   password_hash: string
+  google_id: string | null
   first_name: string
   last_name: string
   avatar: string | null
@@ -1095,7 +1125,9 @@ type UserRow = {
   created_at: string
 }
 
-const mapUser = (row: UserRow): User & { passwordHash: string } => ({
+type InternalUser = User & { passwordHash: string; googleId: string | null }
+
+const mapUser = (row: UserRow): InternalUser => ({
   id: row.id,
   email: row.email,
   firstName: row.first_name,
@@ -1104,6 +1136,7 @@ const mapUser = (row: UserRow): User & { passwordHash: string } => ({
   createdAt: row.created_at,
   role: row.role as User["role"],
   passwordHash: row.password_hash,
+  googleId: row.google_id,
 })
 
 export const updateUserProfile = (userId: string, data: Partial<User>) => {
@@ -1117,6 +1150,19 @@ export const updateUserProfile = (userId: string, data: Partial<User>) => {
     first_name: data.firstName ?? user.firstName,
     last_name: data.lastName ?? user.lastName,
     avatar: data.avatar ?? user.avatar ?? null,
+  })
+}
+
+export const linkGoogleAccount = (userId: string, googleId: string, avatar?: string) => {
+  db.prepare(
+    `UPDATE users
+     SET google_id = @google_id,
+         avatar = COALESCE(@avatar, avatar)
+     WHERE id = @id`,
+  ).run({
+    id: userId,
+    google_id: googleId,
+    avatar: avatar ?? null,
   })
 }
 

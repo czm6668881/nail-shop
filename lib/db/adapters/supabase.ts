@@ -236,7 +236,9 @@ const mapPublicUserRow = (row: UserRow): User => ({
   createdAt: row.created_at,
 })
 
-const mapUserWithPassword = (row: UserRow): User & { passwordHash: string } => ({
+type InternalUser = User & { passwordHash: string; googleId: string | null }
+
+const mapUserWithPassword = (row: UserRow): InternalUser => ({
   id: row.id,
   email: row.email,
   firstName: row.first_name,
@@ -245,9 +247,10 @@ const mapUserWithPassword = (row: UserRow): User & { passwordHash: string } => (
   createdAt: row.created_at,
   role: row.role,
   passwordHash: row.password_hash,
+  googleId: row.google_id ?? null,
 })
 
-export const toPublicUser = (user: User & { passwordHash: string }): User => ({
+export const toPublicUser = (user: InternalUser): User => ({
   id: user.id,
   email: user.email,
   firstName: user.firstName,
@@ -1215,7 +1218,7 @@ export const deleteSessionByToken = async (token: string) => {
   }
 }
 
-export const findUserByEmail = async (email: string): Promise<(User & { passwordHash: string }) | null> => {
+export const findUserByEmail = async (email: string): Promise<InternalUser | null> => {
   const { data, error } = await supabase()
     .from("users")
     .select("*")
@@ -1227,11 +1230,23 @@ export const findUserByEmail = async (email: string): Promise<(User & { password
   return data ? mapUserWithPassword(data) : null
 }
 
-export const findUserById = async (id: string): Promise<(User & { passwordHash: string }) | null> => {
+export const findUserById = async (id: string): Promise<InternalUser | null> => {
   const { data, error } = await supabase()
     .from("users")
     .select("*")
     .eq("id", id)
+    .maybeSingle<UserRow>()
+  if (error) {
+    throw error
+  }
+  return data ? mapUserWithPassword(data) : null
+}
+
+export const findUserByGoogleId = async (googleId: string): Promise<InternalUser | null> => {
+  const { data, error } = await supabase()
+    .from("users")
+    .select("*")
+    .eq("google_id", googleId)
     .maybeSingle<UserRow>()
   if (error) {
     throw error
@@ -1246,6 +1261,8 @@ export const insertUser = async (user: {
   firstName: string
   lastName: string
   role?: string
+  avatar?: string
+  googleId?: string
 }) => {
   const payload: Tables["users"]["Insert"] = {
     id: user.id,
@@ -1253,6 +1270,8 @@ export const insertUser = async (user: {
     password_hash: user.passwordHash,
     first_name: user.firstName,
     last_name: user.lastName,
+    avatar: user.avatar ?? null,
+    google_id: user.googleId ?? null,
     role: (user.role as User["role"]) ?? "customer",
     created_at: new Date().toISOString(),
   }
@@ -1277,6 +1296,21 @@ export const updateUserProfile = async (userId: string, data: Partial<User>) => 
       avatar: data.avatar ?? existing.avatar ?? null,
     } as never)
     .eq("id", userId)
+  if (error) {
+    throw error
+  }
+}
+
+export const linkGoogleAccount = async (userId: string, googleId: string, avatar?: string) => {
+  const payload: Tables["users"]["Update"] = {
+    google_id: googleId,
+  }
+
+  if (typeof avatar !== "undefined") {
+    payload.avatar = avatar
+  }
+
+  const { error } = await supabase().from("users").update(payload as never).eq("id", userId)
   if (error) {
     throw error
   }

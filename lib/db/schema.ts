@@ -4,6 +4,17 @@ const run = (sql: string) => {
   db.prepare(sql).run()
 }
 
+const addColumnIfMissing = (table: string, columnDefinition: string) => {
+  try {
+    db.prepare(`ALTER TABLE ${table} ADD COLUMN ${columnDefinition}`).run()
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("duplicate column name")) {
+      return
+    }
+    throw error
+  }
+}
+
 export const migrate = () => {
   run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -17,6 +28,8 @@ export const migrate = () => {
       created_at TEXT NOT NULL
     )
   `)
+
+  addColumnIfMissing("users", "google_id TEXT UNIQUE")
 
   run(`
     CREATE TABLE IF NOT EXISTS sessions (
