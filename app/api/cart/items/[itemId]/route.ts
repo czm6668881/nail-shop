@@ -21,15 +21,16 @@ export async function PATCH(
   {
     params,
   }: {
-    params: { itemId: string }
+    params: Promise<{ itemId: string }>
   },
 ) {
   try {
+    const { itemId } = await params
     const cartId = ensureCartId()
     const body = await request.json()
     const { quantity } = quantitySchema.parse(body)
 
-    await updateCartItemQuantity(params.itemId, quantity)
+    await updateCartItemQuantity(itemId, quantity)
     await touchCart(cartId)
 
     const updatedCart = await fetchCart(cartId)
@@ -53,12 +54,13 @@ export async function DELETE(
   {
     params,
   }: {
-    params: { itemId: string }
+    params: Promise<{ itemId: string }>
   },
 ) {
   try {
+    const { itemId } = await params
     const cartId = ensureCartId()
-    await removeCartItem(params.itemId)
+    await removeCartItem(itemId)
     await touchCart(cartId)
 
     const updatedCart = await fetchCart(cartId)

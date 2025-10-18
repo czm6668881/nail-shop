@@ -2,13 +2,11 @@ import { NextResponse } from "next/server"
 import { getSessionUser } from "@/lib/auth/session"
 import { deleteAddressForUser, listAddressesByUser, setDefaultAddressForUser } from "@/lib/db/queries"
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const user = await getSessionUser()
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
@@ -20,7 +18,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       return NextResponse.json({ message: "No updates supplied." }, { status: 400 })
     }
 
-    await setDefaultAddressForUser(user.id, params.id)
+    await setDefaultAddressForUser(user.id, id)
     const addresses = await listAddressesByUser(user.id)
     return NextResponse.json({ addresses })
   } catch (error) {
@@ -31,14 +29,18 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_: Request, { params }: RouteParams) {
+export async function DELETE(
+  _: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const user = await getSessionUser()
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
   try {
-    await deleteAddressForUser(user.id, params.id)
+    await deleteAddressForUser(user.id, id)
     const addresses = await listAddressesByUser(user.id)
     return NextResponse.json({ addresses })
   } catch (error) {

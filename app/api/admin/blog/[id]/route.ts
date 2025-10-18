@@ -3,14 +3,11 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { deleteBlogPost, listBlogPosts } from "@/lib/db/queries"
 
-type RouteParams = {
-  params: {
-    id: string
-  }
-}
-
-export async function DELETE(_request: Request, { params }: RouteParams) {
-  const { id } = params
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
 
   try {
     await requireAdminUser(cookies())

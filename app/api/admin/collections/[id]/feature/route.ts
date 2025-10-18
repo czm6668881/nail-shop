@@ -3,14 +3,11 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { listCollections, toggleCollectionFeatured } from "@/lib/db/queries"
 
-type RouteParams = {
-  params: {
-    id: string
-  }
-}
-
-export async function PATCH(request: Request, { params }: RouteParams) {
-  const { id } = params
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
 
   try {
     await requireAdminUser(cookies())
