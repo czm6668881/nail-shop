@@ -1,0 +1,47 @@
+# 复制以下内容到 Vercel 环境变量配置中
+# Vercel Dashboard → Settings → Environment Variables
+
+# ============================================
+# Google OAuth 配置（必需）
+# ============================================
+
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=你的Google_Client_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=你的Google_Client_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=你的Google_Client_Secret
+
+# ============================================
+# Supabase 配置（生产环境必需）
+# ============================================
+
+DATABASE_PROVIDER=supabase
+NEXT_PUBLIC_SUPABASE_URL=[请从 Supabase Dashboard 获取]
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[请从 Supabase Dashboard 获取]
+SUPABASE_SERVICE_ROLE_KEY=[请从 Supabase Dashboard 获取]
+
+# ============================================
+# 配置说明
+# ============================================
+
+1. 登录 Vercel Dashboard
+2. 选择项目 → Settings → Environment Variables
+3. 逐个添加上述变量
+4. 对于 GOOGLE_CLIENT_SECRET 和 SUPABASE_SERVICE_ROLE_KEY，勾选 "Sensitive" 选项
+5. 选择环境：Production 和 Preview（两个都勾选）
+6. 保存后重新部署项目
+
+# ============================================
+# Google Cloud Console 配置
+# ============================================
+
+确保在 Google Cloud Console 中配置了以下 Redirect URIs：
+
+开发环境：
+http://localhost:3000/api/auth/google/callback
+
+生产环境：
+https://gelmanicure-nail.com/api/auth/google/callback
+https://www.gelmanicure-nail.com/api/auth/google/callback
+
+Vercel 预览环境（可选）：
+https://*.vercel.app/api/auth/google/callback
+
