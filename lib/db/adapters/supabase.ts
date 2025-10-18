@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID, createHash } from "crypto"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type {
   Product,
   Collection,
@@ -18,7 +19,7 @@ import type {
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import type { Database, Json } from "@/types/database"
 
-const supabase = () => getSupabaseAdminClient()
+const supabase = (): SupabaseClient<Database> => getSupabaseAdminClient()
 
 type Tables = Database["public"]["Tables"]
 type ProductRow = Tables["products"]["Row"]
@@ -156,7 +157,7 @@ const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
 
 const mapOrder = (row: OrderRow): Order => ({
   id: row.id,
-  userId: row.user_id ?? undefined,
+  userId: row.user_id ?? "guest",
   orderNumber: row.order_number,
   items: jsonArray<Order["items"]>(row.items, []),
   subtotal: row.subtotal,
@@ -165,6 +166,8 @@ const mapOrder = (row: OrderRow): Order => ({
   total: row.total,
   status: row.status as Order["status"],
   shippingAddress: jsonObject<Order["shippingAddress"]>(row.shipping_address, {
+    id: "",
+    userId: "",
     firstName: "",
     lastName: "",
     addressLine1: "",
@@ -173,8 +176,11 @@ const mapOrder = (row: OrderRow): Order => ({
     postalCode: "",
     country: "",
     phone: "",
+    isDefault: false,
   }),
   billingAddress: jsonObject<Order["billingAddress"]>(row.billing_address, {
+    id: "",
+    userId: "",
     firstName: "",
     lastName: "",
     addressLine1: "",
@@ -183,6 +189,7 @@ const mapOrder = (row: OrderRow): Order => ({
     postalCode: "",
     country: "",
     phone: "",
+    isDefault: false,
   }),
   paymentMethod: row.payment_method,
   trackingNumber: row.tracking_number ?? undefined,
@@ -384,7 +391,10 @@ export const findCollectionBySlug = async (slug: string): Promise<Collection | n
 }
 
 export const toggleCollectionFeatured = async (id: string, featured: boolean) => {
-  const { error } = await supabase().from("collections").update({ featured }).eq("id", id)
+  const { error } = await supabase()
+    .from("collections")
+    .update({ featured } as never)
+    .eq("id", id)
   if (error) {
     throw error
   }
@@ -395,7 +405,7 @@ export const removeCollection = async (id: string) => {
     .from("collections")
     .select("slug")
     .eq("id", id)
-    .maybeSingle()
+    .maybeSingle<{ slug: string }>()
 
   if (collectionError) {
     throw collectionError
@@ -408,7 +418,7 @@ export const removeCollection = async (id: string) => {
   const client = supabase()
   const { error: productUpdateError } = await client
     .from("products")
-    .update({ collection_slug: null })
+    .update({ collection_slug: null } as never)
     .eq("collection_slug", collection.slug)
 
   if (productUpdateError) {
@@ -486,7 +496,7 @@ export const listRelatedBlogPosts = async (postId: string, limit = 3): Promise<B
     .from("blog_posts")
     .select("category")
     .eq("id", postId)
-    .maybeSingle()
+    .maybeSingle<{ category: BlogPost["category"] }>()
 
   if (postError) {
     throw postError
@@ -531,7 +541,7 @@ export const upsertBlogPost = async (post: BlogPost) => {
     read_time: post.readTime,
   }
 
-  const { error } = await supabase().from("blog_posts").upsert(payload, { onConflict: "id" })
+  const { error } = await supabase().from("blog_posts").upsert(payload as never, { onConflict: "id" })
   if (error) {
     throw error
   }
@@ -548,11 +558,13 @@ export const toggleBlogPublish = async (id: string, published: boolean) => {
   const now = new Date().toISOString()
   const { error } = await supabase()
     .from("blog_posts")
-    .update({
-      published,
-      updated_at: now,
-      published_at: published ? now : null,
-    })
+    .update(
+      {
+        published,
+        updated_at: now,
+        published_at: published ? now : null,
+      } as never,
+    )
     .eq("id", id)
   if (error) {
     throw error
@@ -584,21 +596,21 @@ export const insertOrder = async (order: Order) => {
     id: order.id,
     user_id: order.userId ?? null,
     order_number: order.orderNumber,
-    items: order.items,
+    items: order.items as unknown as Json,
     subtotal: order.subtotal,
     tax: order.tax,
     shipping: order.shipping,
     total: order.total,
     status: order.status,
-    shipping_address: order.shippingAddress,
-    billing_address: order.billingAddress,
+    shipping_address: order.shippingAddress as unknown as Json,
+    billing_address: order.billingAddress as unknown as Json,
     payment_method: order.paymentMethod,
     tracking_number: order.trackingNumber ?? null,
     created_at: order.createdAt,
     updated_at: order.updatedAt,
   }
 
-  const { error } = await supabase().from("orders").insert(payload)
+  const { error } = await supabase().from("orders").insert(payload as never)
   if (error) {
     throw error
   }
@@ -626,7 +638,7 @@ export const ensureCart = async (
     updated_at: timestamp,
   }
 
-  const { data, error } = await supabase().from("carts").insert(newCart).select("*").single()
+  const { data, error } = await supabase().from("carts").insert(newCart as never).select("*").single()
   if (error) {
     throw error
   }
@@ -639,7 +651,7 @@ export const fetchCart = async (cartId: string): Promise<Cart | null> => {
     .from("carts")
     .select("*")
     .eq("id", cartId)
-    .maybeSingle()
+    .maybeSingle<CartRow>()
   if (cartError) {
     throw cartError
   }
@@ -652,6 +664,7 @@ export const fetchCart = async (cartId: string): Promise<Cart | null> => {
     .select("*")
     .eq("cart_id", cartId)
     .order("added_at", { ascending: false })
+    .returns<CartItemRow[]>()
 
   if (itemError) {
     throw itemError
@@ -685,7 +698,7 @@ export const upsertCartItem = async (args: {
     .eq("cart_id", args.cartId)
     .eq("product_id", args.productId)
     .eq("size", args.size)
-    .maybeSingle()
+    .maybeSingle<CartItemRow>()
 
   if (existingError) {
     throw existingError
@@ -697,7 +710,7 @@ export const upsertCartItem = async (args: {
     const newQuantity = existing.quantity + args.quantity
     const { error } = await supabase()
       .from("cart_items")
-      .update({ quantity: newQuantity, added_at: timestamp })
+      .update({ quantity: newQuantity, added_at: timestamp } as never)
       .eq("id", existing.id)
     if (error) {
       throw error
@@ -715,7 +728,7 @@ export const upsertCartItem = async (args: {
       size: args.size,
       quantity: args.quantity,
       added_at: timestamp,
-    })
+    } as never)
   if (error) {
     throw error
   }
@@ -725,7 +738,7 @@ export const upsertCartItem = async (args: {
 export const updateCartItemQuantity = async (itemId: string, quantity: number) => {
   const { error } = await supabase()
     .from("cart_items")
-    .update({ quantity, added_at: new Date().toISOString() })
+    .update({ quantity, added_at: new Date().toISOString() } as never)
     .eq("id", itemId)
   if (error) {
     throw error
@@ -749,7 +762,7 @@ export const clearCartItems = async (cartId: string) => {
 export const touchCart = async (cartId: string) => {
   const { error } = await supabase()
     .from("carts")
-    .update({ updated_at: new Date().toISOString() })
+    .update({ updated_at: new Date().toISOString() } as never)
     .eq("id", cartId)
   if (error) {
     throw error
@@ -780,6 +793,7 @@ export const createAddressForUser = async (
     .from("addresses")
     .select("is_default")
     .eq("user_id", userId)
+    .returns<{ is_default: boolean }[]>()
 
   if (defaultsError) {
     throw defaultsError
@@ -791,7 +805,10 @@ export const createAddressForUser = async (
   }
 
   if (shouldBeDefault) {
-    const { error } = await supabase().from("addresses").update({ is_default: false }).eq("user_id", userId)
+    const { error } = await supabase()
+      .from("addresses")
+      .update({ is_default: false } as never)
+      .eq("user_id", userId)
     if (error) {
       throw error
     }
@@ -816,7 +833,7 @@ export const createAddressForUser = async (
 
   const { data: inserted, error: insertError } = await supabase()
     .from("addresses")
-    .insert(insertPayload)
+    .insert(insertPayload as never)
     .select("*")
     .single()
 
@@ -842,14 +859,17 @@ export const setDefaultAddressForUser = async (userId: string, addressId: string
   }
 
   const client = supabase()
-  const { error: unsetError } = await client.from("addresses").update({ is_default: false }).eq("user_id", userId)
+  const { error: unsetError } = await client
+    .from("addresses")
+    .update({ is_default: false } as never)
+    .eq("user_id", userId)
   if (unsetError) {
     throw unsetError
   }
 
   const { error } = await client
     .from("addresses")
-    .update({ is_default: true, updated_at: new Date().toISOString() })
+    .update({ is_default: true, updated_at: new Date().toISOString() } as never)
     .eq("id", addressId)
   if (error) {
     throw error
@@ -862,7 +882,7 @@ export const deleteAddressForUser = async (userId: string, addressId: string) =>
     .select("is_default")
     .eq("id", addressId)
     .eq("user_id", userId)
-    .maybeSingle()
+    .maybeSingle<{ is_default: boolean }>()
   if (fetchError) {
     throw fetchError
   }
@@ -883,7 +903,7 @@ export const deleteAddressForUser = async (userId: string, addressId: string) =>
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(1)
-      .maybeSingle()
+      .maybeSingle<{ id: string }>()
     if (nextError) {
       throw nextError
     }
@@ -891,7 +911,7 @@ export const deleteAddressForUser = async (userId: string, addressId: string) =>
     if (nextDefault) {
       const { error } = await client
         .from("addresses")
-        .update({ is_default: true, updated_at: new Date().toISOString() })
+        .update({ is_default: true, updated_at: new Date().toISOString() } as never)
         .eq("id", nextDefault.id)
       if (error) {
         throw error
@@ -906,6 +926,7 @@ export const listWishlistItems = async (userId: string): Promise<WishlistItem[]>
     .select("*")
     .eq("user_id", userId)
     .order("added_at", { ascending: false })
+    .returns<WishlistItemRow[]>()
   if (error) {
     throw error
   }
@@ -932,7 +953,7 @@ export const findWishlistItemByProduct = async (
     .select("*")
     .eq("user_id", userId)
     .eq("product_id", productId)
-    .maybeSingle()
+    .maybeSingle<WishlistItemRow>()
   if (error) {
     throw error
   }
@@ -964,7 +985,7 @@ export const addWishlistItem = async (userId: string, productId: string): Promis
     added_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase().from("wishlist_items").insert(row)
+  const { error } = await supabase().from("wishlist_items").insert(row as never)
   if (error) {
     throw error
   }
@@ -995,7 +1016,7 @@ export const createSupportTicket = async (
     updated_at: timestamp,
   }
 
-  const { error } = await supabase().from("support_tickets").insert(payload)
+  const { error } = await supabase().from("support_tickets").insert(payload as never)
   if (error) {
     throw error
   }
@@ -1015,7 +1036,7 @@ export const createReturnRequest = async (
     created_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase().from("return_requests").insert(payload)
+  const { error } = await supabase().from("return_requests").insert(payload as never)
   if (error) {
     throw error
   }
@@ -1026,7 +1047,7 @@ export const getNotificationPreferences = async (userId: string): Promise<Notifi
     .from("notification_preferences")
     .select("*")
     .eq("user_id", userId)
-    .maybeSingle()
+    .maybeSingle<NotificationPreferenceRow>()
   if (error) {
     throw error
   }
@@ -1052,7 +1073,9 @@ export const upsertNotificationPreferences = async (
     updated_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase().from("notification_preferences").upsert(payload, { onConflict: "user_id" })
+  const { error } = await supabase()
+    .from("notification_preferences")
+    .upsert(payload as never, { onConflict: "user_id" })
   if (error) {
     throw error
   }
@@ -1080,7 +1103,7 @@ export const createPasswordResetToken = async (userId: string, expiresInMs = 100
     created_at: now.toISOString(),
   }
 
-  const { error } = await client.from("password_reset_tokens").insert(payload)
+  const { error } = await client.from("password_reset_tokens").insert(payload as never)
   if (error) {
     throw error
   }
@@ -1096,7 +1119,7 @@ export const findPasswordResetToken = async (
     .from("password_reset_tokens")
     .select("*")
     .eq("token_hash", hashed)
-    .maybeSingle()
+    .maybeSingle<{ id: string; user_id: string; expires_at: string }>()
 
   if (error) {
     throw error
@@ -1122,7 +1145,10 @@ export const deletePasswordResetToken = async (tokenId: string) => {
 }
 
 export const updateUserPasswordHash = async (userId: string, passwordHash: string) => {
-  const { error } = await supabase().from("users").update({ password_hash: passwordHash }).eq("id", userId)
+  const { error } = await supabase()
+    .from("users")
+    .update({ password_hash: passwordHash } as never)
+    .eq("id", userId)
   if (error) {
     throw error
   }
@@ -1137,7 +1163,7 @@ export const createSession = async (userId: string, token: string, expiresAt: Da
     created_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase().from("sessions").insert(payload)
+  const { error } = await supabase().from("sessions").insert(payload as never)
   if (error) {
     throw error
   }
@@ -1151,7 +1177,7 @@ export const findSession = async (
     .from("sessions")
     .select("*")
     .eq("token_hash", hashed)
-    .maybeSingle()
+    .maybeSingle<SessionRow>()
   if (error) {
     throw error
   }
@@ -1168,7 +1194,7 @@ export const findSession = async (
     .from("users")
     .select("*")
     .eq("id", row.user_id)
-    .maybeSingle()
+    .maybeSingle<UserRow>()
   if (userError) {
     throw userError
   }
@@ -1190,7 +1216,11 @@ export const deleteSessionByToken = async (token: string) => {
 }
 
 export const findUserByEmail = async (email: string): Promise<(User & { passwordHash: string }) | null> => {
-  const { data, error } = await supabase().from("users").select("*").eq("email", email).maybeSingle()
+  const { data, error } = await supabase()
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .maybeSingle<UserRow>()
   if (error) {
     throw error
   }
@@ -1198,7 +1228,11 @@ export const findUserByEmail = async (email: string): Promise<(User & { password
 }
 
 export const findUserById = async (id: string): Promise<(User & { passwordHash: string }) | null> => {
-  const { data, error } = await supabase().from("users").select("*").eq("id", id).maybeSingle()
+  const { data, error } = await supabase()
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle<UserRow>()
   if (error) {
     throw error
   }
@@ -1223,7 +1257,7 @@ export const insertUser = async (user: {
     created_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase().from("users").insert(payload)
+  const { error } = await supabase().from("users").insert(payload as never)
   if (error) {
     throw error
   }
@@ -1241,7 +1275,7 @@ export const updateUserProfile = async (userId: string, data: Partial<User>) => 
       first_name: data.firstName ?? existing.firstName,
       last_name: data.lastName ?? existing.lastName,
       avatar: data.avatar ?? existing.avatar ?? null,
-    })
+    } as never)
     .eq("id", userId)
   if (error) {
     throw error

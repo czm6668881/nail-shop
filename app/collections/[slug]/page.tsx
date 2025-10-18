@@ -4,9 +4,9 @@ import { ProductCard } from "@/components/product-card"
 import type { Metadata } from "next"
 
 interface CollectionPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export async function generateStaticParams() {
@@ -17,8 +17,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
+  const { slug } = await params
   const collections = await getCollections()
-  const collection = collections.find((c) => c.slug === params.slug)
+  const collection = collections.find((c) => c.slug === slug)
 
   if (!collection) {
     return {
@@ -33,8 +34,9 @@ export async function generateMetadata({ params }: CollectionPageProps): Promise
 }
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
+  const { slug } = await params
   const collections = await getCollections()
-  const collection = collections.find((c) => c.slug === params.slug)
+  const collection = collections.find((c) => c.slug === slug)
 
   if (!collection) {
     notFound()

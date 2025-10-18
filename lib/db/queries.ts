@@ -15,8 +15,13 @@ import type {
 import * as sqlite from "./adapters/sqlite"
 import * as supabase from "./adapters/supabase"
 
-const provider = (process.env.DATABASE_PROVIDER ?? process.env.NEXT_PUBLIC_SUPABASE_URL ? "supabase" : "sqlite").toLowerCase()
-const useSupabase = provider === "supabase"
+const providerEnv = process.env.DATABASE_PROVIDER
+const provider = providerEnv && providerEnv.length > 0
+  ? providerEnv
+  : process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? "supabase"
+    : "sqlite"
+const useSupabase = provider.toLowerCase() === "supabase"
 
 const wrap = <Args extends unknown[], Result>(
   sqliteFn: (...args: Args) => Result,

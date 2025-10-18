@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const payload = await request.json()
     const data = checkoutSchema.parse(payload)
 
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const cartId = cookieStore.get(CART_COOKIE)?.value
     if (!cartId) {
       return NextResponse.json({ message: "Cart is empty." }, { status: 400 })

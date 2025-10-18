@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 }
 
 interface ProductsPageProps {
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 const toArray = (value: string | string[] | undefined): string[] => {
@@ -71,13 +71,16 @@ const applySort = (products: Product[], sortKey?: string): Product[] => {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const resolvedSearchParams = await searchParams
   const allProducts = await getProducts()
 
-  const selectedCategories = toArray(searchParams.category)
-  const selectedPrices = toArray(searchParams.price)
-  const selectedAvailability = toArray(searchParams.availability)
-  const query = typeof searchParams.q === "string" ? searchParams.q.trim().toLowerCase() : ""
-  const sortKey = typeof searchParams.filter === "string" ? searchParams.filter : undefined
+  const selectedCategories = toArray(resolvedSearchParams.category)
+  const selectedPrices = toArray(resolvedSearchParams.price)
+  const selectedAvailability = toArray(resolvedSearchParams.availability)
+  const query =
+    typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim().toLowerCase() : ""
+  const sortKey =
+    typeof resolvedSearchParams.filter === "string" ? resolvedSearchParams.filter : undefined
 
   const filteredProducts = applySort(
     allProducts.filter((product) => {

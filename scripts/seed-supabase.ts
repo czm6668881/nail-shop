@@ -19,14 +19,21 @@ const supabase = createClient<Database>(url, serviceRole, {
 const nowIso = () => new Date().toISOString()
 
 async function seedUsers() {
-  const { data: admin } = await supabase.from("users").select("id").eq("email", "admin@luxenails.com").maybeSingle()
+  const { data: admin } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", "admin@luxenails.com")
+    .maybeSingle<{ id: string }>()
   if (!admin) {
-    await supabase.from("users").upsert([
-      {
-        id: `user-${randomUUID()}`,
-        email: "admin@luxenails.com",
-        password_hash: "$2a$10$LJbwIG8PCnPfNaI8.DaHdObse50TLoYWEAyAk2B11D1OaU91KtZO2", // Admin123!
-        first_name: "Admin",
+    await supabase
+      .from("users")
+      .upsert(
+        [
+          {
+            id: `user-${randomUUID()}`,
+            email: "admin@luxenails.com",
+            password_hash: "$2a$10$LJbwIG8PCnPfNaI8.DaHdObse50TLoYWEAyAk2B11D1OaU91KtZO2", // Admin123!
+            first_name: "Admin",
         last_name: "User",
         avatar: "/placeholder.svg?height=100&width=100",
         role: "admin",
@@ -38,11 +45,12 @@ async function seedUsers() {
         password_hash: "$2a$10$z2cAaL45eLmDXoS9EBIXUumeZttvnD.TDy7mwRXogPttRnb9KPP7m", // Customer123!
         first_name: "Emma",
         last_name: "Wilson",
-        avatar: "/placeholder.svg?height=100&width=100",
-        role: "customer",
-        created_at: nowIso(),
-      },
-    ])
+            avatar: "/placeholder.svg?height=100&width=100",
+            role: "customer",
+            created_at: nowIso(),
+          },
+        ] as never,
+      )
   }
 }
 
@@ -57,7 +65,7 @@ async function seedCollections() {
     featured: collection.featured,
   }))
 
-  await supabase.from("collections").upsert(payload, { onConflict: "id" })
+  await supabase.from("collections").upsert(payload as never, { onConflict: "id" })
 }
 
 async function seedProducts() {
@@ -86,7 +94,7 @@ async function seedProducts() {
     review_count: product.reviewCount,
   }))
 
-  await supabase.from("products").upsert(payload, { onConflict: "id" })
+  await supabase.from("products").upsert(payload as never, { onConflict: "id" })
 }
 
 async function seedReviews() {
@@ -103,7 +111,7 @@ async function seedReviews() {
     verified: review.verified,
     created_at: review.createdAt,
   }))
-  await supabase.from("reviews").upsert(payload, { onConflict: "id" })
+  await supabase.from("reviews").upsert(payload as never, { onConflict: "id" })
 }
 
 async function seedBlogPosts() {
@@ -125,7 +133,7 @@ async function seedBlogPosts() {
     updated_at: post.updatedAt,
     read_time: post.readTime,
   }))
-  await supabase.from("blog_posts").upsert(payload, { onConflict: "id" })
+  await supabase.from("blog_posts").upsert(payload as never, { onConflict: "id" })
 }
 
 async function seedOrders() {
@@ -147,7 +155,7 @@ async function seedOrders() {
     created_at: order.createdAt,
     updated_at: order.updatedAt,
   }))
-  await supabase.from("orders").upsert(payload, { onConflict: "id" })
+  await supabase.from("orders").upsert(payload as never, { onConflict: "id" })
 }
 
 async function seedAddresses() {
@@ -168,7 +176,7 @@ async function seedAddresses() {
     created_at: nowIso(),
     updated_at: nowIso(),
   }))
-  await supabase.from("addresses").upsert(payload, { onConflict: "id" })
+  await supabase.from("addresses").upsert(payload as never, { onConflict: "id" })
 }
 
 async function run() {

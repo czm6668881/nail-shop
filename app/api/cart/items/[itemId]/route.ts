@@ -8,8 +8,9 @@ const quantitySchema = z.object({
   quantity: z.number().int().min(1).max(10),
 })
 
-const ensureCartId = () => {
-  const cartId = cookies().get(CART_COOKIE)?.value
+const ensureCartId = async () => {
+  const cartStore = await cookies()
+  const cartId = cartStore.get(CART_COOKIE)?.value
   if (!cartId) {
     throw new Error("Cart not found.")
   }
@@ -26,7 +27,7 @@ export async function PATCH(
 ) {
   try {
     const { itemId } = await params
-    const cartId = ensureCartId()
+    const cartId = await ensureCartId()
     const body = await request.json()
     const { quantity } = quantitySchema.parse(body)
 
@@ -59,7 +60,7 @@ export async function DELETE(
 ) {
   try {
     const { itemId } = await params
-    const cartId = ensureCartId()
+    const cartId = await ensureCartId()
     await removeCartItem(itemId)
     await touchCart(cartId)
 

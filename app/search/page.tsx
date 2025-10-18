@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 interface SearchPageProps {
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 const getQuery = (value: string | string[] | undefined): string => {
@@ -20,7 +20,8 @@ const getQuery = (value: string | string[] | undefined): string => {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = getQuery(searchParams.q).trim()
+  const resolvedSearchParams = await searchParams
+  const query = getQuery(resolvedSearchParams.q).trim()
   const results = query ? await searchProducts(query) : []
 
   return (

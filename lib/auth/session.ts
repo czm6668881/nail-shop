@@ -19,10 +19,17 @@ export const CART_COOKIE = "nailshop_cart"
 
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 7 // 7 days
 
-const getCookieStore = (store?: ReadonlyRequestCookies) => store ?? cookies()
+type MaybeAsyncCookies = ReadonlyRequestCookies | Promise<ReadonlyRequestCookies>
 
-export const getSessionUser = async (store?: ReadonlyRequestCookies): Promise<User | null> => {
-  const cookieStore = getCookieStore(store)
+const getCookieStore = async (store?: MaybeAsyncCookies) => {
+  if (store) {
+    return await store
+  }
+  return await cookies()
+}
+
+export const getSessionUser = async (store?: MaybeAsyncCookies): Promise<User | null> => {
+  const cookieStore = await getCookieStore(store)
   const token = cookieStore.get(AUTH_COOKIE)?.value
   if (!token) {
     return null
@@ -33,7 +40,6 @@ export const getSessionUser = async (store?: ReadonlyRequestCookies): Promise<Us
     if ("delete" in cookieStore) {
       // In route handlers we can clear the cookie immediately
       // Readonly stores (server components) ignore this branch
-      // @ts-expect-error narrow runtime access
       cookieStore.delete?.(AUTH_COOKIE)
     }
     return null
@@ -42,7 +48,7 @@ export const getSessionUser = async (store?: ReadonlyRequestCookies): Promise<Us
   return toPublicUser(result.user)
 }
 
-export const requireAdminUser = async (store?: ReadonlyRequestCookies): Promise<User> => {
+export const requireAdminUser = async (store?: MaybeAsyncCookies): Promise<User> => {
   const user = await getSessionUser(store)
   if (!user || user.role !== "admin") {
     throw new Error("Unauthorized")
@@ -56,7 +62,8 @@ export const createAuthSession = async (userId: string) => {
   const expiresAt = new Date(Date.now() + sessionDurationMs)
   await createSession(userId, token, expiresAt)
 
-  cookies().set({
+  const cookieStore = await cookies()
+  cookieStore.set({
     name: AUTH_COOKIE,
     value: token,
     httpOnly: true,
@@ -68,11 +75,12 @@ export const createAuthSession = async (userId: string) => {
 }
 
 export const destroyAuthSession = async () => {
-  const token = cookies().get(AUTH_COOKIE)?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get(AUTH_COOKIE)?.value
   if (token) {
     await deleteSessionByToken(token)
   }
-  cookies().delete(AUTH_COOKIE)
+  cookieStore.delete(AUTH_COOKIE)
 }
 
 export const authenticateUser = async (email: string, password: string): Promise<User | null> => {

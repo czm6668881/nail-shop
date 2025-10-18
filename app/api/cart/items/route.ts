@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Selected size is not available for this product." }, { status: 400 })
     }
 
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const cookieCartId = cookieStore.get(CART_COOKIE)?.value
     const user = await getSessionUser(cookieStore)
     const { cart, newlyCreated } = await ensureCart(cookieCartId, user?.id)

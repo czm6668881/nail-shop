@@ -3,13 +3,15 @@ import { CheckCircle, Package, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface OrderConfirmationPageProps {
-  searchParams: {
+  searchParams: Promise<{
     orderNumber?: string
-  }
+  }>
 }
 
-export default function OrderConfirmationPage({ searchParams }: OrderConfirmationPageProps) {
-  const orderNumber = searchParams.orderNumber ?? `ORD-${Date.now().toString().slice(-8)}`
+export default async function OrderConfirmationPage({ searchParams }: OrderConfirmationPageProps) {
+  const resolvedSearchParams = await searchParams
+  const orderNumber =
+    resolvedSearchParams.orderNumber ?? `ORD-${Date.now().toString().slice(-8)}`
 
   return (
     <div className="container mx-auto px-4 py-20">

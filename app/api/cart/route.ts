@@ -12,7 +12,7 @@ const cartCookieOptions = {
 }
 
 export async function GET() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const cookieCartId = cookieStore.get(CART_COOKIE)?.value
   const user = await getSessionUser(cookieStore)
   const { cart, newlyCreated } = await ensureCart(cookieCartId, user?.id)
@@ -45,7 +45,7 @@ export async function GET() {
 }
 
 export async function DELETE() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const cartId = cookieStore.get(CART_COOKIE)?.value
   if (!cartId) {
     return NextResponse.json({ cart: null }, { status: 204 })

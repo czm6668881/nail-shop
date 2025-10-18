@@ -1,4 +1,4 @@
-import { createBrowserClient, type SupabaseClient } from "@supabase/supabase-js"
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "@/types/database"
 
 let browserClient: SupabaseClient<Database> | undefined
@@ -15,7 +15,7 @@ export const getSupabaseBrowserClient = (): SupabaseClient<Database> => {
     throw new Error("Supabase browser client is not configured. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.")
   }
 
-  browserClient = createBrowserClient<Database>(url, anonKey, {
+  browserClient = createClient<Database>(url, anonKey, {
     auth: {
       persistSession: true,
       storageKey: "nail-shop-supabase",
@@ -29,4 +29,3 @@ export const getSupabaseBrowserClient = (): SupabaseClient<Database> => {
 
   return browserClient
 }
-
