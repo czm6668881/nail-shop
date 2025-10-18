@@ -8,6 +8,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3000",
     browserName: "chromium",
+    channel: process.env.PLAYWRIGHT_BROWSER_CHANNEL ?? "chrome",
     headless: true,
     trace: "on-first-retry",
   },
