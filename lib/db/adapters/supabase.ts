@@ -1174,7 +1174,7 @@ export const createSession = async (userId: string, token: string, expiresAt: Da
 
 export const findSession = async (
   token: string,
-): Promise<{ session: SessionRow; user: User & { passwordHash: string } } | null> => {
+): Promise<{ session: SessionRow; user: InternalUser } | null> => {
   const hashed = hashToken(token)
   const { data: row, error } = await supabase()
     .from("sessions")
