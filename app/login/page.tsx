@@ -51,6 +51,9 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleRedirecting, setIsGoogleRedirecting] = useState(false)
   const [error, setError] = useState("")
+  const [isGoogleLoginEnabled, setIsGoogleLoginEnabled] = useState(
+    Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID),
+  )
 
   const [formData, setFormData] = useState({
     email: "",
@@ -58,7 +61,6 @@ function LoginForm() {
   })
 
   const oauthError = searchParams.get("error")
-  const isGoogleLoginEnabled = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)
 
   useEffect(() => {
     if (!oauthError) {
@@ -70,6 +72,45 @@ function LoginForm() {
       setIsLoading(false)
     }
   }, [oauthError])
+
+  useEffect(() => {
+    if (isGoogleLoginEnabled) {
+      return
+    }
+
+    let active = true
+    const controller = new AbortController()
+
+    const checkGoogleStatus = async () => {
+      try {
+        const response = await fetch("/api/auth/google/status", {
+          method: "GET",
+          signal: controller.signal,
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          return
+        }
+
+        const data = (await response.json()) as { enabled?: boolean } | null
+        if (active && data?.enabled) {
+          setIsGoogleLoginEnabled(true)
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Failed to detect Google login availability", error)
+        }
+      }
+    }
+
+    checkGoogleStatus()
+
+    return () => {
+      active = false
+      controller.abort()
+    }
+  }, [isGoogleLoginEnabled])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
