@@ -61,15 +61,15 @@ export async function GET(request: Request) {
     return response
   }
 
-  cookieStore.delete(STATE_COOKIE)
-
   if (oauthError) {
     const response = redirectWithError(origin, "google_access_denied")
+    response.cookies.delete(STATE_COOKIE)
     return response
   }
 
   if (!code) {
     const response = redirectWithError(origin, "google_code_missing")
+    response.cookies.delete(STATE_COOKIE)
     return response
   }
 
