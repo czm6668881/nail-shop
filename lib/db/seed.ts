@@ -9,29 +9,114 @@ const getCount = (table: string) => {
   return row.count
 }
 
+const defaultAdmin = {
+  email: "admin@luxenails.com",
+  password: "Admin123!",
+  firstName: "Admin",
+  lastName: "User",
+  avatar: "/placeholder.svg?height=100&width=100",
+}
+
+const insertUser = db.prepare(`
+  INSERT INTO users (id, email, password_hash, first_name, last_name, avatar, role, created_at)
+  VALUES (@id, @email, @password_hash, @first_name, @last_name, @avatar, @role, @created_at)
+`)
+
+const ensureDefaultAdminUser = () => {
+  type AdminRow = {
+    id: string
+    email: string
+    password_hash: string
+    first_name: string
+    last_name: string
+    avatar: string | null
+    role: string
+    created_at: string
+  }
+
+  const adminByEmail = db
+    .prepare("SELECT * FROM users WHERE email = ? LIMIT 1")
+    .get(defaultAdmin.email) as AdminRow | undefined
+
+  if (adminByEmail) {
+    let needsUpdate = false
+    let passwordHash = adminByEmail.password_hash
+
+    if (!bcrypt.compareSync(defaultAdmin.password, adminByEmail.password_hash)) {
+      passwordHash = bcrypt.hashSync(defaultAdmin.password, 10)
+      needsUpdate = true
+    }
+
+    if (
+      adminByEmail.role !== "admin" ||
+      adminByEmail.first_name !== defaultAdmin.firstName ||
+      adminByEmail.last_name !== defaultAdmin.lastName ||
+      adminByEmail.avatar !== defaultAdmin.avatar
+    ) {
+      needsUpdate = true
+    }
+
+    if (needsUpdate) {
+      db.prepare(
+        `
+        UPDATE users
+        SET password_hash = @password_hash,
+            role = @role,
+            first_name = @first_name,
+            last_name = @last_name,
+            avatar = @avatar
+        WHERE id = @id
+      `,
+      ).run({
+        id: adminByEmail.id,
+        password_hash: passwordHash,
+        role: "admin",
+        first_name: defaultAdmin.firstName,
+        last_name: defaultAdmin.lastName,
+        avatar: defaultAdmin.avatar,
+      })
+    }
+
+    return adminByEmail.id
+  }
+
+  const adminPasswordHash = bcrypt.hashSync(defaultAdmin.password, 10)
+  const adminId = `user-${randomUUID()}`
+  const now = new Date().toISOString()
+
+  insertUser.run({
+    id: adminId,
+    email: defaultAdmin.email,
+    password_hash: adminPasswordHash,
+    first_name: defaultAdmin.firstName,
+    last_name: defaultAdmin.lastName,
+    avatar: defaultAdmin.avatar,
+    role: "admin",
+    created_at: now,
+  })
+
+  return adminId
+}
+
+export const ensureDefaultAdmin = () => ensureDefaultAdminUser()
+
 export const seed = () => {
   let defaultCustomerId: string | null = null
 
-  // Seed users
   if (getCount("users") === 0) {
     const adminId = `user-${randomUUID()}`
     const customerId = `user-${randomUUID()}`
-    const passwordHash = bcrypt.hashSync("Admin123!", 10)
+    const adminPasswordHash = bcrypt.hashSync(defaultAdmin.password, 10)
     const customerPasswordHash = bcrypt.hashSync("Customer123!", 10)
     const now = new Date().toISOString()
 
-    const insertUser = db.prepare(`
-      INSERT INTO users (id, email, password_hash, first_name, last_name, avatar, role, created_at)
-      VALUES (@id, @email, @password_hash, @first_name, @last_name, @avatar, @role, @created_at)
-    `)
-
     insertUser.run({
       id: adminId,
-      email: "admin@luxenails.com",
-      password_hash: passwordHash,
-      first_name: "Admin",
-      last_name: "User",
-      avatar: "/placeholder.svg?height=100&width=100",
+      email: defaultAdmin.email,
+      password_hash: adminPasswordHash,
+      first_name: defaultAdmin.firstName,
+      last_name: defaultAdmin.lastName,
+      avatar: defaultAdmin.avatar,
       role: "admin",
       created_at: now,
     })
@@ -54,6 +139,8 @@ export const seed = () => {
       | undefined
     defaultCustomerId = customer?.id ?? null
   }
+
+  ensureDefaultAdminUser()
 
   // Seed collections
   if (getCount("collections") === 0) {

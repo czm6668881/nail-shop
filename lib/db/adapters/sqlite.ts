@@ -15,6 +15,7 @@ import type {
   NotificationPreferences,
 } from "@/types"
 import { db } from "../client"
+import { ensureDefaultAdmin } from "../seed"
 import { randomUUID, randomBytes, createHash } from "crypto"
 
 type ProductRow = {
@@ -39,6 +40,8 @@ type ProductRow = {
   rating: number
   review_count: number
 }
+
+const DEFAULT_ADMIN_EMAIL = "admin@luxenails.com"
 
 type CollectionRow = {
   id: string
@@ -1054,8 +1057,20 @@ export const deleteSessionByToken = (token: string) => {
 }
 
 export const findUserByEmail = (email: string): InternalUser | null => {
-  const row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined
-  return row ? mapUser(row) : null
+  let row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined
+  if (row) {
+    return mapUser(row)
+  }
+
+  if (email === DEFAULT_ADMIN_EMAIL) {
+    ensureDefaultAdmin()
+    row = db.prepare("SELECT * FROM users WHERE email = ?").get(email) as UserRow | undefined
+    if (row) {
+      return mapUser(row)
+    }
+  }
+
+  return null
 }
 
 export const findUserById = (id: string): InternalUser | null => {

@@ -10,6 +10,8 @@
     "test:smoke": "vitest run tests/smoke.test.ts",
     "test:e2e": "playwright test",
     "seed:supabase": "tsx scripts/seed-supabase.ts",
+    "update:admin": "tsx scripts/update-admin-email.ts",
+    "update:admin:local": "tsx scripts/update-admin-local.ts",
     "check-env": "tsx scripts/check-env.ts",
     "prebuild": "tsx scripts/check-env.ts"
   },
