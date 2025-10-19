@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID, createHash } from "crypto"
-import type { SupabaseClient } from "@supabase/supabase-js"
+import type { SupabaseClient, PostgrestError } from "@supabase/supabase-js"
 import type {
   Product,
   Collection,
@@ -34,6 +34,57 @@ type WishlistItemRow = Tables["wishlist_items"]["Row"]
 type NotificationPreferenceRow = Tables["notification_preferences"]["Row"]
 type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
+
+const GOOGLE_ID_COLUMN = "google_id"
+
+let googleIdColumnAvailable: boolean | undefined
+let googleIdColumnCheckPromise: Promise<boolean> | undefined
+let loggedMissingGoogleIdWarning = false
+
+const warnMissingGoogleIdColumn = () => {
+  if (!loggedMissingGoogleIdWarning) {
+    console.warn(
+      "[google-oauth] Supabase users table is missing the google_id column; falling back to email-based user linking.",
+    )
+    loggedMissingGoogleIdWarning = true
+  }
+}
+
+const isMissingGoogleIdColumnError = (error: unknown): error is PostgrestError & { code: string } => {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+  const code = (error as PostgrestError).code
+  return code === "42703"
+}
+
+const ensureGoogleIdColumnAvailable = async (): Promise<boolean> => {
+  if (typeof googleIdColumnAvailable !== "undefined") {
+    return googleIdColumnAvailable
+  }
+
+  if (!googleIdColumnCheckPromise) {
+    googleIdColumnCheckPromise = (async () => {
+      const { error } = await supabase().from("users").select(GOOGLE_ID_COLUMN).limit(1)
+      if (error) {
+        if (isMissingGoogleIdColumnError(error)) {
+          warnMissingGoogleIdColumn()
+          googleIdColumnAvailable = false
+          return false
+        }
+        throw error
+      }
+
+      googleIdColumnAvailable = true
+      return true
+    })().catch((error) => {
+      googleIdColumnCheckPromise = undefined
+      throw error
+    })
+  }
+
+  return googleIdColumnCheckPromise
+}
 
 const jsonArray = <T>(value: Json | null | undefined, fallback: T): T => {
   if (Array.isArray(value)) {
@@ -1243,12 +1294,23 @@ export const findUserById = async (id: string): Promise<InternalUser | null> => 
 }
 
 export const findUserByGoogleId = async (googleId: string): Promise<InternalUser | null> => {
+  const hasGoogleColumn = await ensureGoogleIdColumnAvailable()
+  if (!hasGoogleColumn) {
+    return null
+  }
+
   const { data, error } = await supabase()
     .from("users")
     .select("*")
-    .eq("google_id", googleId)
+    .eq(GOOGLE_ID_COLUMN, googleId)
     .maybeSingle<UserRow>()
   if (error) {
+    if (isMissingGoogleIdColumnError(error)) {
+      // Column was removed after the initial availability check; mark as unavailable and fall back.
+      googleIdColumnAvailable = false
+      warnMissingGoogleIdColumn()
+      return null
+    }
     throw error
   }
   return data ? mapUserWithPassword(data) : null
@@ -1271,13 +1333,29 @@ export const insertUser = async (user: {
     first_name: user.firstName,
     last_name: user.lastName,
     avatar: user.avatar ?? null,
-    google_id: user.googleId ?? null,
     role: (user.role as User["role"]) ?? "customer",
     created_at: new Date().toISOString(),
   }
 
+  const hasGoogleColumn = await ensureGoogleIdColumnAvailable()
+  if (hasGoogleColumn) {
+    payload.google_id = user.googleId ?? null
+  }
+
   const { error } = await supabase().from("users").insert(payload as never)
   if (error) {
+    if (isMissingGoogleIdColumnError(error)) {
+      warnMissingGoogleIdColumn()
+      googleIdColumnAvailable = false
+      if ("google_id" in payload) {
+        delete (payload as Record<string, unknown>).google_id
+        const retry = await supabase().from("users").insert(payload as never)
+        if (retry.error) {
+          throw retry.error
+        }
+        return
+      }
+    }
     throw error
   }
 }
@@ -1302,16 +1380,39 @@ export const updateUserProfile = async (userId: string, data: Partial<User>) => 
 }
 
 export const linkGoogleAccount = async (userId: string, googleId: string, avatar?: string) => {
-  const payload: Tables["users"]["Update"] = {
-    google_id: googleId,
+  const payload: Tables["users"]["Update"] = {}
+
+  const hasGoogleColumn = await ensureGoogleIdColumnAvailable()
+  if (hasGoogleColumn) {
+    payload.google_id = googleId
   }
 
   if (typeof avatar !== "undefined") {
     payload.avatar = avatar
   }
 
+  if (Object.keys(payload).length === 0) {
+    return
+  }
+
   const { error } = await supabase().from("users").update(payload as never).eq("id", userId)
   if (error) {
+    if (isMissingGoogleIdColumnError(error)) {
+      warnMissingGoogleIdColumn()
+      googleIdColumnAvailable = false
+      const fallbackPayload: Tables["users"]["Update"] = {}
+      if (typeof avatar !== "undefined") {
+        fallbackPayload.avatar = avatar
+      }
+      if (Object.keys(fallbackPayload).length === 0) {
+        return
+      }
+      const retry = await supabase().from("users").update(fallbackPayload as never).eq("id", userId)
+      if (retry.error) {
+        throw retry.error
+      }
+      return
+    }
     throw error
   }
 }
