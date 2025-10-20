@@ -192,7 +192,7 @@ const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
 const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
   const tax = Number((subtotal * 0.09).toFixed(2))
-  const shipping = subtotal > 50 || subtotal === 0 ? 0 : 5.99
+  const shipping = 0 // Free worldwide shipping
   const total = Number((subtotal + tax + shipping).toFixed(2))
 
   return {
@@ -410,6 +410,59 @@ export const searchProductsByQuery = async (query: string): Promise<Product[]> =
   }
 
   return (data ?? []).map(mapProduct)
+}
+
+export const upsertProduct = async (product: Product): Promise<void> => {
+  const { error } = await supabase()
+    .from("products")
+    .upsert({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      compare_at_price: product.compareAtPrice ?? null,
+      images: product.images as Json,
+      category: product.category,
+      collection_slug: product.collection ?? null,
+      in_stock: product.inStock,
+      stock_quantity: product.stockQuantity,
+      sizes: product.sizes as Json,
+      features: product.features as Json,
+      application: product.application,
+      materials: product.materials as Json,
+      slug: product.slug,
+      created_at: product.createdAt,
+      updated_at: product.updatedAt,
+      featured: product.featured,
+      rating: product.rating,
+      review_count: product.reviewCount,
+    })
+
+  if (error) {
+    throw error
+  }
+}
+
+export const deleteProduct = async (id: string): Promise<void> => {
+  const { error } = await supabase().from("products").delete().eq("id", id)
+
+  if (error) {
+    throw error
+  }
+}
+
+export const toggleProductFeatured = async (id: string, featured: boolean): Promise<void> => {
+  const { error } = await supabase()
+    .from("products")
+    .update({
+      featured,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+
+  if (error) {
+    throw error
+  }
 }
 
 export const listCollections = async (): Promise<Collection[]> => {

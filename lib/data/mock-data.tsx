@@ -35,8 +35,8 @@ export const mockOrders: Order[] = [
     items: [],
     subtotal: 79.97,
     tax: 7.2,
-    shipping: 5.99,
-    total: 93.16,
+    shipping: 0,
+    total: 87.17,
     status: "delivered",
     shippingAddress: mockAddresses[0],
     billingAddress: mockAddresses[0],
@@ -56,7 +56,7 @@ export const mockReviews: Review[] = [
     rating: 5,
     title: "Absolutely Perfect!",
     comment:
-      "These nails are stunning! They lasted for 2 weeks without any issues. The quality is amazing and they look so natural.",
+      "These nails are stunning! They lasted for 1 week without any issues. The quality is amazing and they look so natural.",
     images: ["/customer-review-french-tip-1.jpg", "/customer-review-french-tip-2.jpg"],
     verified: true,
     createdAt: "2025-01-12T16:45:00Z",
@@ -164,7 +164,7 @@ export const mockBlogPosts: BlogPost[] = [
         <li>Nail file</li>
         <li>Cuticle pusher</li>
         <li>Alcohol wipes</li>
-        <li>Nail glue or adhesive tabs</li>
+        <li>Medical-grade gel application system</li>
       </ul>
       
       <h2>Step-by-Step Application</h2>

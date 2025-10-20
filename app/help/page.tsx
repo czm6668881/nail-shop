@@ -36,12 +36,12 @@ const helpSections = [
       {
         question: "What shipping options are available?",
         answer:
-          "We ship every order with insured standard delivery and complimentary worldwide postage—no minimum spend required.",
+          "We offer free worldwide shipping on all orders with insured standard delivery—no minimum spend required.",
       },
       {
         question: "Do you ship internationally?",
         answer:
-          "Yes. Complimentary international shipping is available on every order, with delivery typically completing in 15-20 business days.",
+          "Yes. Free international shipping is available on every order, with delivery typically completing in 15-20 business days.",
       },
     ],
   },
@@ -73,7 +73,7 @@ const helpSections = [
       {
         question: "Can I reuse the nails?",
         answer:
-          "Yes. Carefully remove the nails, clean off any adhesive residue, and store them in the original tray to reuse for future occasions.",
+          "Yes. Carefully remove the nails, clean off any gel residue, and store them in the original tray to reuse for future occasions.",
       },
     ],
   },

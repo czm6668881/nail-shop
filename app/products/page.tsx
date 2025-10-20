@@ -12,7 +12,7 @@ import type { Product } from "@/types"
 export const metadata: Metadata = {
   title: "Shop All Products - Luxe Nails",
   description:
-    "Browse our complete collection of premium press-on nails. Find the perfect style for any occasion with free shipping on orders over $50.",
+    "Browse our complete collection of premium press-on nails. Find the perfect style for any occasion with free worldwide shipping on all orders.",
 }
 
 interface ProductsPageProps {

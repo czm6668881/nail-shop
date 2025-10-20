@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "gelmanicure - Premium Press-On Nails",
   description:
-    "Discover salon-quality press-on nails for the modern woman. Shop our collection of elegant, easy-to-apply nail designs. Free shipping on orders over $50.",
+    "Discover salon-quality press-on nails for the modern woman. Shop our collection of elegant, easy-to-apply nail designs. Free worldwide shipping on all orders.",
   keywords: [
     "press-on nails",
     "fake nails",

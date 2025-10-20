@@ -87,7 +87,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
-                <span className="font-medium">{cart.shipping === 0 ? "Free" : `$${cart.shipping.toFixed(2)}`}</span>
+                <span className="font-medium text-primary">Free Worldwide</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tax</span>
@@ -102,15 +102,7 @@ export default function CartPage() {
               </div>
             </div>
 
-            {cart.subtotal < 50 && (
-              <div className="bg-accent rounded-md p-4 mb-6">
-                <p className="text-sm text-center">
-                  Add <span className="font-semibold">${(50 - cart.subtotal).toFixed(2)}</span> more for free shipping!
-                </p>
-              </div>
-            )}
-
-            <Button size="lg" className="w-full mb-3" asChild>
+            <Button size="lg" className="w-full mb-3 mt-6" asChild>
               <Link href="/checkout">
                 Proceed to Checkout
                 <ArrowRight className="ml-2 h-5 w-5" />

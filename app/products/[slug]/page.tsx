@@ -161,8 +161,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="flex items-start gap-3">
               <Truck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Free Shipping</p>
-                <p className="text-sm text-muted-foreground">On orders over $50</p>
+                <p className="font-medium text-sm">Free Worldwide Shipping</p>
+                <p className="text-sm text-muted-foreground">On all orders</p>
               </div>
             </div>
             <div className="flex items-start gap-3">

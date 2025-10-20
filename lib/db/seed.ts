@@ -440,7 +440,7 @@ export const seed = () => {
     const quantity = 2
     const subtotal = product.price * quantity
     const tax = Number((subtotal * 0.09).toFixed(2))
-    const shipping = subtotal > 50 ? 0 : 5.99
+    const shipping = 0 // Free worldwide shipping
     const total = Number((subtotal + tax + shipping).toFixed(2))
     const timestamp = new Date().toISOString()
 

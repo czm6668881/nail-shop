@@ -227,7 +227,7 @@ const mapBlogPost = (row: BlogPostRow): BlogPost => ({
 const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
   const tax = Number((subtotal * 0.09).toFixed(2))
-  const shipping = subtotal > 50 || subtotal === 0 ? 0 : 5.99
+  const shipping = 0 // Free worldwide shipping
   const total = Number((subtotal + tax + shipping).toFixed(2))
 
   return {
@@ -322,6 +322,108 @@ export const searchProductsByQuery = (query: string): Product[] => {
   )
   const rows = stmt.all({ like }) as ProductRow[]
   return rows.map(mapProduct)
+}
+
+export const upsertProduct = (product: Product) => {
+  const stmt = db.prepare(`
+    INSERT INTO products (
+      id,
+      name,
+      description,
+      price,
+      compare_at_price,
+      images,
+      category,
+      collection_slug,
+      in_stock,
+      stock_quantity,
+      sizes,
+      features,
+      application,
+      materials,
+      slug,
+      created_at,
+      updated_at,
+      featured,
+      rating,
+      review_count
+    ) VALUES (
+      @id,
+      @name,
+      @description,
+      @price,
+      @compare_at_price,
+      @images,
+      @category,
+      @collection_slug,
+      @in_stock,
+      @stock_quantity,
+      @sizes,
+      @features,
+      @application,
+      @materials,
+      @slug,
+      @created_at,
+      @updated_at,
+      @featured,
+      @rating,
+      @review_count
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name,
+      description = excluded.description,
+      price = excluded.price,
+      compare_at_price = excluded.compare_at_price,
+      images = excluded.images,
+      category = excluded.category,
+      collection_slug = excluded.collection_slug,
+      in_stock = excluded.in_stock,
+      stock_quantity = excluded.stock_quantity,
+      sizes = excluded.sizes,
+      features = excluded.features,
+      application = excluded.application,
+      materials = excluded.materials,
+      slug = excluded.slug,
+      updated_at = excluded.updated_at,
+      featured = excluded.featured,
+      rating = excluded.rating,
+      review_count = excluded.review_count
+  `)
+
+  stmt.run({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    compare_at_price: product.compareAtPrice ?? null,
+    images: JSON.stringify(product.images),
+    category: product.category,
+    collection_slug: product.collection ?? null,
+    in_stock: product.inStock ? 1 : 0,
+    stock_quantity: product.stockQuantity,
+    sizes: JSON.stringify(product.sizes),
+    features: JSON.stringify(product.features),
+    application: product.application,
+    materials: JSON.stringify(product.materials),
+    slug: product.slug,
+    created_at: product.createdAt,
+    updated_at: product.updatedAt,
+    featured: product.featured ? 1 : 0,
+    rating: product.rating,
+    review_count: product.reviewCount,
+  })
+}
+
+export const deleteProduct = (id: string) => {
+  db.prepare("DELETE FROM products WHERE id = ?").run(id)
+}
+
+export const toggleProductFeatured = (id: string, featured: boolean) => {
+  db.prepare("UPDATE products SET featured = ?, updated_at = ? WHERE id = ?").run(
+    featured ? 1 : 0,
+    new Date().toISOString(),
+    id,
+  )
 }
 
 export const listCollections = (): Collection[] => {
