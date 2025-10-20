@@ -8,6 +8,8 @@ import { join } from "path"
 import { existsSync } from "fs"
 
 const DB_PATH = join(process.cwd(), "lib", "db", "nailshop.db")
+type UserRecord = { id: number | string; email: string }
+type RunResult = { changes: number }
 
 async function updateAdminEmailLocal(newEmail: string) {
   console.log("正在使用本地 SQLite 数据库...")
@@ -23,8 +25,8 @@ async function updateAdminEmailLocal(newEmail: string) {
   try {
     // 查找当前管理员账号
     const adminUser = db
-      .prepare("SELECT * FROM users WHERE role = 'admin' LIMIT 1")
-      .get() as any
+      .prepare("SELECT id, email FROM users WHERE role = 'admin' LIMIT 1")
+      .get() as UserRecord | undefined
 
     if (!adminUser) {
       console.error("未找到管理员账号")
@@ -38,7 +40,7 @@ async function updateAdminEmailLocal(newEmail: string) {
     // 检查新邮箱是否已存在
     const existingUser = db
       .prepare("SELECT id, email FROM users WHERE email = ?")
-      .get(newEmail) as any
+      .get(newEmail) as UserRecord | undefined
 
     if (existingUser && existingUser.id !== adminUser.id) {
       console.error(`邮箱 ${newEmail} 已被其他用户使用`)
@@ -54,7 +56,7 @@ async function updateAdminEmailLocal(newEmail: string) {
              last_name = 'User'
          WHERE id = ?`
       )
-      .run(newEmail, adminUser.id)
+      .run(newEmail, adminUser.id) as unknown as RunResult
 
     if (result.changes > 0) {
       console.log("✅ 管理员邮箱更新成功!")
@@ -94,4 +96,3 @@ updateAdminEmailLocal(newEmail).catch((error) => {
   console.error("更新失败:", error)
   process.exitCode = 1
 })
-

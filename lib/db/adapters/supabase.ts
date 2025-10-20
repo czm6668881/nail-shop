@@ -413,30 +413,30 @@ export const searchProductsByQuery = async (query: string): Promise<Product[]> =
 }
 
 export const upsertProduct = async (product: Product): Promise<void> => {
-  const { error } = await supabase()
-    .from("products")
-    .upsert({
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      compare_at_price: product.compareAtPrice ?? null,
-      images: product.images as Json,
-      category: product.category,
-      collection_slug: product.collection ?? null,
-      in_stock: product.inStock,
-      stock_quantity: product.stockQuantity,
-      sizes: product.sizes as Json,
-      features: product.features as Json,
-      application: product.application,
-      materials: product.materials as Json,
-      slug: product.slug,
-      created_at: product.createdAt,
-      updated_at: product.updatedAt,
-      featured: product.featured,
-      rating: product.rating,
-      review_count: product.reviewCount,
-    })
+  const payload: Tables["products"]["Insert"] = {
+    id: product.id,
+    name: product.name,
+    description: product.description ?? null,
+    price: product.price,
+    compare_at_price: product.compareAtPrice ?? null,
+    images: product.images as Json,
+    category: product.category,
+    collection_slug: product.collection ?? null,
+    in_stock: product.inStock,
+    stock_quantity: product.stockQuantity,
+    sizes: product.sizes as Json,
+    features: product.features as Json,
+    application: product.application ?? null,
+    materials: product.materials as Json,
+    slug: product.slug,
+    created_at: product.createdAt ?? new Date().toISOString(),
+    updated_at: product.updatedAt ?? new Date().toISOString(),
+    featured: product.featured,
+    rating: product.rating,
+    review_count: product.reviewCount,
+  }
+
+  const { error } = await supabase().from("products").upsert(payload as never)
 
   if (error) {
     throw error
@@ -452,12 +452,12 @@ export const deleteProduct = async (id: string): Promise<void> => {
 }
 
 export const toggleProductFeatured = async (id: string, featured: boolean): Promise<void> => {
-  const { error } = await supabase()
-    .from("products")
-    .update({
-      featured,
-      updated_at: new Date().toISOString(),
-    })
+  const updates: Tables["products"]["Update"] = {
+    featured,
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("products").update(updates as never)
     .eq("id", id)
 
   if (error) {

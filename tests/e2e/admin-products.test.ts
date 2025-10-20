@@ -60,9 +60,8 @@ test.describe("Admin Products Management", () => {
   })
 
   test("should be able to delete a product", async ({ page }) => {
-    // 获取当前产品数量
+    // 等待产品列表加载
     await page.waitForSelector("tbody tr")
-    const initialCount = await page.locator("tbody tr").count()
     
     // 点击最后一个产品的删除按钮
     const deleteButton = page.locator("tbody tr").last().locator('button[title="Delete product"]')

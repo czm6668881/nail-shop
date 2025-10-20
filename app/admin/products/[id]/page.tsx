@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -59,13 +59,7 @@ export default function EditProductPage() {
     materialInput: "",
   })
 
-  useEffect(() => {
-    if (!isNew) {
-      loadProduct()
-    }
-  }, [productId, isNew])
-
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/products/${productId}`)
       if (!response.ok) {
@@ -99,7 +93,13 @@ export default function EditProductPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId])
+
+  useEffect(() => {
+    if (!isNew) {
+      loadProduct()
+    }
+  }, [isNew, loadProduct])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -505,7 +505,7 @@ export default function EditProductPage() {
                 <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <p className="text-muted-foreground font-medium">暂无图片</p>
-                  <p className="text-sm text-muted-foreground mt-1">点击上方"上传图片"按钮添加产品图片</p>
+                  <p className="text-sm text-muted-foreground mt-1">点击上方“上传图片”按钮添加产品图片</p>
                 </div>
               )}
             </div>
@@ -619,4 +619,3 @@ export default function EditProductPage() {
     </div>
   )
 }
-

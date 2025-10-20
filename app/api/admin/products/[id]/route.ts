@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { findProductById, upsertProduct, deleteProduct } from "@/lib/db/queries"
-import { randomUUID } from "crypto"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

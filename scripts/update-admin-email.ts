@@ -8,6 +8,8 @@ if (!url || !serviceRole) {
   throw new Error("缺少 Supabase 环境变量。请设置 NEXT_PUBLIC_SUPABASE_URL 和 SUPABASE_SERVICE_ROLE_KEY。")
 }
 
+type UserRecord = { id: string; email: string }
+
 const supabase = createClient<Database>(url, serviceRole, {
   auth: { persistSession: false },
   global: { headers: { "X-Client-Info": "nail-shop/update-admin-script" } },
@@ -19,9 +21,9 @@ async function updateAdminEmail(newEmail: string) {
   // 查找当前管理员账号
   const { data: adminUser, error: findError } = await supabase
     .from("users")
-    .select("*")
+    .select("id, email")
     .eq("role", "admin")
-    .maybeSingle()
+    .maybeSingle<UserRecord>()
 
   if (findError) {
     console.error("查找管理员账号失败:", findError)
@@ -41,7 +43,7 @@ async function updateAdminEmail(newEmail: string) {
     .from("users")
     .select("id, email")
     .eq("email", newEmail)
-    .maybeSingle()
+    .maybeSingle<UserRecord>()
 
   if (existingUser && existingUser.id !== adminUser.id) {
     console.error(`邮箱 ${newEmail} 已被其他用户使用`)
