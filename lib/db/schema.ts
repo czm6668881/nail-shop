@@ -183,6 +183,24 @@ export const migrate = () => {
   run(`CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id)`)
 
   run(`
+    CREATE TABLE IF NOT EXISTS inventory_events (
+      id TEXT PRIMARY KEY,
+      product_id TEXT NOT NULL,
+      delta INTEGER NOT NULL,
+      previous_quantity INTEGER NOT NULL,
+      new_quantity INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      reference_type TEXT,
+      reference_id TEXT,
+      context TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    )
+  `)
+
+  run(`CREATE INDEX IF NOT EXISTS idx_inventory_events_product_created_at ON inventory_events(product_id, created_at DESC)`)
+
+  run(`
     CREATE TABLE IF NOT EXISTS wishlist_items (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -244,4 +262,10 @@ export const migrate = () => {
   `)
 
   run(`CREATE UNIQUE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens(user_id)`)
+
+  run(`CREATE INDEX IF NOT EXISTS idx_orders_user_created_at ON orders(user_id, created_at DESC)`)
+  run(`CREATE INDEX IF NOT EXISTS idx_cart_items_cart_product ON cart_items(cart_id, product_id, size)`)
+  run(`CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC)`)
+  run(`CREATE INDEX IF NOT EXISTS idx_wishlist_user_created_at ON wishlist_items(user_id, added_at DESC)`)
+  run(`CREATE INDEX IF NOT EXISTS idx_products_collection_featured ON products(collection_slug, featured, created_at DESC)`)
 }

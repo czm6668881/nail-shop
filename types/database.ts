@@ -354,6 +354,44 @@ export interface Database {
           updated_at?: string
         }
       }
+      inventory_events: {
+        Row: {
+          id: string
+          product_id: string
+          delta: number
+          previous_quantity: number
+          new_quantity: number
+          reason: string
+          reference_type: string | null
+          reference_id: string | null
+          context: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          delta: number
+          previous_quantity: number
+          new_quantity: number
+          reason: string
+          reference_type?: string | null
+          reference_id?: string | null
+          context?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          delta?: number
+          previous_quantity?: number
+          new_quantity?: number
+          reason?: string
+          reference_type?: string | null
+          reference_id?: string | null
+          context?: Json
+          created_at?: string
+        }
+      }
       addresses: {
         Row: {
           id: string
@@ -539,7 +577,30 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      adjust_inventory: {
+        Args: {
+          p_product_id: string
+          p_delta: number
+          p_reason?: string | null
+          p_reference_type?: string | null
+          p_reference_id?: string | null
+          p_context?: Json | null
+        }
+        Returns: {
+          id: string
+          product_id: string
+          delta: number
+          previous_quantity: number
+          new_quantity: number
+          reason: string
+          reference_type: string | null
+          reference_id: string | null
+          context: Json
+          created_at: string
+        }
+      }
+    }
     Enums: Record<string, never>
   }
 }

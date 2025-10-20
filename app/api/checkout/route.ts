@@ -4,6 +4,7 @@ import { randomUUID } from "crypto"
 import { cookies } from "next/headers"
 import { CART_COOKIE, getSessionUser } from "@/lib/auth/session"
 import { clearCartItems, fetchCart, insertOrder, touchCart } from "@/lib/db/queries"
+import { InventoryError } from "@/lib/db/errors"
 import type { Order } from "@/types"
 
 const checkoutSchema = z.object({
@@ -101,6 +102,17 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ message: "Invalid checkout details.", issues: error.issues }, { status: 400 })
+    }
+
+    if (error instanceof InventoryError) {
+      return NextResponse.json(
+        {
+          message: "Not enough stock to complete this order.",
+          code: error.code,
+          meta: error.meta ?? {},
+        },
+        { status: 409 },
+      )
     }
 
     console.error("Checkout error", error)

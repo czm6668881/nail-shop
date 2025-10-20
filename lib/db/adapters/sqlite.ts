@@ -17,6 +17,7 @@ import type {
 import { db } from "../client"
 import { ensureDefaultAdmin } from "../seed"
 import { randomUUID, randomBytes, createHash } from "crypto"
+import { InventoryError } from "@/lib/db/errors"
 
 type ProductRow = {
   id: string
@@ -611,7 +612,7 @@ export const listOrdersByUser = (userId: string): Order[] => {
 }
 
 export const insertOrder = (order: Order) => {
-  const stmt = db.prepare(`
+  const insertOrderStmt = db.prepare(`
     INSERT INTO orders (
       id,
       user_id,
@@ -647,23 +648,121 @@ export const insertOrder = (order: Order) => {
     )
   `)
 
-  stmt.run({
-    id: order.id,
-    user_id: order.userId,
-    order_number: order.orderNumber,
-    items: JSON.stringify(order.items),
-    subtotal: order.subtotal,
-    tax: order.tax,
-    shipping: order.shipping,
-    total: order.total,
-    status: order.status,
-    shipping_address: JSON.stringify(order.shippingAddress),
-    billing_address: JSON.stringify(order.billingAddress),
-    payment_method: order.paymentMethod,
-    tracking_number: order.trackingNumber ?? null,
-    created_at: order.createdAt,
-    updated_at: order.updatedAt,
+  const selectProductQuantityStmt = db.prepare("SELECT stock_quantity FROM products WHERE id = ?")
+
+  const updateProductStmt = db.prepare(`
+    UPDATE products
+    SET stock_quantity = @stock_quantity,
+        in_stock = CASE WHEN @stock_quantity > 0 THEN 1 ELSE 0 END,
+        updated_at = @updated_at
+    WHERE id = @id
+  `)
+
+  const insertInventoryEventStmt = db.prepare(`
+    INSERT INTO inventory_events (
+      id,
+      product_id,
+      delta,
+      previous_quantity,
+      new_quantity,
+      reason,
+      reference_type,
+      reference_id,
+      context,
+      created_at
+    ) VALUES (
+      @id,
+      @product_id,
+      @delta,
+      @previous_quantity,
+      @new_quantity,
+      @reason,
+      @reference_type,
+      @reference_id,
+      @context,
+      @created_at
+    )
+  `)
+
+  const aggregated = new Map<string, number>()
+  for (const item of order.items ?? []) {
+    if (!item.productId || item.quantity <= 0) {
+      continue
+    }
+    const current = aggregated.get(item.productId) ?? 0
+    aggregated.set(item.productId, current + item.quantity)
+  }
+
+  const eventTimestamp = new Date().toISOString()
+
+  const transaction = db.transaction(() => {
+    for (const [productId, quantity] of aggregated.entries()) {
+      const currentRow = selectProductQuantityStmt.get(productId) as { stock_quantity: number } | undefined
+
+      if (!currentRow) {
+        throw new InventoryError("PRODUCT_NOT_FOUND", "指定的商品不存在或已下架。", { productId })
+      }
+
+      if (currentRow.stock_quantity < quantity) {
+        throw new InventoryError("INSUFFICIENT_STOCK", "库存不足，请调整购买数量后再试。", {
+          productId,
+          available: currentRow.stock_quantity,
+          requested: quantity,
+        })
+      }
+
+      const newQuantity = currentRow.stock_quantity - quantity
+
+      updateProductStmt.run({
+        stock_quantity: newQuantity,
+        updated_at: eventTimestamp,
+        id: productId,
+      })
+
+      insertInventoryEventStmt.run({
+        id: `inv-${randomUUID()}`,
+        product_id: productId,
+        delta: -quantity,
+        previous_quantity: currentRow.stock_quantity,
+        new_quantity: newQuantity,
+        reason: "order_created",
+        reference_type: "order",
+        reference_id: order.id,
+        context: JSON.stringify({
+          orderNumber: order.orderNumber,
+          status: order.status,
+        }),
+        created_at: eventTimestamp,
+      })
+    }
+
+    insertOrderStmt.run({
+      id: order.id,
+      user_id: order.userId,
+      order_number: order.orderNumber,
+      items: JSON.stringify(order.items),
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shipping: order.shipping,
+      total: order.total,
+      status: order.status,
+      shipping_address: JSON.stringify(order.shippingAddress),
+      billing_address: JSON.stringify(order.billingAddress),
+      payment_method: order.paymentMethod,
+      tracking_number: order.trackingNumber ?? null,
+      created_at: order.createdAt,
+      updated_at: order.updatedAt,
+    })
   })
+
+  try {
+    transaction()
+  } catch (error) {
+    if (error instanceof InventoryError) {
+      throw error
+    }
+    throw error
+  }
 }
 
 const mapOrder = (row: OrderRow): Order => ({

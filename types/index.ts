@@ -182,3 +182,16 @@ export interface NotificationPreferences {
   productAlerts: boolean
   smsUpdates: boolean
 }
+
+export interface InventoryEvent {
+  id: string
+  productId: string
+  delta: number
+  previousQuantity: number
+  newQuantity: number
+  reason: string
+  referenceType?: string
+  referenceId?: string
+  context: Record<string, unknown>
+  createdAt: string
+}

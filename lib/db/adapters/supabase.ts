@@ -18,6 +18,7 @@ import type {
 } from "@/types"
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import type { Database, Json } from "@/types/database"
+import { InventoryError } from "@/lib/db/errors"
 
 const supabase = (): SupabaseClient<Database> => getSupabaseAdminClient()
 
@@ -40,6 +41,31 @@ const GOOGLE_ID_COLUMN = "google_id"
 let googleIdColumnAvailable: boolean | undefined
 let googleIdColumnCheckPromise: Promise<boolean> | undefined
 let loggedMissingGoogleIdWarning = false
+
+const parseInventoryMeta = (details?: string | null): Record<string, unknown> | undefined => {
+  if (!details) {
+    return undefined
+  }
+  try {
+    const parsed = JSON.parse(details)
+    if (parsed && typeof parsed === "object") {
+      return parsed as Record<string, unknown>
+    }
+    return { raw: details }
+  } catch {
+    return { raw: details }
+  }
+}
+
+const handleInventoryPostgrestError = (error: PostgrestError) => {
+  if (error.code === "P0001" && error.message === "Insufficient stock") {
+    throw new InventoryError("INSUFFICIENT_STOCK", "库存不足，请调整购买数量后再试。", parseInventoryMeta(error.details))
+  }
+
+  if (error.code === "P0002" && error.message === "Product not found") {
+    throw new InventoryError("PRODUCT_NOT_FOUND", "指定的商品不存在或已下架。", parseInventoryMeta(error.details))
+  }
+}
 
 const warnMissingGoogleIdColumn = () => {
   if (!loggedMissingGoogleIdWarning) {
@@ -719,6 +745,7 @@ export const insertOrder = async (order: Order) => {
 
   const { error } = await supabase().from("orders").insert(payload as never)
   if (error) {
+    handleInventoryPostgrestError(error)
     throw error
   }
 }
