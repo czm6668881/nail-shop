@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Save, X, Plus, ImageIcon } from "lucide-react"
+import { ArrowLeft, Save, X, ImageIcon, Upload, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,6 +37,8 @@ export default function EditProductPage() {
 
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -50,7 +52,6 @@ export default function EditProductPage() {
     application: "",
     featured: false,
     images: [] as string[],
-    imageInput: "",
     sizes: [] as string[],
     features: [] as string[],
     featureInput: "",
@@ -86,7 +87,6 @@ export default function EditProductPage() {
         application: product.application || "",
         featured: product.featured,
         images: product.images,
-        imageInput: "",
         sizes: product.sizes,
         features: product.features,
         featureInput: "",
@@ -147,13 +147,65 @@ export default function EditProductPage() {
     }
   }
 
-  const addImage = () => {
-    if (formData.imageInput.trim()) {
-      setFormData({
-        ...formData,
-        images: [...formData.images, formData.imageInput.trim()],
-        imageInput: "",
+  const handleFileSelect = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // 验证文件类型
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("不支持的文件格式。请上传 JPG、PNG、GIF 或 WebP 格式的图片")
+      return
+    }
+
+    // 验证文件大小 (最大 5MB)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error("文件太大。最大支持 5MB")
+      return
+    }
+
+    setUploading(true)
+    const loadingToast = toast.loading("正在上传图片...")
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
       })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "上传失败")
+      }
+
+      const data = await response.json()
+      
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, data.url],
+      }))
+
+      toast.dismiss(loadingToast)
+      toast.success("图片上传成功")
+
+      // 重置文件输入
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast)
+      console.error("上传失败:", error)
+      toast.error(error instanceof Error ? error.message : "图片上传失败")
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -180,6 +232,9 @@ export default function EditProductPage() {
         features: [...formData.features, formData.featureInput.trim()],
         featureInput: "",
       })
+      toast.success("特性已添加")
+    } else {
+      toast.error("请输入特性内容")
     }
   }
 
@@ -197,6 +252,9 @@ export default function EditProductPage() {
         materials: [...formData.materials, formData.materialInput.trim()],
         materialInput: "",
       })
+      toast.success("材料已添加")
+    } else {
+      toast.error("请输入材料内容")
     }
   }
 
@@ -367,19 +425,29 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <Label>Product Images</Label>
+            <Label>产品图片</Label>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">
+              点击下方按钮上传本地图片，支持 JPG、PNG、GIF、WebP 格式，最大 5MB
+            </p>
             <div className="mt-3 space-y-4">
-              {/* Add image input */}
+              {/* 文件上传区域 */}
               <div className="flex gap-2">
-                <Input
-                  placeholder="Enter image URL (e.g., /image.jpg)"
-                  value={formData.imageInput}
-                  onChange={(e) => setFormData({ ...formData, imageInput: e.target.value })}
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-                <Button type="button" onClick={addImage} variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add
+                <Button
+                  type="button"
+                  onClick={handleFileSelect}
+                  disabled={uploading}
+                  variant="default"
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploading ? "上传中..." : "上传图片"}
                 </Button>
               </div>
 
@@ -410,10 +478,10 @@ export default function EditProductPage() {
                             onClick={() => removeImage(index)}
                           >
                             <X className="h-4 w-4 mr-1" />
-                            Remove
+                            删除
                           </Button>
                           <span className="text-xs text-white px-2 py-1 bg-black/50 rounded">
-                            Image {index + 1}
+                            图片 {index + 1}
                           </span>
                         </div>
                       </div>
@@ -436,24 +504,35 @@ export default function EditProductPage() {
               ) : (
                 <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No images yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Add an image URL above to get started</p>
+                  <p className="text-muted-foreground font-medium">暂无图片</p>
+                  <p className="text-sm text-muted-foreground mt-1">点击上方"上传图片"按钮添加产品图片</p>
                 </div>
               )}
             </div>
           </div>
 
           <div>
-            <Label>Features</Label>
+            <Label htmlFor="featureInput">产品特性</Label>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">
+              添加产品的主要特性和优点
+            </p>
             <div className="flex gap-2 mb-2">
               <Input
-                placeholder="Feature"
+                id="featureInput"
+                placeholder="输入特性内容，然后点击添加"
                 value={formData.featureInput}
                 onChange={(e) => setFormData({ ...formData, featureInput: e.target.value })}
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addFeature())}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    addFeature()
+                  }
+                }}
+                className="flex-1"
               />
-              <Button type="button" onClick={addFeature}>
-                Add
+              <Button type="button" onClick={addFeature} className="shrink-0">
+                <Plus className="h-4 w-4 mr-2" />
+                添加
               </Button>
             </div>
             <div className="space-y-2">
@@ -461,7 +540,8 @@ export default function EditProductPage() {
                 <div key={index} className="flex gap-2 items-center">
                   <Input value={feature} readOnly />
                   <Button type="button" variant="destructive" size="sm" onClick={() => removeFeature(index)}>
-                    Remove
+                    <X className="h-4 w-4 mr-1" />
+                    删除
                   </Button>
                 </div>
               ))}
@@ -469,16 +549,27 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <Label>Materials</Label>
+            <Label htmlFor="materialInput">产品材料</Label>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">
+              添加产品的主要材料成分
+            </p>
             <div className="flex gap-2 mb-2">
               <Input
-                placeholder="Material"
+                id="materialInput"
+                placeholder="输入材料内容，然后点击添加"
                 value={formData.materialInput}
                 onChange={(e) => setFormData({ ...formData, materialInput: e.target.value })}
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addMaterial())}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    addMaterial()
+                  }
+                }}
+                className="flex-1"
               />
-              <Button type="button" onClick={addMaterial}>
-                Add
+              <Button type="button" onClick={addMaterial} className="shrink-0">
+                <Plus className="h-4 w-4 mr-2" />
+                添加
               </Button>
             </div>
             <div className="space-y-2">
@@ -486,7 +577,8 @@ export default function EditProductPage() {
                 <div key={index} className="flex gap-2 items-center">
                   <Input value={material} readOnly />
                   <Button type="button" variant="destructive" size="sm" onClick={() => removeMaterial(index)}>
-                    Remove
+                    <X className="h-4 w-4 mr-1" />
+                    删除
                   </Button>
                 </div>
               ))}
