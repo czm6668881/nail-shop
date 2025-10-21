@@ -252,7 +252,7 @@ export default function HeroSlidesAdminPage() {
                       <div>
                         <h3 className="text-xl font-semibold">幻灯片图片</h3>
                         <p className="text-muted-foreground mt-1 text-sm">
-                          标题固定为 "gelmanicure"
+                          标题固定为 &quot;gelmanicure&quot;
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -300,7 +300,7 @@ export default function HeroSlidesAdminPage() {
                   gelmanicure
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  标题固定为 "gelmanicure"，不可修改
+                  标题固定为 &quot;gelmanicure&quot;，不可修改
                 </p>
               </div>
               <div className="grid gap-2">

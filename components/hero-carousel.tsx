@@ -53,8 +53,6 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
     )
   }
 
-  const currentSlide = slides[currentIndex]
-
   return (
     <section
       className="relative h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent"
