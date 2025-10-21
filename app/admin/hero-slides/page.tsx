@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -15,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Card, CardContent } from "@/components/ui/card"
-import { Trash2, Edit, GripVertical, Plus, Upload } from "lucide-react"
+import { Trash2, Edit, Plus, Upload } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import type { HeroSlide } from "@/types"
 import Image from "next/image"
@@ -27,11 +26,7 @@ export default function HeroSlidesAdminPage() {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null)
   const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
-    title: "",
-    subtitle: "",
     image: "",
-    buttonText: "",
-    buttonLink: "",
     active: true,
   })
 
@@ -94,10 +89,10 @@ export default function HeroSlidesAdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.title || !formData.image) {
+    if (!formData.image) {
       toast({
         title: "错误",
-        description: "标题和图片为必填项",
+        description: "图片为必填项",
         variant: "destructive",
       })
       return
@@ -112,8 +107,13 @@ export default function HeroSlidesAdminPage() {
         method: editingSlide ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          orderIndex: slides.length,
+          title: "gelmanicure",
+          subtitle: "Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for multiple wears.",
+          image: formData.image,
+          buttonText: "Shop Now",
+          buttonLink: "/products",
+          active: formData.active,
+          orderIndex: editingSlide ? editingSlide.orderIndex : slides.length,
         }),
       })
 
@@ -140,11 +140,7 @@ export default function HeroSlidesAdminPage() {
   const handleEdit = (slide: HeroSlide) => {
     setEditingSlide(slide)
     setFormData({
-      title: slide.title,
-      subtitle: slide.subtitle || "",
       image: slide.image,
-      buttonText: slide.buttonText || "",
-      buttonLink: slide.buttonLink || "",
       active: slide.active,
     })
     setDialogOpen(true)
@@ -200,11 +196,7 @@ export default function HeroSlidesAdminPage() {
   const resetForm = () => {
     setEditingSlide(null)
     setFormData({
-      title: "",
-      subtitle: "",
       image: "",
-      buttonText: "",
-      buttonLink: "",
       active: true,
     })
   }
@@ -247,13 +239,10 @@ export default function HeroSlidesAdminPage() {
             <Card key={slide.id}>
               <CardContent className="p-6">
                 <div className="flex gap-4">
-                  <div className="flex items-center">
-                    <GripVertical className="h-6 w-6 text-muted-foreground cursor-move" />
-                  </div>
                   <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden">
                     <Image
                       src={slide.image}
-                      alt={slide.title}
+                      alt="幻灯片图片"
                       fill
                       className="object-cover"
                     />
@@ -261,19 +250,10 @@ export default function HeroSlidesAdminPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-xl font-semibold">{slide.title}</h3>
-                        {slide.subtitle && (
-                          <p className="text-muted-foreground mt-1">{slide.subtitle}</p>
-                        )}
-                        {slide.buttonText && (
-                          <div className="mt-2 text-sm">
-                            <span className="font-medium">按钮: </span>
-                            <span>{slide.buttonText}</span>
-                            {slide.buttonLink && (
-                              <span className="text-muted-foreground"> → {slide.buttonLink}</span>
-                            )}
-                          </div>
-                        )}
+                        <h3 className="text-xl font-semibold">幻灯片图片</h3>
+                        <p className="text-muted-foreground mt-1 text-sm">
+                          标题固定为 "gelmanicure"
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Switch
@@ -315,29 +295,16 @@ export default function HeroSlidesAdminPage() {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="title">标题 *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  required
-                />
+                <Label>标题（固定）</Label>
+                <div className="px-3 py-2 bg-muted rounded-md text-muted-foreground">
+                  gelmanicure
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  标题固定为 "gelmanicure"，不可修改
+                </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="subtitle">副标题</Label>
-                <Textarea
-                  id="subtitle"
-                  value={formData.subtitle}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, subtitle: e.target.value }))
-                  }
-                  rows={2}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="image">图片 *</Label>
+                <Label htmlFor="image">轮播图片 *</Label>
                 <div className="flex gap-2">
                   <Input
                     id="image"
@@ -375,27 +342,6 @@ export default function HeroSlidesAdminPage() {
                     />
                   </div>
                 )}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="buttonText">按钮文本</Label>
-                <Input
-                  id="buttonText"
-                  value={formData.buttonText}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, buttonText: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="buttonLink">按钮链接</Label>
-                <Input
-                  id="buttonLink"
-                  value={formData.buttonLink}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, buttonLink: e.target.value }))
-                  }
-                  placeholder="/products"
-                />
               </div>
               <div className="flex items-center gap-2">
                 <Switch

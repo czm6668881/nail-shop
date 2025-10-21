@@ -81,20 +81,17 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
 
       <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
-          {currentSlide.title}
+          gelmanicure
         </h1>
-        {currentSlide.subtitle && (
-          <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            {currentSlide.subtitle}
-          </p>
-        )}
-        {currentSlide.buttonText && currentSlide.buttonLink && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-            <Button size="lg" asChild>
-              <Link href={currentSlide.buttonLink}>{currentSlide.buttonText}</Link>
-            </Button>
-          </div>
-        )}
+        <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+          Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for
+          multiple wears.
+        </p>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <Button size="lg" asChild>
+            <Link href="/products">Shop Now</Link>
+          </Button>
+        </div>
       </div>
 
       {slides.length > 1 && (
