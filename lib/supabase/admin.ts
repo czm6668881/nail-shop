@@ -1,9 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "@/types/database"
 
-let cachedClient: SupabaseClient<Database> | undefined
+type AdminClient = SupabaseClient<Database, "public">
 
-export const getSupabaseAdminClient = (): SupabaseClient<Database> => {
+let cachedClient: AdminClient | undefined
+
+export const getSupabaseAdminClient = (): AdminClient => {
   if (cachedClient) {
     return cachedClient
   }
@@ -15,7 +17,7 @@ export const getSupabaseAdminClient = (): SupabaseClient<Database> => {
     throw new Error("Supabase admin client is not configured. Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set.")
   }
 
-  cachedClient = createClient<Database>(url, serviceRoleKey, {
+  cachedClient = createClient<Database, "public">(url, serviceRoleKey, {
     auth: {
       persistSession: false,
     },
@@ -28,4 +30,3 @@ export const getSupabaseAdminClient = (): SupabaseClient<Database> => {
 
   return cachedClient
 }
-

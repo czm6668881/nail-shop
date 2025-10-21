@@ -1,164 +1,107 @@
-import { randomUUID } from "crypto"
-import { db } from "@/lib/db/client"
 import type { HeroSlide } from "@/types"
 
-type HeroSlideRow = {
-  id: string
-  title: string
-  subtitle: string | null
-  image: string
-  button_text: string | null
-  button_link: string | null
-  order_index: number
-  active: number
-  created_at: string
-  updated_at: string
-}
-
-const mapRowToHeroSlide = (row: HeroSlideRow): HeroSlide => ({
-  id: row.id,
-  title: row.title,
-  subtitle: row.subtitle ?? undefined,
-  image: row.image,
-  buttonText: row.button_text ?? undefined,
-  buttonLink: row.button_link ?? undefined,
-  orderIndex: row.order_index,
-  active: Boolean(row.active),
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-})
-
-export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
-  const rows = db
-    .prepare(
-      `SELECT * FROM hero_slides 
-       WHERE active = 1 
-       ORDER BY order_index ASC`
-    )
-    .all() as HeroSlideRow[]
-
-  return rows.map(mapRowToHeroSlide)
-}
-
-export async function getAllHeroSlides(): Promise<HeroSlide[]> {
-  const rows = db
-    .prepare(`SELECT * FROM hero_slides ORDER BY order_index ASC`)
-    .all() as HeroSlideRow[]
-
-  return rows.map(mapRowToHeroSlide)
-}
-
-export async function getHeroSlideById(id: string): Promise<HeroSlide | null> {
-  const row = db
-    .prepare(`SELECT * FROM hero_slides WHERE id = ?`)
-    .get(id) as HeroSlideRow | undefined
-
-  if (!row) return null
-
-  return mapRowToHeroSlide(row)
-}
-
-export async function createHeroSlide(data: {
-  title: string
-  subtitle?: string
-  image: string
-  buttonText?: string
-  buttonLink?: string
-  orderIndex?: number
-  active?: boolean
-}): Promise<HeroSlide> {
-  const id = randomUUID()
-  const now = new Date().toISOString()
-
-  db.prepare(
-    `INSERT INTO hero_slides 
-     (id, title, subtitle, image, button_text, button_link, order_index, active, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(
-    id,
-    data.title,
-    data.subtitle || null,
-    data.image,
-    data.buttonText || null,
-    data.buttonLink || null,
-    data.orderIndex ?? 0,
-    data.active ? 1 : 0,
-    now,
-    now
-  )
-
-  return (await getHeroSlideById(id))!
-}
-
-export async function updateHeroSlide(
-  id: string,
-  data: Partial<{
+type HeroSlideAdapter = {
+  getActiveHeroSlides: () => Promise<HeroSlide[]>
+  getAllHeroSlides: () => Promise<HeroSlide[]>
+  getHeroSlideById: (id: string) => Promise<HeroSlide | null>
+  createHeroSlide: (data: {
     title: string
-    subtitle: string | null
+    subtitle?: string
     image: string
-    buttonText: string | null
-    buttonLink: string | null
-    orderIndex: number
-    active: boolean
-  }>
-): Promise<HeroSlide | null> {
-  const now = new Date().toISOString()
-  const updates: string[] = []
-  const values: (string | number | null)[] = []
-
-  if (data.title !== undefined) {
-    updates.push("title = ?")
-    values.push(data.title)
-  }
-  if (data.subtitle !== undefined) {
-    updates.push("subtitle = ?")
-    values.push(data.subtitle)
-  }
-  if (data.image !== undefined) {
-    updates.push("image = ?")
-    values.push(data.image)
-  }
-  if (data.buttonText !== undefined) {
-    updates.push("button_text = ?")
-    values.push(data.buttonText)
-  }
-  if (data.buttonLink !== undefined) {
-    updates.push("button_link = ?")
-    values.push(data.buttonLink)
-  }
-  if (data.orderIndex !== undefined) {
-    updates.push("order_index = ?")
-    values.push(data.orderIndex)
-  }
-  if (data.active !== undefined) {
-    updates.push("active = ?")
-    values.push(data.active ? 1 : 0)
-  }
-
-  if (updates.length === 0) {
-    return await getHeroSlideById(id)
-  }
-
-  updates.push("updated_at = ?")
-  values.push(now)
-  values.push(id)
-
-  db.prepare(`UPDATE hero_slides SET ${updates.join(", ")} WHERE id = ?`).run(...values)
-
-  return await getHeroSlideById(id)
+    buttonText?: string
+    buttonLink?: string
+    orderIndex?: number
+    active?: boolean
+  }) => Promise<HeroSlide>
+  updateHeroSlide: (
+    id: string,
+    data: Partial<{
+      title: string
+      subtitle: string | null
+      image: string
+      buttonText: string | null
+      buttonLink: string | null
+      orderIndex: number
+      active: boolean
+    }>
+  ) => Promise<HeroSlide | null>
+  deleteHeroSlide: (id: string) => Promise<boolean>
+  reorderHeroSlides: (slideIds: string[]) => Promise<void>
 }
 
-export async function deleteHeroSlide(id: string): Promise<boolean> {
-  const result = db.prepare(`DELETE FROM hero_slides WHERE id = ?`).run(id)
-  return result.changes > 0
-}
+const providerEnv = process.env.DATABASE_PROVIDER
+const provider = providerEnv && providerEnv.length > 0
+  ? providerEnv
+  : process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? "supabase"
+    : "sqlite"
 
-export async function reorderHeroSlides(slideIds: string[]): Promise<void> {
-  const stmt = db.prepare(`UPDATE hero_slides SET order_index = ?, updated_at = ? WHERE id = ?`)
-  const now = new Date().toISOString()
+const useSupabase = provider.toLowerCase() === "supabase"
 
-  for (let i = 0; i < slideIds.length; i++) {
-    stmt.run(i, now, slideIds[i])
+const supabaseModulePromise = useSupabase
+  ? import("./hero-slides/supabase")
+  : Promise.resolve(undefined)
+
+const sqliteModulePromise = useSupabase
+  ? Promise.resolve(undefined)
+  : import("./hero-slides/sqlite")
+
+let cachedSupabaseModule: HeroSlideAdapter | undefined
+let cachedSqliteModule: HeroSlideAdapter | undefined
+
+const loadSupabase = async (): Promise<HeroSlideAdapter> => {
+  if (!useSupabase) {
+    throw new Error("Supabase hero slide adapter is unavailable in the current environment.")
   }
+  if (!cachedSupabaseModule) {
+    const mod = await supabaseModulePromise
+    if (!mod) {
+      throw new Error("Failed to load Supabase hero slide adapter.")
+    }
+    cachedSupabaseModule = mod as HeroSlideAdapter
+  }
+  if (!cachedSupabaseModule) {
+    throw new Error("Failed to load Supabase hero slide adapter.")
+  }
+  return cachedSupabaseModule
 }
+
+const loadSqlite = async (): Promise<HeroSlideAdapter> => {
+  if (useSupabase) {
+    throw new Error("SQLite hero slide adapter is unavailable when using Supabase.")
+  }
+  if (!cachedSqliteModule) {
+    const mod = await sqliteModulePromise
+    if (!mod) {
+      throw new Error("Failed to load SQLite hero slide adapter.")
+    }
+    cachedSqliteModule = mod as HeroSlideAdapter
+  }
+  if (!cachedSqliteModule) {
+    throw new Error("Failed to load SQLite hero slide adapter.")
+  }
+  return cachedSqliteModule
+}
+
+const wrap = <K extends keyof HeroSlideAdapter>(key: K): HeroSlideAdapter[K] => {
+  const invoke = async (loader: () => Promise<HeroSlideAdapter>, args: unknown[]) => {
+    const mod = await loader()
+    const fn = mod[key] as (...fnArgs: unknown[]) => unknown
+    return fn(...args)
+  }
+
+  if (useSupabase) {
+    return ((...args: unknown[]) => invoke(loadSupabase, args)) as HeroSlideAdapter[K]
+  }
+
+  return ((...args: unknown[]) => invoke(loadSqlite, args)) as HeroSlideAdapter[K]
+}
+
+export const getActiveHeroSlides = wrap("getActiveHeroSlides")
+export const getAllHeroSlides = wrap("getAllHeroSlides")
+export const getHeroSlideById = wrap("getHeroSlideById")
+export const createHeroSlide = wrap("createHeroSlide")
+export const updateHeroSlide = wrap("updateHeroSlide")
+export const deleteHeroSlide = wrap("deleteHeroSlide")
+export const reorderHeroSlides = wrap("reorderHeroSlides")
 
