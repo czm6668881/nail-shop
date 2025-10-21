@@ -3,8 +3,13 @@ declare module "better-sqlite3" {
     verbose?: (...params: unknown[]) => void
   }
 
+  interface RunResult {
+    changes: number
+    lastInsertRowid: number | bigint
+  }
+
   interface Statement<T = unknown> {
-    run(...params: unknown[]): Database
+    run(...params: unknown[]): RunResult
     get(...params: unknown[]): T
     all(...params: unknown[]): T[]
   }
