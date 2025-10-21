@@ -17,6 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import type { Product } from "@/types"
 
@@ -38,6 +44,8 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     name: "",
@@ -169,7 +177,6 @@ export default function EditProductPage() {
       return
     }
 
-    setUploading(true)
     const loadingToast = toast.loading("正在上传图片...")
 
     try {
@@ -456,21 +463,28 @@ export default function EditProductPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {formData.images.map((img, index) => (
                     <div key={index} className="group relative">
-                      <div className="aspect-square rounded-lg border-2 border-border overflow-hidden bg-muted">
+                      <div 
+                        className="aspect-square rounded-lg border-2 border-border overflow-hidden bg-muted cursor-pointer"
+                        onDoubleClick={() => {
+                          setPreviewImage(img)
+                          setIsPreviewOpen(true)
+                        }}
+                      >
                         <Image
                           src={img || "/placeholder.svg"}
                           alt={`Product image ${index + 1}`}
                           width={300}
                           height={300}
                           className="object-cover w-full h-full"
+                          unoptimized={img.startsWith('http')}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = "/placeholder.svg"
                           }}
                         />
                       </div>
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center pointer-events-none">
+                        <div className="flex flex-col items-center gap-2 pointer-events-auto">
                           <Button
                             type="button"
                             variant="destructive"
@@ -480,8 +494,8 @@ export default function EditProductPage() {
                             <X className="h-4 w-4 mr-1" />
                             删除
                           </Button>
-                          <span className="text-xs text-white px-2 py-1 bg-black/50 rounded">
-                            图片 {index + 1}
+                          <span className="text-xs text-white px-2 py-1 bg-black/50 rounded pointer-events-none">
+                            图片 {index + 1} (双击查看大图)
                           </span>
                         </div>
                       </div>
@@ -616,6 +630,33 @@ export default function EditProductPage() {
           </Button>
         </div>
       </form>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>图片预览</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center">
+            {previewImage && (
+              <div className="relative w-full">
+                <Image
+                  src={previewImage}
+                  alt="Preview"
+                  width={1200}
+                  height={1200}
+                  className="w-full h-auto object-contain max-h-[70vh]"
+                  unoptimized={previewImage.startsWith('http')}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = "/placeholder.svg"
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

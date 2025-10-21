@@ -156,7 +156,57 @@ test.describe("Admin Products Management", () => {
     await page.waitForURL(`${BASE_URL}/admin/products`)
     await expect(page.locator("text=Product updated successfully")).toBeVisible()
   })
+
+  test("should display product images and preview on double click", async ({ page }) => {
+    // 等待产品加载
+    await page.waitForSelector("tbody tr")
+    
+    // 点击第一个产品的编辑按钮
+    const editButton = page.locator("tbody tr").first().locator('button[title="Edit product"]')
+    await editButton.click()
+    
+    // 等待编辑页面加载
+    await page.waitForURL(/\/admin\/products\/.+/)
+    
+    // 等待页面完全加载
+    await page.waitForLoadState("networkidle")
+    
+    // 检查是否有图片
+    const imageContainers = page.locator(".aspect-square.rounded-lg.border-2")
+    const imageCount = await imageContainers.count()
+    
+    if (imageCount > 0) {
+      // 验证第一张图片可见
+      await expect(imageContainers.first()).toBeVisible()
+      
+      // 双击第一张图片
+      await imageContainers.first().dblclick()
+      
+      // 等待对话框出现
+      await page.waitForTimeout(500)
+      
+      // 验证预览对话框出现
+      const dialog = page.locator('[role="dialog"]')
+      await expect(dialog).toBeVisible()
+      
+      // 验证对话框标题
+      await expect(page.locator('text=图片预览')).toBeVisible()
+      
+      // 验证大图显示
+      const previewImage = dialog.locator("img")
+      await expect(previewImage).toBeVisible()
+      
+      // 关闭对话框
+      await page.keyboard.press("Escape")
+      
+      // 验证对话框关闭
+      await expect(dialog).not.toBeVisible()
+    } else {
+      console.log("No images found in product, skipping preview test")
+    }
+  })
 })
+
 
 
 

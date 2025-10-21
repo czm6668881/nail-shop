@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { listProducts, upsertProduct } from "@/lib/db/queries"
 import { randomUUID } from "crypto"
+import { revalidateProductCache } from "@/lib/cache"
 
 export async function GET() {
   try {
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
     }
 
     await upsertProduct(product)
+    revalidateProductCache({ slug: product.slug, collectionSlug: product.collection })
     return NextResponse.json({ product, message: "Product created successfully" }, { status: 201 })
   } catch (error) {
     console.error("Admin create product error", error)

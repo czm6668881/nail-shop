@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { listBlogPosts, toggleBlogPublish } from "@/lib/db/queries"
+import { revalidateBlogCache } from "@/lib/cache"
 
 export async function PATCH(
   request: Request,
@@ -22,12 +23,13 @@ export async function PATCH(
     }
 
     const posts = await listBlogPosts(false)
-    const exists = posts.some((post) => post.id === id)
-    if (!exists) {
+    const post = posts.find((item) => item.id === id)
+    if (!post) {
       return NextResponse.json({ message: "Blog post not found." }, { status: 404 })
     }
 
     await toggleBlogPublish(id, published)
+    revalidateBlogCache(post.slug)
     return NextResponse.json({ id, published })
   } catch (error) {
     console.error("Admin blog publish toggle error", error)

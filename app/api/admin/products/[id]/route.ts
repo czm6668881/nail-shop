@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { findProductById, upsertProduct, deleteProduct } from "@/lib/db/queries"
+import { revalidateProductCache } from "@/lib/cache"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -35,7 +36,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params
     const body = await request.json()
-    
+    const existing = await findProductById(id)
+
     const product = {
       id,
       name: body.name,
@@ -60,6 +62,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     await upsertProduct(product)
+    revalidateProductCache({ slug: product.slug, collectionSlug: product.collection })
+
+    if (existing && (existing.slug !== product.slug || existing.collection !== product.collection)) {
+      revalidateProductCache({ slug: existing.slug, collectionSlug: existing.collection })
+    }
+
     return NextResponse.json({ product, message: "Product updated successfully" })
   } catch (error) {
     console.error("Admin update product error", error)
@@ -76,13 +84,22 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   try {
     const { id } = await params
+    const existing = await findProductById(id)
+
     await deleteProduct(id)
+    if (existing) {
+      revalidateProductCache({ slug: existing.slug, collectionSlug: existing.collection })
+    } else {
+      revalidateProductCache()
+    }
+
     return NextResponse.json({ message: "Product deleted successfully" })
   } catch (error) {
     console.error("Admin delete product error", error)
     return NextResponse.json({ message: "Unable to delete product." }, { status: 500 })
   }
 }
+
 
 
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { listCollections, toggleCollectionFeatured } from "@/lib/db/queries"
+import { revalidateCollectionCache } from "@/lib/cache"
 
 export async function PATCH(
   request: Request,
@@ -28,6 +29,7 @@ export async function PATCH(
     }
 
     await toggleCollectionFeatured(id, featured)
+    revalidateCollectionCache(collection.slug)
     return NextResponse.json({ id, featured })
   } catch (error) {
     console.error("Admin collection update error", error)

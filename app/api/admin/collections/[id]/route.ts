@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { listCollections, removeCollection } from "@/lib/db/queries"
+import { revalidateCollectionCache } from "@/lib/cache"
 
 export async function DELETE(
   _request: Request,
@@ -23,6 +24,7 @@ export async function DELETE(
     }
 
     await removeCollection(id)
+    revalidateCollectionCache(collection.slug)
     return NextResponse.json({ message: "Collection removed." })
   } catch (error) {
     console.error("Admin collection delete error", error)
