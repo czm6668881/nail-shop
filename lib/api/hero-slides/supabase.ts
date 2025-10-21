@@ -6,6 +6,16 @@ type HeroSlideRow = Database["public"]["Tables"]["hero_slides"]["Row"]
 type HeroSlideInsert = Database["public"]["Tables"]["hero_slides"]["Insert"]
 type HeroSlideUpdate = Database["public"]["Tables"]["hero_slides"]["Update"]
 
+const missingTableMessage = "Supabase 中未找到 hero_slides 表，请在 SQL Editor 中运行 supabase/migrations/0004_hero_slides.sql 后重试。"
+
+const isMissingTableError = (error: unknown): boolean => {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+  const maybeMessage = (error as { message?: unknown }).message
+  return typeof maybeMessage === "string" && maybeMessage.includes("public.hero_slides")
+}
+
 const mapRowToHeroSlide = (row: HeroSlideRow): HeroSlide => ({
   id: row.id,
   title: row.title,
@@ -28,6 +38,10 @@ export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
     .order("order_index", { ascending: true })
 
   if (error) {
+    if (isMissingTableError(error)) {
+      console.warn("[hero-slides] hero_slides table missing in Supabase, returning empty list.")
+      return []
+    }
     throw new Error(`Failed to fetch active hero slides: ${error.message}`)
   }
 
@@ -42,6 +56,10 @@ export async function getAllHeroSlides(): Promise<HeroSlide[]> {
     .order("order_index", { ascending: true })
 
   if (error) {
+    if (isMissingTableError(error)) {
+      console.warn("[hero-slides] hero_slides table missing in Supabase, returning empty list.")
+      return []
+    }
     throw new Error(`Failed to fetch hero slides: ${error.message}`)
   }
 
@@ -56,7 +74,11 @@ export async function getHeroSlideById(id: string): Promise<HeroSlide | null> {
     .eq("id", id)
     .maybeSingle()
 
-  if (error && error.code !== "PGRST116") {
+  if (error) {
+    if (isMissingTableError(error)) {
+      console.warn("[hero-slides] hero_slides table missing in Supabase, returning null.")
+      return null
+    }
     throw new Error(`Failed to fetch hero slide: ${error.message}`)
   }
 
@@ -65,6 +87,16 @@ export async function getHeroSlideById(id: string): Promise<HeroSlide | null> {
   }
 
   return mapRowToHeroSlide(data)
+}
+
+const ensureTableExistsOrThrow = (error: unknown): never => {
+  if (isMissingTableError(error)) {
+    throw new Error(missingTableMessage)
+  }
+  const message = error && typeof error === "object" && "message" in error && typeof (error as { message: unknown }).message === "string"
+    ? (error as { message: string }).message
+    : "Unknown error"
+  throw new Error(message)
 }
 
 export async function createHeroSlide(data: {
@@ -96,7 +128,7 @@ export async function createHeroSlide(data: {
     .maybeSingle()
 
   if (error) {
-    throw new Error(`Failed to create hero slide: ${error.message}`)
+    ensureTableExistsOrThrow(error)
   }
 
   if (!rows) {
@@ -143,7 +175,7 @@ export async function updateHeroSlide(
     .maybeSingle()
 
   if (error) {
-    throw new Error(`Failed to update hero slide: ${error.message}`)
+    ensureTableExistsOrThrow(error)
   }
 
   if (!row) {
@@ -161,7 +193,7 @@ export async function deleteHeroSlide(id: string): Promise<boolean> {
     .eq("id", id)
 
   if (error) {
-    throw new Error(`Failed to delete hero slide: ${error.message}`)
+    ensureTableExistsOrThrow(error)
   }
 
   return (count ?? 0) > 0
@@ -179,7 +211,7 @@ export async function reorderHeroSlides(slideIds: string[]): Promise<void> {
       .eq("id", slideId)
 
     if (error) {
-      throw new Error(`Failed to reorder hero slides: ${error.message}`)
+      ensureTableExistsOrThrow(error)
     }
   }
 }
