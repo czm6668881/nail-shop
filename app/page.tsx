@@ -6,17 +6,20 @@ import { ProductCard } from "@/components/product-card"
 import { ReviewCard } from "@/components/review-card"
 import { BlogCard } from "@/components/blog-card"
 import { NewsletterSignup } from "@/components/newsletter-signup"
+import { HeroCarousel } from "@/components/hero-carousel"
 import { getProducts, getFeaturedProducts, getFeaturedCollections } from "@/lib/api/products"
 import { getFeaturedReviews } from "@/lib/api/reviews"
 import { getBlogPosts } from "@/lib/api/blog"
+import { getActiveHeroSlides } from "@/lib/api/hero-slides"
 
 export default async function HomePage() {
-  const [allProducts, featuredProducts, featuredCollections, featuredReviews, blogPosts] = await Promise.all([
+  const [allProducts, featuredProducts, featuredCollections, featuredReviews, blogPosts, heroSlides] = await Promise.all([
     getProducts(),
     getFeaturedProducts(),
     getFeaturedCollections(),
     getFeaturedReviews(4),
     getBlogPosts(),
+    getActiveHeroSlides(),
   ])
   const latestPosts = blogPosts.slice(0, 3)
   const bestSellers = allProducts
@@ -31,36 +34,8 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent">
-        <div className="absolute inset-0">
-          <Image
-            src="/luxury-press-on-nails-hero-image-elegant-hands.jpg"
-            alt="Luxury press-on nails"
-            fill
-            className="object-cover opacity-40"
-            priority
-          />
-        </div>
-        <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance">gelmanicure</h1>
-          <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-            Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for
-            multiple wears.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link href="/products">
-                Shop Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/collections">View Collections</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section with Carousel */}
+      <HeroCarousel slides={heroSlides} />
 
       {/* Features */}
       <section className="py-16 border-b border-border">

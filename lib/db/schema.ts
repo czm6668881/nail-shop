@@ -263,6 +263,23 @@ export const migrate = () => {
 
   run(`CREATE UNIQUE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens(user_id)`)
 
+  run(`
+    CREATE TABLE IF NOT EXISTS hero_slides (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      subtitle TEXT,
+      image TEXT NOT NULL,
+      button_text TEXT,
+      button_link TEXT,
+      order_index INTEGER NOT NULL DEFAULT 0,
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+
+  run(`CREATE INDEX IF NOT EXISTS idx_hero_slides_order ON hero_slides(order_index, active)`)
+
   run(`CREATE INDEX IF NOT EXISTS idx_orders_user_created_at ON orders(user_id, created_at DESC)`)
   run(`CREATE INDEX IF NOT EXISTS idx_cart_items_cart_product ON cart_items(cart_id, product_id, size)`)
   run(`CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC)`)

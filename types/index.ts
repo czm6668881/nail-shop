@@ -195,3 +195,16 @@ export interface InventoryEvent {
   context: Record<string, unknown>
   createdAt: string
 }
+
+export interface HeroSlide {
+  id: string
+  title: string
+  subtitle?: string
+  image: string
+  buttonText?: string
+  buttonLink?: string
+  orderIndex: number
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}

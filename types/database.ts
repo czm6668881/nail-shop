@@ -575,6 +575,44 @@ export interface Database {
           created_at?: string
         }
       }
+      hero_slides: {
+        Row: {
+          id: string
+          title: string
+          subtitle: string | null
+          image: string
+          button_text: string | null
+          button_link: string | null
+          order_index: number
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          subtitle?: string | null
+          image: string
+          button_text?: string | null
+          button_link?: string | null
+          order_index?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          subtitle?: string | null
+          image?: string
+          button_text?: string | null
+          button_link?: string | null
+          order_index?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: Record<string, never>
     Functions: {
