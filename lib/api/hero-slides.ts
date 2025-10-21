@@ -1,6 +1,32 @@
+import { randomUUID } from "crypto"
 import { db } from "@/lib/db/client"
 import type { HeroSlide } from "@/types"
-import { randomUUID } from "crypto"
+
+type HeroSlideRow = {
+  id: string
+  title: string
+  subtitle: string | null
+  image: string
+  button_text: string | null
+  button_link: string | null
+  order_index: number
+  active: number
+  created_at: string
+  updated_at: string
+}
+
+const mapRowToHeroSlide = (row: HeroSlideRow): HeroSlide => ({
+  id: row.id,
+  title: row.title,
+  subtitle: row.subtitle ?? undefined,
+  image: row.image,
+  buttonText: row.button_text ?? undefined,
+  buttonLink: row.button_link ?? undefined,
+  orderIndex: row.order_index,
+  active: Boolean(row.active),
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+})
 
 export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
   const rows = db
@@ -9,58 +35,27 @@ export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
        WHERE active = 1 
        ORDER BY order_index ASC`
     )
-    .all() as any[]
+    .all() as HeroSlideRow[]
 
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    subtitle: row.subtitle,
-    image: row.image,
-    buttonText: row.button_text,
-    buttonLink: row.button_link,
-    orderIndex: row.order_index,
-    active: Boolean(row.active),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  }))
+  return rows.map(mapRowToHeroSlide)
 }
 
 export async function getAllHeroSlides(): Promise<HeroSlide[]> {
   const rows = db
     .prepare(`SELECT * FROM hero_slides ORDER BY order_index ASC`)
-    .all() as any[]
+    .all() as HeroSlideRow[]
 
-  return rows.map((row) => ({
-    id: row.id,
-    title: row.title,
-    subtitle: row.subtitle,
-    image: row.image,
-    buttonText: row.button_text,
-    buttonLink: row.button_link,
-    orderIndex: row.order_index,
-    active: Boolean(row.active),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  }))
+  return rows.map(mapRowToHeroSlide)
 }
 
 export async function getHeroSlideById(id: string): Promise<HeroSlide | null> {
-  const row = db.prepare(`SELECT * FROM hero_slides WHERE id = ?`).get(id) as any
+  const row = db
+    .prepare(`SELECT * FROM hero_slides WHERE id = ?`)
+    .get(id) as HeroSlideRow | undefined
 
   if (!row) return null
 
-  return {
-    id: row.id,
-    title: row.title,
-    subtitle: row.subtitle,
-    image: row.image,
-    buttonText: row.button_text,
-    buttonLink: row.button_link,
-    orderIndex: row.order_index,
-    active: Boolean(row.active),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  }
+  return mapRowToHeroSlide(row)
 }
 
 export async function createHeroSlide(data: {
@@ -109,7 +104,7 @@ export async function updateHeroSlide(
 ): Promise<HeroSlide | null> {
   const now = new Date().toISOString()
   const updates: string[] = []
-  const values: any[] = []
+  const values: (string | number | null)[] = []
 
   if (data.title !== undefined) {
     updates.push("title = ?")

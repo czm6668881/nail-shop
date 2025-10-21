@@ -149,8 +149,9 @@ export default async function HomePage() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <h3 className="text-2xl font-bold mb-2">{collection.name}</h3>
                     <p className="text-sm text-white/90 mb-3">{collection.description}</p>
-                    <span className="text-sm font-medium group-hover:underline">
-                      Shop {collection.productCount} Products →
+                    <span className="flex items-center text-sm font-medium group-hover:underline">
+                      Shop {collection.productCount} Products
+                      <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                     </span>
                   </div>
                 </Link>

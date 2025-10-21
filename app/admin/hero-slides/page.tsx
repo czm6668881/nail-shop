@@ -14,13 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Trash2, Edit, GripVertical, Plus, Upload } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import type { HeroSlide } from "@/types"
@@ -52,6 +46,7 @@ export default function HeroSlidesAdminPage() {
       const data = await res.json()
       setSlides(data)
     } catch (error) {
+      console.error("Failed to fetch hero slides", error)
       toast({
         title: "错误",
         description: "无法加载轮播图数据",
@@ -85,6 +80,7 @@ export default function HeroSlidesAdminPage() {
         description: "图片上传成功",
       })
     } catch (error) {
+      console.error("Failed to upload hero slide image", error)
       toast({
         title: "错误",
         description: "图片上传失败",
@@ -132,6 +128,7 @@ export default function HeroSlidesAdminPage() {
       resetForm()
       fetchSlides()
     } catch (error) {
+      console.error("Failed to save hero slide", error)
       toast({
         title: "错误",
         description: "保存失败",
@@ -170,6 +167,7 @@ export default function HeroSlidesAdminPage() {
 
       fetchSlides()
     } catch (error) {
+      console.error("Failed to delete hero slide", error)
       toast({
         title: "错误",
         description: "删除失败",
@@ -190,6 +188,7 @@ export default function HeroSlidesAdminPage() {
 
       fetchSlides()
     } catch (error) {
+      console.error("Failed to update hero slide status", error)
       toast({
         title: "错误",
         description: "更新状态失败",
