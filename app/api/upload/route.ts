@@ -32,15 +32,17 @@ const ensureSupabaseBucket = async (client: SupabaseClient<Database>) => {
   }
 
   const { data, error } = await client.storage.getBucket(BUCKET_NAME)
-  if (error && error.statusCode !== 404) {
-    throw error
-  }
-
-  if (!data) {
+  // 如果 bucket 不存在，getBucket 会返回 error，这是正常情况
+  if (!data && !error) {
+    // bucket 不存在，创建它
     const { error: createError } = await client.storage.createBucket(BUCKET_NAME, { public: true })
-    if (createError && createError.statusCode !== 409) {
-      throw createError
+    // 如果创建失败且不是因为已存在（可能是并发创建），才抛出错误
+    if (createError && !createError.message.includes("already exists")) {
+      throw new Error(`创建存储桶失败: ${createError.message}`)
     }
+  } else if (error && !error.message.includes("not found") && !error.message.includes("does not exist")) {
+    // 如果是其他错误（不是找不到的错误），抛出
+    throw new Error(`获取存储桶失败: ${error.message}`)
   }
 
   bucketInitialized = true
