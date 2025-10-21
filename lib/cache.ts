@@ -42,3 +42,7 @@ export const revalidateBlogCache = (slug?: string | null) => {
     revalidateMany(`/blog/${slug}`)
   }
 }
+
+export const revalidateHeroSlideCache = () => {
+  revalidateMany("/")
+}

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { getSessionUser } from "@/lib/auth/session"
 import { getHeroSlideById, updateHeroSlide, deleteHeroSlide } from "@/lib/api/hero-slides"
+import { revalidateHeroSlideCache } from "@/lib/cache"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -37,6 +38,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: "Hero slide not found" }, { status: 404 })
     }
 
+    revalidateHeroSlideCache()
+
     return NextResponse.json(slide)
   } catch (error) {
     console.error("Failed to update hero slide:", error)
@@ -56,6 +59,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!success) {
       return NextResponse.json({ error: "Hero slide not found" }, { status: 404 })
     }
+
+    revalidateHeroSlideCache()
 
     return NextResponse.json({ success: true })
   } catch (error) {

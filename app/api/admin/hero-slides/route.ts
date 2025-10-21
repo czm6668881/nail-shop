@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { getSessionUser } from "@/lib/auth/session"
 import { getAllHeroSlides, createHeroSlide, reorderHeroSlides } from "@/lib/api/hero-slides"
+import { revalidateHeroSlideCache } from "@/lib/cache"
 
 export async function GET() {
   try {
@@ -40,6 +41,8 @@ export async function POST(request: NextRequest) {
       active: data.active ?? true,
     })
 
+    revalidateHeroSlideCache()
+
     return NextResponse.json(slide, { status: 201 })
   } catch (error) {
     console.error("Failed to create hero slide:", error)
@@ -61,6 +64,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     await reorderHeroSlides(slideIds)
+
+    revalidateHeroSlideCache()
 
     return NextResponse.json({ success: true })
   } catch (error) {
