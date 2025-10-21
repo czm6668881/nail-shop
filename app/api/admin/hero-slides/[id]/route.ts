@@ -1,15 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { getSession } from "@/lib/auth/session"
+import { getSessionUser } from "@/lib/auth/session"
 import { getHeroSlideById, updateHeroSlide, deleteHeroSlide } from "@/lib/api/hero-slides"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const slide = await getHeroSlideById(params.id)
+    const { id } = await params
+    const slide = await getHeroSlideById(id)
     if (!slide) {
       return NextResponse.json({ error: "Hero slide not found" }, { status: 404 })
     }
@@ -21,15 +22,16 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { id } = await params
     const data = await request.json()
-    const slide = await updateHeroSlide(params.id, data)
+    const slide = await updateHeroSlide(id, data)
 
     if (!slide) {
       return NextResponse.json({ error: "Hero slide not found" }, { status: 404 })
@@ -42,14 +44,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const success = await deleteHeroSlide(params.id)
+    const { id } = await params
+    const success = await deleteHeroSlide(id)
     if (!success) {
       return NextResponse.json({ error: "Hero slide not found" }, { status: 404 })
     }

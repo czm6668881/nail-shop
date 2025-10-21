@@ -1,11 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { getSession } from "@/lib/auth/session"
+import { getSessionUser } from "@/lib/auth/session"
 import { getAllHeroSlides, createHeroSlide, reorderHeroSlides } from "@/lib/api/hero-slides"
 
 export async function GET() {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -19,8 +19,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getSession()
-    if (!session?.user || session.user.role !== "admin") {
+    const user = await getSessionUser()
+    if (!user || user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
