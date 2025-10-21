@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/client"
 import type { HeroSlide } from "@/types"
-import { v4 as uuidv4 } from "uuid"
+import { randomUUID } from "crypto"
 
 export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
   const rows = db
@@ -72,7 +72,7 @@ export async function createHeroSlide(data: {
   orderIndex?: number
   active?: boolean
 }): Promise<HeroSlide> {
-  const id = uuidv4()
+  const id = randomUUID()
   const now = new Date().toISOString()
 
   db.prepare(
