@@ -15,9 +15,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.slug}`} className="group">
-      <div className="space-y-3">
+      <div className="space-y-3 transition-all duration-200 hover:translate-y-[-4px]">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-sm hover:shadow-lg transition-shadow duration-200">
           <Image
             src={product.images[0] || "/placeholder.svg"}
             alt={product.name}

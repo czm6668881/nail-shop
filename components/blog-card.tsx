@@ -27,7 +27,7 @@ export function BlogCard({ post, variant = "default" }: BlogCardProps) {
     <Link href={`/blog/${post.slug}`} className="group">
       <article
         className={cn(
-          "h-full overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:shadow-lg",
+          "h-full overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:shadow-lg hover:translate-y-[-4px]",
           isCompact ? "flex flex-col border-border/70 bg-card/60" : "flex flex-col",
         )}
       >

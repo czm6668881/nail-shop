@@ -15,7 +15,7 @@ interface ReviewCardProps {
 
 export function ReviewCard({ review, product }: ReviewCardProps) {
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:shadow-lg hover:translate-y-[-4px]">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
