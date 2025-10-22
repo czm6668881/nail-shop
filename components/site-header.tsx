@@ -7,14 +7,6 @@ import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useAuthStore } from "@/lib/store/auth-store"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
 
 export function SiteHeader() {
   const itemCount = useCartStore((state) => state.getItemCount())
@@ -33,29 +25,6 @@ export function SiteHeader() {
     { name: "Best Sellers", href: "/products?filter=bestsellers" },
     { name: "Reviews", href: "/reviews" },
     { name: "Blog", href: "/blog" },
-  ]
-
-  const collections = [
-    {
-      name: "Classics",
-      href: "/collections/classics",
-      description: "Timeless designs that never go out of style",
-    },
-    {
-      name: "Metallics",
-      href: "/collections/metallics",
-      description: "Shine bright with our chrome and metallic finishes",
-    },
-    {
-      name: "Night Out",
-      href: "/collections/night-out",
-      description: "Glamorous designs for special occasions",
-    },
-    {
-      name: "Essentials",
-      href: "/collections/essentials",
-      description: "Everyday nails for every occasion",
-    },
   ]
 
   const [homeNavItem, ...secondaryNavigation] = navigation
@@ -82,9 +51,6 @@ export function SiteHeader() {
                     {homeNavItem.name}
                   </Link>
                 )}
-                <Link href="/collections" className="text-lg font-medium hover:text-primary transition-colors">
-                  CATALOG
-                </Link>
                 {secondaryNavigation.map((item) => (
                   <Link
                     key={item.name}
@@ -100,7 +66,7 @@ export function SiteHeader() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold tracking-tight">gelmanicure</span>
+            <span className="text-2xl font-bold tracking-tight">gelmanicure-nail</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -113,35 +79,6 @@ export function SiteHeader() {
                 {homeNavItem.name}
               </Link>
             )}
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-transparent">
-                    CATALOG
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="w-[600px] p-6 bg-background">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {collections.map((collection) => (
-                          <NavigationMenuLink key={collection.name} asChild>
-                            <Link
-                              href={collection.href}
-                              className="group block select-none space-y-1 rounded-md p-4 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground border border-border"
-                            >
-                              <div className="text-base font-semibold leading-none mb-2">{collection.name}</div>
-                              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground group-hover:text-accent-foreground">
-                                {collection.description}
-                              </p>
-                            </Link>
-                          </NavigationMenuLink>
-                        ))}
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-
             {secondaryNavigation.map((item) => (
               <Link
                 key={item.name}
