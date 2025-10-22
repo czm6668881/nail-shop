@@ -39,7 +39,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link href="/collections" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Collections
+                  CATALOG
                 </Link>
               </li>
               <li>

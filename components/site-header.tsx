@@ -83,7 +83,7 @@ export function SiteHeader() {
                   </Link>
                 )}
                 <Link href="/collections" className="text-lg font-medium hover:text-primary transition-colors">
-                  Collections
+                  CATALOG
                 </Link>
                 {secondaryNavigation.map((item) => (
                   <Link
@@ -117,7 +117,7 @@ export function SiteHeader() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-transparent">
-                    Collections
+                    CATALOG
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="grid w-[600px] gap-3 p-4 md:grid-cols-2">

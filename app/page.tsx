@@ -101,7 +101,7 @@ export default async function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Shop by Collection</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">CATALOG</h2>
             <p className="text-muted-foreground text-lg">Curated sets for every style and occasion</p>
           </div>
           {featuredCollections.length > 0 ? (
