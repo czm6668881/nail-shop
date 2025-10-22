@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test"
 test.describe("Public routes", () => {
   test("home page renders without 404", async ({ page }) => {
     await page.goto("/")
-    await expect(page.getByRole("heading", { name: "gelmanicure", level: 1 })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Gel nails", level: 1 })).toBeVisible()
   })
 
   const routes: Array<{ path: string; heading: string }> = [
