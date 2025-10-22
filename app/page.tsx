@@ -7,15 +7,14 @@ import { ReviewCard } from "@/components/review-card"
 import { BlogCard } from "@/components/blog-card"
 import { NewsletterSignup } from "@/components/newsletter-signup"
 import { HeroCarousel } from "@/components/hero-carousel"
-import { getProducts, getFeaturedProducts, getFeaturedCollections } from "@/lib/api/products"
+import { getProducts, getFeaturedCollections } from "@/lib/api/products"
 import { getFeaturedReviews } from "@/lib/api/reviews"
 import { getBlogPosts } from "@/lib/api/blog"
 import { getActiveHeroSlides } from "@/lib/api/hero-slides"
 
 export default async function HomePage() {
-  const [allProducts, featuredProducts, featuredCollections, featuredReviews, blogPosts, heroSlides] = await Promise.all([
+  const [allProducts, featuredCollections, featuredReviews, blogPosts, heroSlides] = await Promise.all([
     getProducts(),
-    getFeaturedProducts(),
     getFeaturedCollections(),
     getFeaturedReviews(4),
     getBlogPosts(),
@@ -93,32 +92,6 @@ export default async function HomePage() {
           <div className="text-center">
             <Button size="lg" variant="outline" asChild>
               <Link href="/products?filter=bestsellers">Browse Best Sellers</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Featured Products</h2>
-            <p className="text-muted-foreground text-lg">Our most loved designs</p>
-          </div>
-          {featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="mb-8 rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
-              We&apos;re refreshing our featured lineup. Discover the full catalog to see everything that&apos;s available.
-            </div>
-          )}
-          <div className="text-center">
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/products">View All Products</Link>
             </Button>
           </div>
         </div>
