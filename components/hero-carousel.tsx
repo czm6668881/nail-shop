@@ -43,8 +43,8 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
     return (
       <section className="relative h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent">
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-balance">gelmanicure</h1>
-          <h2 className="text-3xl lg:text-5xl font-semibold mb-6 text-balance">Gel nails</h2>
+          <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-balance">Gel nails</h1>
+          <h2 className="text-3xl lg:text-5xl font-semibold mb-6 text-balance">Premium Press-On Nails by gelmanicure</h2>
           <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
             Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for
             multiple wears.
@@ -80,10 +80,10 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
 
       <div className="relative z-10 container mx-auto px-4 text-center">
         <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
-          gelmanicure
+          Gel nails
         </h1>
         <h2 className="text-3xl lg:text-5xl font-semibold mb-6 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700 delay-75">
-          Gel nails
+          Premium Press-On Nails by gelmanicure
         </h2>
         <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
           Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for

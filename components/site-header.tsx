@@ -120,20 +120,22 @@ export function SiteHeader() {
                     CATALOG
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid w-[600px] gap-3 p-4 md:grid-cols-2">
-                      {collections.map((collection) => (
-                        <NavigationMenuLink key={collection.name} asChild>
-                          <Link
-                            href={collection.href}
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium leading-none">{collection.name}</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              {collection.description}
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      ))}
+                    <div className="w-[600px] p-6 bg-background">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {collections.map((collection) => (
+                          <NavigationMenuLink key={collection.name} asChild>
+                            <Link
+                              href={collection.href}
+                              className="group block select-none space-y-1 rounded-md p-4 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground border border-border"
+                            >
+                              <div className="text-base font-semibold leading-none mb-2">{collection.name}</div>
+                              <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground group-hover:text-accent-foreground">
+                                {collection.description}
+                              </p>
+                            </Link>
+                          </NavigationMenuLink>
+                        ))}
+                      </div>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>

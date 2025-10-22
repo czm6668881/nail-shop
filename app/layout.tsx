@@ -8,10 +8,12 @@ import { SiteFooter } from "@/components/site-footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "gelmanicure - Premium Press-On Nails",
+  title: "Gel nails - gelmanicure Premium Press-On Nails",
   description:
-    "Discover salon-quality press-on nails for the modern woman. Shop our collection of elegant, easy-to-apply nail designs. Free worldwide shipping on all orders.",
+    "Gel nails by gelmanicure - Discover salon-quality press-on nails with gel-like finish. Shop our collection of elegant, easy-to-apply nail designs. Free worldwide shipping on all orders.",
   keywords: [
+    "gel nails",
+    "gel manicure",
     "press-on nails",
     "fake nails",
     "artificial nails",
@@ -20,10 +22,12 @@ export const metadata: Metadata = {
     "gelmanicure",
     "luxury nails",
     "reusable nails",
+    "gel nail polish",
+    "gel press-on nails",
   ],
   openGraph: {
-    title: "gelmanicure - Premium Press-On Nails",
-    description: "Salon-quality press-on nails delivered to your door. Easy application, stunning results.",
+    title: "Gel nails - gelmanicure Premium Press-On Nails",
+    description: "Gel nails with salon-quality press-on nails delivered to your door. Easy application, stunning gel-like results.",
     type: "website",
     url: "https://gelmanicure-nail.com",
   },
