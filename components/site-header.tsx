@@ -21,6 +21,7 @@ export function SiteHeader() {
 
   const navigation = [
     { name: "Home", href: "/" },
+    { name: "CATALOG", href: "/collections" },
     { name: "New Arrivals", href: "/products?filter=new" },
     { name: "Best Sellers", href: "/products?filter=bestsellers" },
     { name: "Reviews", href: "/reviews" },
