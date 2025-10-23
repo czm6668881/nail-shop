@@ -21,15 +21,9 @@ export function SiteHeader() {
 
   const navigation = [
     { name: "HOME", href: "/" },
-    { name: "PRODUCTS", href: "/products" },
     { name: "CATALOG", href: "/collections" },
-    { name: "NEW ARRIVALS", href: "/products?filter=new" },
-    { name: "BEST SELLERS", href: "/products?filter=bestsellers" },
     { name: "REVIEWS", href: "/reviews" },
     { name: "BLOG", href: "/blog" },
-    { name: "ABOUT", href: "/about" },
-    { name: "CONTACT", href: "/contact" },
-    { name: "HELP", href: "/help" },
   ]
 
   return (
