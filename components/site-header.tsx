@@ -20,7 +20,7 @@ export function SiteHeader() {
   }, [initializeCart, initAuth])
 
   const navigation = [
-    { name: "Home", href: "/" },
+    { name: "Collections", href: "/collections" },
     { name: "New Arrivals", href: "/products?filter=new" },
     { name: "Best Sellers", href: "/products?filter=bestsellers" },
     { name: "Reviews", href: "/reviews" },
@@ -41,18 +41,6 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent side="left">
               <nav className="flex flex-col gap-4 mt-8">
-                <Link
-                  href="/"
-                  className="text-lg font-medium hover:text-primary transition-colors"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/collections"
-                  className="text-lg font-medium hover:text-primary transition-colors"
-                >
-                  CATALOG
-                </Link>
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
@@ -73,21 +61,6 @@ export function SiteHeader() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Home
-            </Link>
-            
-            {/* CATALOG link */}
-            <Link
-              href="/collections"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              CATALOG
-            </Link>
-
             {navigation.map((item) => (
               <Link
                 key={item.name}
