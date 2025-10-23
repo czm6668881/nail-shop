@@ -20,11 +20,12 @@ export function SiteHeader() {
   }, [initializeCart, initAuth])
 
   const navigation = [
-    { name: "Collections", href: "/collections" },
-    { name: "New Arrivals", href: "/products?filter=new" },
-    { name: "Best Sellers", href: "/products?filter=bestsellers" },
-    { name: "Reviews", href: "/reviews" },
-    { name: "Blog", href: "/blog" },
+    { name: "HOME", href: "/" },
+    { name: "COLLECTIONS", href: "/collections" },
+    { name: "NEW ARRIVALS", href: "/products?filter=new" },
+    { name: "BEST SELLERS", href: "/products?filter=bestsellers" },
+    { name: "REVIEWS", href: "/reviews" },
+    { name: "BLOG", href: "/blog" },
   ]
 
   return (
