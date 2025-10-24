@@ -18,19 +18,6 @@ export interface AvailabilityFilterOption {
   predicate: (product: Product) => boolean
 }
 
-export const CATEGORY_FILTERS: CategoryFilterOption[] = [
-  { id: "classic", label: "Classic" },
-  { id: "french", label: "French" },
-  { id: "glitter", label: "Glitter" },
-  { id: "ombre", label: "Ombre" },
-  { id: "chrome", label: "Chrome" },
-  { id: "matte", label: "Matte" },
-  { id: "stiletto", label: "Stiletto" },
-  { id: "almond", label: "Almond" },
-  { id: "coffin", label: "Coffin" },
-  { id: "square", label: "Square" },
-]
-
 export const PRICE_FILTERS: PriceFilterOption[] = [
   { id: "under-25", label: "Under $25", minimum: 0, maximum: 25 },
   { id: "25-30", label: "$25 - $30", minimum: 25, maximum: 30 },

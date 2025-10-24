@@ -7,8 +7,10 @@ import {
   listProductsByCategory,
   listProductsByCollection,
   searchProductsByQuery,
+  listProductCategories,
 } from "@/lib/db/queries"
-import type { Product, Collection } from "@/types"
+import type { Product, Collection, ProductCategory } from "@/types"
+import { sortProductCategories } from "@/lib/utils/categories"
 
 export async function getProducts(): Promise<Product[]> {
   return listProducts()
@@ -43,4 +45,9 @@ export async function searchProducts(query: string): Promise<Product[]> {
     return listProducts()
   }
   return searchProductsByQuery(query)
+}
+
+export async function getProductCategories(): Promise<ProductCategory[]> {
+  const categories = await listProductCategories()
+  return sortProductCategories(categories)
 }

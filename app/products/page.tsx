@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import { getProducts } from "@/lib/api/products"
+import { getProducts, getProductCategories } from "@/lib/api/products"
 import { ProductCard } from "@/components/product-card"
 import { ProductFilters } from "@/components/product-filters"
 import {
@@ -72,7 +72,10 @@ const applySort = (products: Product[], sortKey?: string): Product[] => {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = await searchParams
-  const allProducts = await getProducts()
+  const [allProducts, productCategories] = await Promise.all([
+    getProducts(),
+    getProductCategories(),
+  ])
 
   const selectedCategories = toArray(resolvedSearchParams.category)
   const selectedPrices = toArray(resolvedSearchParams.price)
@@ -97,6 +100,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     }),
     sortKey,
   )
+  const categoryOptions = productCategories.map((category) => ({
+    id: category.slug,
+    label: category.name,
+  }))
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -115,6 +122,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               selectedCategories={selectedCategories}
               selectedPrices={selectedPrices}
               selectedAvailability={selectedAvailability}
+              categories={categoryOptions}
             />
           </Suspense>
         </aside>

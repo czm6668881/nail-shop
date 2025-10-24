@@ -4,6 +4,19 @@ import { db } from "./client"
 import { products as seedProducts, collections as seedCollections } from "@/lib/data/products"
 import { mockBlogPosts, mockReviews, mockOrders, mockAddresses } from "@/lib/data/mock-data"
 
+const defaultProductCategories = [
+  { name: "Classic", slug: "classic", sortOrder: 1 },
+  { name: "French", slug: "french", sortOrder: 2 },
+  { name: "Glitter", slug: "glitter", sortOrder: 3 },
+  { name: "Ombre", slug: "ombre", sortOrder: 4 },
+  { name: "Chrome", slug: "chrome", sortOrder: 5 },
+  { name: "Matte", slug: "matte", sortOrder: 6 },
+  { name: "Stiletto", slug: "stiletto", sortOrder: 7 },
+  { name: "Almond", slug: "almond", sortOrder: 8 },
+  { name: "Coffin", slug: "coffin", sortOrder: 9 },
+  { name: "Square", slug: "square", sortOrder: 10 },
+]
+
 const getCount = (table: string) => {
   const row = db.prepare(`SELECT COUNT(*) as count FROM ${table}`).get() as { count: number }
   return row.count
@@ -102,6 +115,26 @@ export const ensureDefaultAdmin = () => ensureDefaultAdminUser()
 
 export const seed = () => {
   let defaultCustomerId: string | null = null
+
+  if (getCount("product_categories") === 0) {
+    const insertCategory = db.prepare(`
+      INSERT INTO product_categories (id, name, slug, description, sort_order, created_at, updated_at)
+      VALUES (@id, @name, @slug, @description, @sort_order, @created_at, @updated_at)
+    `)
+
+    const now = new Date().toISOString()
+    defaultProductCategories.forEach((category, index) => {
+      insertCategory.run({
+        id: `category-${randomUUID()}`,
+        name: category.name,
+        slug: category.slug,
+        description: null,
+        sort_order: category.sortOrder ?? index,
+        created_at: now,
+        updated_at: now,
+      })
+    })
+  }
 
   if (getCount("users") === 0) {
     const adminId = `user-${randomUUID()}`

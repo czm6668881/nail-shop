@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+﻿import { notFound } from "next/navigation"
 import Image from "next/image"
 import { Star, Check, Truck, RotateCcw } from "lucide-react"
 import { getProductBySlug, getProducts } from "@/lib/api/products"
@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="space-y-6">
           <div>
             <Badge variant="secondary" className="mb-3">
-              {product.category}
+              {product.categoryLabel ?? product.category}
             </Badge>
             <h1 className="text-4xl font-bold mb-4 text-balance">{product.name}</h1>
 
@@ -275,3 +275,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </div>
   )
 }
+

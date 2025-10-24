@@ -15,6 +15,7 @@ import type {
   SupportTicket,
   ReturnRequest,
   NotificationPreferences,
+  ProductCategory,
 } from "@/types"
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import type { Database, Json } from "@/types/database"
@@ -35,6 +36,7 @@ type WishlistItemRow = Tables["wishlist_items"]["Row"]
 type NotificationPreferenceRow = Tables["notification_preferences"]["Row"]
 type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
+type ProductCategoryRow = Tables["product_categories"]["Row"]
 
 const GOOGLE_ID_COLUMN = "google_id"
 
@@ -140,14 +142,15 @@ const jsonObject = <T>(value: Json | null | undefined, fallback: T): T => {
   return fallback
 }
 
-const mapProduct = (row: ProductRow): Product => ({
+const mapProduct = (row: ProductRow & { category_label?: string | null }): Product => ({
   id: row.id,
   name: row.name,
   description: row.description ?? "",
   price: row.price,
   compareAtPrice: row.compare_at_price ?? undefined,
   images: jsonArray<string[]>(row.images, []),
-  category: row.category as Product["category"],
+  category: (row.category ?? "") as Product["category"],
+  categoryLabel: row.category_label ?? undefined,
   collection: row.collection_slug ?? undefined,
   inStock: row.in_stock,
   stockQuantity: row.stock_quantity,
@@ -171,6 +174,16 @@ const mapCollection = (row: CollectionRow): Collection => ({
   image: row.image ?? "",
   productCount: row.product_count,
   featured: row.featured,
+})
+
+const mapProductCategory = (row: ProductCategoryRow): ProductCategory => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  description: row.description ?? undefined,
+  sortOrder: row.sort_order ?? 0,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
 })
 
 const mapReview = (row: ReviewRow): Review => ({
@@ -436,6 +449,180 @@ export const searchProductsByQuery = async (query: string): Promise<Product[]> =
   }
 
   return (data ?? []).map(mapProduct)
+}
+
+export const listProductCategories = async (): Promise<ProductCategory[]> => {
+  const { data, error } = await supabase()
+    .from("product_categories")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []).map(mapProductCategory)
+}
+
+export const findProductCategoryById = async (id: string): Promise<ProductCategory | null> => {
+  const { data, error } = await supabase()
+    .from("product_categories")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapProductCategory(data) : null
+}
+
+export const findProductCategoryBySlug = async (slug: string): Promise<ProductCategory | null> => {
+  const { data, error } = await supabase()
+    .from("product_categories")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapProductCategory(data) : null
+}
+
+export const createProductCategory = async (category: {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  sortOrder?: number
+}): Promise<ProductCategory> => {
+  let sortOrder = category.sortOrder
+
+  if (typeof sortOrder !== "number") {
+    const { data: maxRow, error: maxError } = await supabase()
+      .from("product_categories")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (maxError && maxError.code !== "PGRST116") {
+      throw maxError
+    }
+
+    sortOrder = (maxRow?.sort_order ?? 0) + 1
+  }
+
+  const now = new Date().toISOString()
+  const payload: Tables["product_categories"]["Insert"] = {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description ?? null,
+    sort_order: sortOrder,
+    created_at: now,
+    updated_at: now,
+  }
+
+  const { error } = await supabase().from("product_categories").insert(payload as never)
+  if (error) {
+    throw error
+  }
+
+  return mapProductCategory({
+    id: payload.id!,
+    name: payload.name!,
+    slug: payload.slug!,
+    description: payload.description ?? null,
+    sort_order: payload.sort_order ?? 0,
+    created_at: payload.created_at ?? now,
+    updated_at: payload.updated_at ?? now,
+  })
+}
+
+export const updateProductCategory = async (
+  id: string,
+  updates: {
+    name?: string
+    slug?: string
+    description?: string | null
+    sortOrder?: number
+  },
+): Promise<ProductCategory | null> => {
+  const existing = await findProductCategoryById(id)
+  if (!existing) {
+    return null
+  }
+
+  const nextSlug = updates.slug ?? existing.slug
+  const slugChanged = nextSlug !== existing.slug
+
+  const payload: Tables["product_categories"]["Update"] = {
+    name: updates.name ?? existing.name,
+    slug: nextSlug,
+    description: typeof updates.description === "undefined" ? existing.description ?? null : updates.description,
+    sort_order: typeof updates.sortOrder === "number" ? updates.sortOrder : existing.sortOrder,
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase().from("product_categories").update(payload as never).eq("id", id)
+  if (error) {
+    throw error
+  }
+
+  if (slugChanged) {
+    const { error: productUpdateError } = await supabase()
+      .from("products")
+      .update({ category: nextSlug } as never)
+      .eq("category", existing.slug)
+    if (productUpdateError) {
+      throw productUpdateError
+    }
+  }
+
+  return {
+    id,
+    name: payload.name ?? existing.name,
+    slug: payload.slug ?? existing.slug,
+    description:
+      typeof updates.description === "undefined" ? existing.description : updates.description ?? undefined,
+    sortOrder: payload.sort_order ?? existing.sortOrder,
+    createdAt: existing.createdAt,
+    updatedAt: payload.updated_at ?? new Date().toISOString(),
+  }
+}
+
+export const deleteProductCategory = async (
+  id: string,
+): Promise<{ success: true } | { success: false; reason: "CATEGORY_IN_USE" }> => {
+  const existing = await findProductCategoryById(id)
+  if (!existing) {
+    return { success: true }
+  }
+
+  const { count, error: countError } = await supabase()
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("category", existing.slug)
+
+  if (countError) {
+    throw countError
+  }
+
+  if ((count ?? 0) > 0) {
+    return { success: false, reason: "CATEGORY_IN_USE" }
+  }
+
+  const { error } = await supabase().from("product_categories").delete().eq("id", id)
+  if (error) {
+    throw error
+  }
+
+  return { success: true }
 }
 
 export const upsertProduct = async (product: Product): Promise<void> => {

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
+﻿import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
-import { listProducts, upsertProduct } from "@/lib/db/queries"
+import { listProducts, upsertProduct, findProductCategoryBySlug } from "@/lib/db/queries"
 import { randomUUID } from "crypto"
 import { revalidateProductCache } from "@/lib/cache"
 
@@ -30,6 +30,15 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
+
+    if (!body.category || typeof body.category !== "string") {
+      return NextResponse.json({ message: "Category is required." }, { status: 400 })
+    }
+
+    const category = await findProductCategoryBySlug(body.category)
+    if (!category) {
+      return NextResponse.json({ message: "Category does not exist." }, { status: 400 })
+    }
     
     const product = {
       id: `product-${randomUUID()}`,
@@ -38,7 +47,7 @@ export async function POST(request: Request) {
       price: Number(body.price),
       compareAtPrice: body.compareAtPrice ? Number(body.compareAtPrice) : undefined,
       images: body.images || [],
-      category: body.category,
+      category: category.slug,
       collection: body.collection || undefined,
       inStock: Boolean(body.inStock),
       stockQuantity: Number(body.stockQuantity),
@@ -62,3 +71,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Unable to create product." }, { status: 500 })
   }
 }
+

@@ -93,7 +93,36 @@ export interface Database {
           slug?: string
           image?: string | null
           product_count?: number
-          featured?: boolean
+      featured?: boolean
+        }
+      }
+      product_categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          description: string | null
+          sort_order: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          description?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          sort_order?: number | null
+          created_at?: string
+          updated_at?: string
         }
       }
       products: {

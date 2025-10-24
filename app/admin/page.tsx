@@ -9,6 +9,7 @@ import {
   Star,
   FileText,
   FolderOpen,
+  Tags,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSessionUser } from "@/lib/auth/session"
@@ -53,6 +54,7 @@ export default async function AdminDashboard() {
     { title: "Customers", description: "Manage customer accounts", href: "/admin/customers", icon: Users },
     { title: "Reviews", description: "Manage customer reviews", href: "/admin/reviews", icon: Star },
     { title: "Blog", description: "Manage blog posts and content", href: "/admin/blog", icon: FileText },
+    { title: "Categories", description: "Organize product categories", href: "/admin/categories", icon: Tags },
     { title: "Collections", description: "Organize product collections", href: "/admin/collections", icon: FolderOpen },
   ]
 

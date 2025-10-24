@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
+﻿import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
-import { findProductById, upsertProduct, deleteProduct } from "@/lib/db/queries"
+import { findProductById, upsertProduct, deleteProduct, findProductCategoryBySlug } from "@/lib/db/queries"
 import { revalidateProductCache } from "@/lib/cache"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -38,6 +38,15 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const body = await request.json()
     const existing = await findProductById(id)
 
+    if (!body.category || typeof body.category !== "string") {
+      return NextResponse.json({ message: "Category is required." }, { status: 400 })
+    }
+
+    const category = await findProductCategoryBySlug(body.category)
+    if (!category) {
+      return NextResponse.json({ message: "Category does not exist." }, { status: 400 })
+    }
+
     const product = {
       id,
       name: body.name,
@@ -45,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       price: Number(body.price),
       compareAtPrice: body.compareAtPrice ? Number(body.compareAtPrice) : undefined,
       images: body.images || [],
-      category: body.category,
+      category: category.slug,
       collection: body.collection || undefined,
       inStock: Boolean(body.inStock),
       stockQuantity: Number(body.stockQuantity),
@@ -99,6 +108,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return NextResponse.json({ message: "Unable to delete product." }, { status: 500 })
   }
 }
+
+
+
+
 
 
 

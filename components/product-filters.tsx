@@ -5,22 +5,20 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import {
-  AVAILABILITY_FILTERS,
-  CATEGORY_FILTERS,
-  PRICE_FILTERS,
-} from "@/lib/config/product-filters"
+import { AVAILABILITY_FILTERS, PRICE_FILTERS, type CategoryFilterOption } from "@/lib/config/product-filters"
 
 interface ProductFiltersProps {
   selectedCategories: string[]
   selectedPrices: string[]
   selectedAvailability: string[]
+  categories: CategoryFilterOption[]
 }
 
 export function ProductFilters({
   selectedCategories,
   selectedPrices,
   selectedAvailability,
+  categories,
 }: ProductFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -52,28 +50,32 @@ export function ProductFilters({
       {/* Category Filter */}
       <div>
         <h3 className="font-semibold mb-4">Category</h3>
-        <div className="space-y-3">
-          {CATEGORY_FILTERS.map((category) => {
-            const isChecked = selectedCategories.includes(category.id)
-            return (
-              <div key={category.id} className="flex items-center gap-2">
-                <Checkbox
-                  id={`category-${category.id}`}
-                  checked={isChecked}
-                  onCheckedChange={(checked) =>
-                    updateMultiValueParam("category", category.id, checked === true)
-                  }
-                />
-                <Label
-                  htmlFor={`category-${category.id}`}
-                  className="text-sm font-normal cursor-pointer"
-                >
-                  {category.label}
-                </Label>
-              </div>
-            )
-          })}
-        </div>
+        {categories.length > 0 ? (
+          <div className="space-y-3">
+            {categories.map((category) => {
+              const isChecked = selectedCategories.includes(category.id)
+              return (
+                <div key={category.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`category-${category.id}`}
+                    checked={isChecked}
+                    onCheckedChange={(checked) =>
+                      updateMultiValueParam("category", category.id, checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor={`category-${category.id}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {category.label}
+                  </Label>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No categories available.</p>
+        )}
       </div>
 
       <Separator />

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { type FocusEvent, useEffect, useState } from "react"
 import Link from "next/link"
@@ -7,12 +7,18 @@ import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useAuthStore } from "@/lib/store/auth-store"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { CATEGORY_FILTERS } from "@/lib/config/product-filters"
+import type { ProductCategory } from "@/types"
+import { sortProductCategories } from "@/lib/utils/categories"
+
+type NavigationDropdownItem = {
+  name: string
+  href: string
+}
 
 type NavigationItem = {
   name: string
   href: string
-  dropdownItems?: { name: string; href: string }[]
+  dropdownItems?: NavigationDropdownItem[]
 }
 
 export function SiteHeader() {
@@ -21,20 +27,53 @@ export function SiteHeader() {
   const initAuth = useAuthStore((state) => state.init)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [catalogCategories, setCatalogCategories] = useState<NavigationDropdownItem[]>([])
 
   useEffect(() => {
     initializeCart().catch(() => undefined)
     initAuth().catch(() => undefined)
   }, [initializeCart, initAuth])
 
-  const categoryNavigation = CATEGORY_FILTERS.map((category) => ({
-    name: category.label,
-    href: `/products?category=${category.id}`,
-  }))
+  useEffect(() => {
+    let active = true
+
+    const loadCategories = async () => {
+      try {
+        const response = await fetch("/api/categories")
+        if (!response.ok) {
+          throw new Error("Failed to load categories")
+        }
+        const data = await response.json()
+        if (!active) return
+
+        const rawCategories = Array.isArray(data.categories)
+          ? (data.categories as ProductCategory[])
+          : []
+
+        const items = sortProductCategories(rawCategories)
+          .filter((category) => category.slug && category.name)
+          .map((category) => ({
+            name: category.name,
+            href: `/products?category=${encodeURIComponent(category.slug)}`,
+          }))
+
+        setCatalogCategories(items)
+      } catch (error) {
+        console.error("Failed to load categories", error)
+        setCatalogCategories([])
+      }
+    }
+
+    loadCategories()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const navigation: NavigationItem[] = [
     { name: "HOME", href: "/" },
-    { name: "CATALOG", href: "/collections", dropdownItems: categoryNavigation },
+    { name: "CATALOG", href: "/collections", dropdownItems: catalogCategories.length > 0 ? catalogCategories : undefined },
     { name: "REVIEWS", href: "/reviews" },
     { name: "BLOG", href: "/blog" },
   ]
@@ -178,3 +217,8 @@ export function SiteHeader() {
     </header>
   )
 }
+
+
+
+
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
@@ -55,7 +55,7 @@ export default function AdminProductsPage() {
       products.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.toLowerCase().includes(searchQuery.toLowerCase()),
+          (product.categoryLabel ?? product.category).toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     [products, searchQuery],
   )
@@ -168,7 +168,7 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="p-4">
-                    <Badge variant="secondary">{product.category}</Badge>
+                    <Badge variant="secondary">{product.categoryLabel ?? product.category}</Badge>
                   </td>
                   <td className="p-4">
                     <div>
@@ -266,3 +266,4 @@ export default function AdminProductsPage() {
     </div>
   )
 }
+

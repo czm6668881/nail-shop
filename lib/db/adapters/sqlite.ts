@@ -13,6 +13,7 @@ import type {
   SupportTicket,
   ReturnRequest,
   NotificationPreferences,
+  ProductCategory,
 } from "@/types"
 import { db } from "../client"
 import { ensureDefaultAdmin } from "../seed"
@@ -27,6 +28,7 @@ type ProductRow = {
   compare_at_price: number | null
   images: string
   category: string
+  category_name?: string | null
   collection_slug: string | null
   in_stock: number
   stock_quantity: number
@@ -53,6 +55,22 @@ type CollectionRow = {
   product_count: number
   featured: number
 }
+
+type ProductCategoryRow = {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+const PRODUCT_SELECT_BASE = `
+  SELECT p.*, pc.name AS category_name
+  FROM products p
+  LEFT JOIN product_categories pc ON pc.slug = p.category
+`
 
 type ReviewRow = {
   id: string
@@ -166,7 +184,8 @@ const mapProduct = (row: ProductRow): Product => ({
   price: row.price,
   compareAtPrice: row.compare_at_price ?? undefined,
   images: JSON.parse(row.images),
-  category: row.category as Product["category"],
+  category: row.category,
+  categoryLabel: row.category_name ?? undefined,
   collection: row.collection_slug ?? undefined,
   inStock: Boolean(row.in_stock),
   stockQuantity: row.stock_quantity,
@@ -190,6 +209,16 @@ const mapCollection = (row: CollectionRow): Collection => ({
   image: row.image,
   productCount: row.product_count,
   featured: Boolean(row.featured),
+})
+
+const mapCategory = (row: ProductCategoryRow): ProductCategory => ({
+  id: row.id,
+  name: row.name,
+  slug: row.slug,
+  description: row.description ?? undefined,
+  sortOrder: row.sort_order,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
 })
 
 const mapReview = (row: ReviewRow): Review => ({
@@ -281,48 +310,185 @@ const mapNotificationPreferences = (row: NotificationPreferenceRow): Notificatio
 })
 
 export const listProducts = (): Product[] => {
-  const stmt = db.prepare("SELECT * FROM products ORDER BY created_at DESC")
+  const stmt = db.prepare(`${PRODUCT_SELECT_BASE} ORDER BY datetime(p.created_at) DESC`)
   const rows = stmt.all() as ProductRow[]
   return rows.map(mapProduct)
 }
 
 export const findProductBySlug = (slug: string): Product | null => {
-  const stmt = db.prepare("SELECT * FROM products WHERE slug = ?")
+  const stmt = db.prepare(`${PRODUCT_SELECT_BASE} WHERE p.slug = ? LIMIT 1`)
   const row = stmt.get(slug) as ProductRow | undefined
   return row ? mapProduct(row) : null
 }
 
 export const findProductById = (id: string): Product | null => {
-  const stmt = db.prepare("SELECT * FROM products WHERE id = ?")
+  const stmt = db.prepare(`${PRODUCT_SELECT_BASE} WHERE p.id = ? LIMIT 1`)
   const row = stmt.get(id) as ProductRow | undefined
   return row ? mapProduct(row) : null
 }
 
 export const listFeaturedProducts = (): Product[] => {
-  const stmt = db.prepare("SELECT * FROM products WHERE featured = 1 ORDER BY created_at DESC LIMIT 12")
+  const stmt = db.prepare(
+    `${PRODUCT_SELECT_BASE} WHERE p.featured = 1 ORDER BY datetime(p.created_at) DESC LIMIT 12`,
+  )
   const rows = stmt.all() as ProductRow[]
   return rows.map(mapProduct)
 }
 
 export const listProductsByCollection = (collectionSlug: string): Product[] => {
-  const stmt = db.prepare("SELECT * FROM products WHERE collection_slug = ? ORDER BY created_at DESC")
-  const rows = stmt.all(collectionSlug) as ProductRow[]
+  const stmt = db.prepare(
+    `${PRODUCT_SELECT_BASE} WHERE p.collection_slug = @collection_slug ORDER BY datetime(p.created_at) DESC`,
+  )
+  const rows = stmt.all({ collection_slug: collectionSlug }) as ProductRow[]
   return rows.map(mapProduct)
 }
 
 export const listProductsByCategory = (category: string): Product[] => {
-  const stmt = db.prepare("SELECT * FROM products WHERE category = ? ORDER BY created_at DESC")
-  const rows = stmt.all(category) as ProductRow[]
+  const stmt = db.prepare(
+    `${PRODUCT_SELECT_BASE} WHERE p.category = @category ORDER BY datetime(p.created_at) DESC`,
+  )
+  const rows = stmt.all({ category }) as ProductRow[]
   return rows.map(mapProduct)
 }
 
 export const searchProductsByQuery = (query: string): Product[] => {
   const like = `%${query.toLowerCase()}%`
   const stmt = db.prepare(
-    `SELECT * FROM products WHERE lower(name) LIKE @like OR lower(description) LIKE @like OR lower(category) LIKE @like`,
+    `${PRODUCT_SELECT_BASE} WHERE lower(p.name) LIKE @like OR lower(p.description) LIKE @like OR lower(p.category) LIKE @like`,
   )
   const rows = stmt.all({ like }) as ProductRow[]
   return rows.map(mapProduct)
+}
+
+export const listProductCategories = (): ProductCategory[] => {
+  const stmt = db.prepare(
+    "SELECT * FROM product_categories ORDER BY sort_order ASC, name COLLATE NOCASE ASC",
+  )
+  const rows = stmt.all() as ProductCategoryRow[]
+  return rows.map(mapCategory)
+}
+
+export const findProductCategoryById = (id: string): ProductCategory | null => {
+  const row = db
+    .prepare("SELECT * FROM product_categories WHERE id = ? LIMIT 1")
+    .get(id) as ProductCategoryRow | undefined
+  return row ? mapCategory(row) : null
+}
+
+export const findProductCategoryBySlug = (slug: string): ProductCategory | null => {
+  const row = db
+    .prepare("SELECT * FROM product_categories WHERE slug = ? LIMIT 1")
+    .get(slug) as ProductCategoryRow | undefined
+  return row ? mapCategory(row) : null
+}
+
+export const createProductCategory = (category: {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  sortOrder?: number
+}): ProductCategory => {
+  const now = new Date().toISOString()
+  const maxOrderRow = db.prepare("SELECT COALESCE(MAX(sort_order), -1) as max FROM product_categories").get() as {
+    max: number
+  }
+  const nextSortOrder =
+    typeof category.sortOrder === "number" ? category.sortOrder : (maxOrderRow.max ?? -1) + 1
+  const payload = {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    description: category.description ?? null,
+    sort_order: nextSortOrder,
+    created_at: now,
+    updated_at: now,
+  }
+
+  db.prepare(
+    `INSERT INTO product_categories (id, name, slug, description, sort_order, created_at, updated_at)
+     VALUES (@id, @name, @slug, @description, @sort_order, @created_at, @updated_at)`,
+  ).run(payload)
+
+  return mapCategory(payload)
+}
+
+export const updateProductCategory = (
+  id: string,
+  updates: {
+    name?: string
+    slug?: string
+    description?: string | null
+    sortOrder?: number | null
+  },
+): ProductCategory | null => {
+  const existingRow = db
+    .prepare("SELECT * FROM product_categories WHERE id = ? LIMIT 1")
+    .get(id) as ProductCategoryRow | undefined
+
+  if (!existingRow) {
+    return null
+  }
+
+  const nextSlug = updates.slug ?? existingRow.slug
+  const slugChanged = nextSlug !== existingRow.slug
+  const payload = {
+    id,
+    name: updates.name ?? existingRow.name,
+    slug: nextSlug,
+    description: updates.description ?? existingRow.description,
+    sort_order: typeof updates.sortOrder === "number" ? updates.sortOrder : existingRow.sort_order,
+    updated_at: new Date().toISOString(),
+  }
+
+  db.prepare(
+    `UPDATE product_categories
+     SET name = @name,
+         slug = @slug,
+         description = @description,
+         sort_order = @sort_order,
+         updated_at = @updated_at
+     WHERE id = @id`,
+  ).run(payload)
+
+  if (slugChanged) {
+    db.prepare("UPDATE products SET category = @nextSlug WHERE category = @previousSlug").run({
+      nextSlug,
+      previousSlug: existingRow.slug,
+    })
+  }
+
+  return mapCategory({
+    ...existingRow,
+    name: payload.name,
+    slug: payload.slug,
+    description: payload.description,
+    sort_order: payload.sort_order,
+    updated_at: payload.updated_at,
+  })
+}
+
+export const deleteProductCategory = (
+  id: string,
+): { success: true } | { success: false; reason: "CATEGORY_IN_USE" } => {
+  const existingRow = db
+    .prepare("SELECT * FROM product_categories WHERE id = ? LIMIT 1")
+    .get(id) as ProductCategoryRow | undefined
+
+  if (!existingRow) {
+    return { success: true }
+  }
+
+  const productCountRow = db
+    .prepare("SELECT COUNT(*) as count FROM products WHERE category = ?")
+    .get(existingRow.slug) as { count: number }
+
+  if (productCountRow.count > 0) {
+    return { success: false, reason: "CATEGORY_IN_USE" }
+  }
+
+  db.prepare("DELETE FROM product_categories WHERE id = ?").run(id)
+  return { success: true }
 }
 
 export const upsertProduct = (product: Product) => {

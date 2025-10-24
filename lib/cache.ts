@@ -27,6 +27,10 @@ export const revalidateProductCache = (options: { slug?: string | null; collecti
   }
 }
 
+export const revalidateCategoryCache = () => {
+  revalidateMany("/", "/products")
+}
+
 export const revalidateCollectionCache = (slug?: string | null) => {
   revalidateMany("/", "/collections")
 

@@ -7,7 +7,8 @@ export interface Product {
   price: number
   compareAtPrice?: number
   images: string[]
-  category: ProductCategory
+  category: string
+  categoryLabel?: string
   collection?: string
   inStock: boolean
   stockQuantity: number
@@ -23,17 +24,15 @@ export interface Product {
   reviewCount: number
 }
 
-export type ProductCategory =
-  | "classic"
-  | "french"
-  | "glitter"
-  | "ombre"
-  | "chrome"
-  | "matte"
-  | "stiletto"
-  | "almond"
-  | "coffin"
-  | "square"
+export interface ProductCategory {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
 
 export type NailSize = "XS" | "S" | "M" | "L" | "XL"
 

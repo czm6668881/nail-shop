@@ -24,14 +24,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import type { Product } from "@/types"
-
-const CATEGORIES = [
-  "Press-On Nails",
-  "Nail Care",
-  "Nail Art",
-  "Tools & Accessories",
-] as const
+import type { Product, ProductCategory } from "@/types"
+import { sortProductCategories } from "@/lib/utils/categories"
 
 const NAIL_SIZES = ["XS", "S", "M", "L", "XL"]
 
@@ -52,7 +46,7 @@ export default function EditProductPage() {
     description: "",
     price: "",
     compareAtPrice: "",
-    category: "Press-On Nails" as Product["category"],
+    category: "" as Product["category"],
     collection: "",
     inStock: true,
     stockQuantity: "0",
@@ -66,6 +60,39 @@ export default function EditProductPage() {
     materials: [] as string[],
     materialInput: "",
   })
+  const [categories, setCategories] = useState<ProductCategory[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [categoriesError, setCategoriesError] = useState<string | null>(null)
+
+  const loadCategories = useCallback(async () => {
+    try {
+      setCategoriesLoading(true)
+      setCategoriesError(null)
+
+      const response = await fetch("/api/admin/categories")
+      if (!response.ok) {
+        throw new Error("Unable to load categories.")
+      }
+
+      const data = await response.json()
+      const fetched = (data.categories ?? []) as ProductCategory[]
+      const sorted = sortProductCategories(fetched)
+      setCategories(sorted)
+
+      if (sorted.length > 0) {
+        setFormData((prev) =>
+          prev.category && sorted.some((category) => category.slug === prev.category)
+            ? prev
+            : { ...prev, category: sorted[0].slug as Product["category"] },
+        )
+      }
+    } catch (error) {
+      console.error("Failed to load categories", error)
+      setCategoriesError(error instanceof Error ? error.message : "Unable to load categories.")
+    } finally {
+      setCategoriesLoading(false)
+    }
+  }, [])
 
   const loadProduct = useCallback(async () => {
     try {
@@ -104,6 +131,10 @@ export default function EditProductPage() {
   }, [productId])
 
   useEffect(() => {
+    loadCategories()
+  }, [loadCategories])
+
+  useEffect(() => {
     if (!isNew) {
       loadProduct()
     }
@@ -112,6 +143,12 @@ export default function EditProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
+
+    if (!formData.category) {
+      toast.error("Please select a category")
+      setSaving(false)
+      return
+    }
 
     try {
       const productData = {
@@ -163,21 +200,24 @@ export default function EditProductPage() {
     const file = event.target.files?.[0]
     if (!file) return
 
-    // 验证文件类型
+    setUploading(true)
+
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
     if (!allowedTypes.includes(file.type)) {
-      toast.error("不支持的文件格式。请上传 JPG、PNG、GIF 或 WebP 格式的图片")
+      toast.error("Unsupported file format. Please upload JPG, PNG, GIF, or WebP images.")
+      setUploading(false)
       return
     }
 
-    // 验证文件大小 (最大 5MB)
-    const maxSize = 5 * 1024 * 1024
+    const maxSizeMb = 5
+    const maxSize = maxSizeMb * 1024 * 1024
     if (file.size > maxSize) {
-      toast.error("文件太大。最大支持 5MB")
+      toast.error("File is too large. Maximum size is " + maxSizeMb + "MB.")
+      setUploading(false)
       return
     }
 
-    const loadingToast = toast.loading("正在上传图片...")
+    const loadingToast = toast.loading("Uploading image...")
 
     try {
       const formData = new FormData()
@@ -189,33 +229,29 @@ export default function EditProductPage() {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "上传失败")
+        const error = await response.json().catch(() => ({}))
+        throw new Error(typeof error.error === "string" ? error.error : "Image upload failed")
       }
 
       const data = await response.json()
-      
-      setFormData(prev => ({
+
+      setFormData((prev) => ({
         ...prev,
         images: [...prev.images, data.url],
       }))
 
+      toast.success("Image uploaded successfully")
+    } catch (error) {
+      console.error("Image upload failed:", error)
+      toast.error(error instanceof Error ? error.message : "Image upload failed")
+    } finally {
       toast.dismiss(loadingToast)
-      toast.success("图片上传成功")
-
-      // 重置文件输入
+      setUploading(false)
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
-    } catch (error) {
-      toast.dismiss(loadingToast)
-      console.error("上传失败:", error)
-      toast.error(error instanceof Error ? error.message : "图片上传失败")
-    } finally {
-      setUploading(false)
     }
   }
-
   const removeImage = (index: number) => {
     setFormData({
       ...formData,
@@ -233,18 +269,19 @@ export default function EditProductPage() {
   }
 
   const addFeature = () => {
-    if (formData.featureInput.trim()) {
-      setFormData({
-        ...formData,
-        features: [...formData.features, formData.featureInput.trim()],
-        featureInput: "",
-      })
-      toast.success("特性已添加")
-    } else {
-      toast.error("请输入特性内容")
+    if (formData.featureInput.trim().length === 0) {
+      toast.error("Please enter a feature before adding.")
+      return
     }
-  }
 
+    setFormData((prev) => ({
+      ...prev,
+      features: [...prev.features, prev.featureInput.trim()],
+      featureInput: "",
+    }))
+
+    toast.success("Feature added")
+  }
   const removeFeature = (index: number) => {
     setFormData({
       ...formData,
@@ -253,18 +290,19 @@ export default function EditProductPage() {
   }
 
   const addMaterial = () => {
-    if (formData.materialInput.trim()) {
-      setFormData({
-        ...formData,
-        materials: [...formData.materials, formData.materialInput.trim()],
-        materialInput: "",
-      })
-      toast.success("材料已添加")
-    } else {
-      toast.error("请输入材料内容")
+    if (formData.materialInput.trim().length === 0) {
+      toast.error("Please enter a material before adding.")
+      return
     }
-  }
 
+    setFormData((prev) => ({
+      ...prev,
+      materials: [...prev.materials, prev.materialInput.trim()],
+      materialInput: "",
+    }))
+
+    toast.success("Material added")
+  }
   const removeMaterial = (index: number) => {
     setFormData({
       ...formData,
@@ -365,24 +403,37 @@ export default function EditProductPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="category">Category *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value as Product["category"] })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label htmlFor="category">Category *</Label>
+            <Select
+              value={formData.category}
+              disabled={categoriesLoading || categories.length === 0}
+              onValueChange={(value) => setFormData({ ...formData, category: value as Product["category"] })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category"} />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.slug}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {categoriesError && (
+              <p className="mt-2 text-xs text-destructive">{categoriesError}</p>
+            )}
+            {!categoriesLoading && categories.length === 0 && !categoriesError && (
+              <p className="mt-2 text-xs text-destructive">
+                No categories found.{" "}
+                <Link href="/admin/categories" className="underline hover:text-destructive">
+                  Create a category
+                </Link>{" "}
+                before creating products.
+              </p>
+            )}
+          </div>
 
             <div>
               <Label htmlFor="stockQuantity">Stock Quantity *</Label>
@@ -434,7 +485,7 @@ export default function EditProductPage() {
           <div>
             <Label>产品图片</Label>
             <p className="text-sm text-muted-foreground mt-1 mb-3">
-              点击下方按钮上传本地图片，支持 JPG、PNG、GIF、WebP 格式，最大 5MB
+              点击下方按钮上传本地图片，支持 JPG、PNG、GIF、WebP 格式（最大 5MB）
             </p>
             <div className="mt-3 space-y-4">
               {/* 文件上传区域 */}
@@ -457,13 +508,11 @@ export default function EditProductPage() {
                   {uploading ? "上传中..." : "上传图片"}
                 </Button>
               </div>
-
-              {/* Image preview grid */}
               {formData.images.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {formData.images.map((img, index) => (
                     <div key={index} className="group relative">
-                      <div 
+                      <div
                         className="aspect-square rounded-lg border-2 border-border overflow-hidden bg-muted cursor-pointer"
                         onDoubleClick={() => {
                           setPreviewImage(img)
@@ -472,11 +521,11 @@ export default function EditProductPage() {
                       >
                         <Image
                           src={img || "/placeholder.svg"}
-                          alt={`Product image ${index + 1}`}
+                          alt={`产品图片 ${index + 1}`}
                           width={300}
                           height={300}
                           className="object-cover w-full h-full"
-                          unoptimized={img.startsWith('http')}
+                          unoptimized={img.startsWith("http")}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = "/placeholder.svg"
@@ -509,6 +558,95 @@ export default function EditProductPage() {
                             setFormData({ ...formData, images: newImages })
                           }}
                           className="text-xs"
+                          placeholder="图片 URL"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
+                  <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground font-medium">暂无已上传图片</p>
+                  <p className="text-sm text-muted-foreground mt-1">点击上方按钮上传产品图片。</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <Label>Product Images</Label>
+            <p className="text-sm text-muted-foreground mt-1 mb-3">
+              Click the button below to upload local images. Supported formats: JPG, PNG, GIF, WebP (max 5MB).
+            </p>
+            <div className="mt-3 space-y-4">
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  onClick={handleFileSelect}
+                  disabled={uploading}
+                  variant="default"
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploading ? "Uploading..." : "Upload Image"}
+                </Button>
+              </div>
+              {formData.images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="group relative">
+                      <div
+                        className="aspect-square rounded-lg border-2 border-border overflow-hidden bg-muted cursor-pointer"
+                        onDoubleClick={() => {
+                          setPreviewImage(img)
+                          setIsPreviewOpen(true)
+                        }}
+                      >
+                        <Image
+                          src={img || "/placeholder.svg"}
+                          alt={`Product image ${index + 1}`}
+                          width={300}
+                          height={300}
+                          className="object-cover w-full h-full"
+                          unoptimized={img.startsWith('http')}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = "/placeholder.svg"
+                          }}
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center pointer-events-none">
+                        <div className="flex flex-col items-center gap-2 pointer-events-auto">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Remove
+                          </Button>
+                          <span className="text-xs text-white px-2 py-1 bg-black/50 rounded pointer-events-none">
+                            Image {index + 1} (double-click to preview)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <Input
+                          value={img}
+                          onChange={(e) => {
+                            const newImages = [...formData.images]
+                            newImages[index] = e.target.value
+                            setFormData({ ...formData, images: newImages })
+                          }}
+                          className="text-xs"
                           placeholder="Image URL"
                         />
                       </div>
@@ -518,22 +656,21 @@ export default function EditProductPage() {
               ) : (
                 <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground font-medium">暂无图片</p>
-                  <p className="text-sm text-muted-foreground mt-1">点击上方“上传图片”按钮添加产品图片</p>
+                  <p className="text-muted-foreground font-medium">No images yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Click the upload button above to add product images.</p>
                 </div>
               )}
             </div>
           </div>
-
           <div>
-            <Label htmlFor="featureInput">产品特性</Label>
+            <Label htmlFor="featureInput">Product Features</Label>
             <p className="text-sm text-muted-foreground mt-1 mb-3">
-              添加产品的主要特性和优点
+              Add key selling points or highlights for this product.
             </p>
             <div className="flex gap-2 mb-2">
               <Input
                 id="featureInput"
-                placeholder="输入特性内容，然后点击添加"
+                placeholder="Enter a feature and click Add"
                 value={formData.featureInput}
                 onChange={(e) => setFormData({ ...formData, featureInput: e.target.value })}
                 onKeyPress={(e) => {
@@ -546,7 +683,7 @@ export default function EditProductPage() {
               />
               <Button type="button" onClick={addFeature} className="shrink-0">
                 <Plus className="h-4 w-4 mr-2" />
-                添加
+                Add
               </Button>
             </div>
             <div className="space-y-2">
@@ -555,22 +692,21 @@ export default function EditProductPage() {
                   <Input value={feature} readOnly />
                   <Button type="button" variant="destructive" size="sm" onClick={() => removeFeature(index)}>
                     <X className="h-4 w-4 mr-1" />
-                    删除
+                    Remove
                   </Button>
                 </div>
               ))}
             </div>
           </div>
-
           <div>
-            <Label htmlFor="materialInput">产品材料</Label>
+            <Label htmlFor="materialInput">Product Materials</Label>
             <p className="text-sm text-muted-foreground mt-1 mb-3">
-              添加产品的主要材料成分
+              List the primary materials used in this product.
             </p>
             <div className="flex gap-2 mb-2">
               <Input
                 id="materialInput"
-                placeholder="输入材料内容，然后点击添加"
+                placeholder="Enter a material and click Add"
                 value={formData.materialInput}
                 onChange={(e) => setFormData({ ...formData, materialInput: e.target.value })}
                 onKeyPress={(e) => {
@@ -583,7 +719,7 @@ export default function EditProductPage() {
               />
               <Button type="button" onClick={addMaterial} className="shrink-0">
                 <Plus className="h-4 w-4 mr-2" />
-                添加
+                Add
               </Button>
             </div>
             <div className="space-y-2">
@@ -592,13 +728,12 @@ export default function EditProductPage() {
                   <Input value={material} readOnly />
                   <Button type="button" variant="destructive" size="sm" onClick={() => removeMaterial(index)}>
                     <X className="h-4 w-4 mr-1" />
-                    删除
+                    Remove
                   </Button>
                 </div>
               ))}
             </div>
           </div>
-
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Switch
