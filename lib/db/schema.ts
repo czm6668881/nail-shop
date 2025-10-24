@@ -4,15 +4,17 @@ const run = (sql: string) => {
   db.prepare(sql).run()
 }
 
-const addColumnIfMissing = (table: string, columnDefinition: string) => {
-  try {
-    db.prepare(`ALTER TABLE ${table} ADD COLUMN ${columnDefinition}`).run()
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("duplicate column name")) {
-      return
-    }
-    throw error
+const columnExists = (table: string, column: string) => {
+  const rows = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>
+  return rows.some((row) => row.name === column)
+}
+
+const addColumnIfMissing = (table: string, column: string, columnDefinition: string) => {
+  if (columnExists(table, column)) {
+    return false
   }
+  db.prepare(`ALTER TABLE ${table} ADD COLUMN ${columnDefinition}`).run()
+  return true
 }
 
 export const migrate = () => {
@@ -29,7 +31,12 @@ export const migrate = () => {
     )
   `)
 
-  addColumnIfMissing("users", "google_id TEXT UNIQUE")
+  addColumnIfMissing("users", "google_id", "google_id TEXT")
+  run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id
+    ON users(google_id)
+    WHERE google_id IS NOT NULL
+  `)
 
   run(`
     CREATE TABLE IF NOT EXISTS sessions (
