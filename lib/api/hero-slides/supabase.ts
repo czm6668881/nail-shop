@@ -6,7 +6,8 @@ type HeroSlideRow = Database["public"]["Tables"]["hero_slides"]["Row"]
 type HeroSlideInsert = Database["public"]["Tables"]["hero_slides"]["Insert"]
 type HeroSlideUpdate = Database["public"]["Tables"]["hero_slides"]["Update"]
 
-const missingTableMessage = "Supabase 中未找到 hero_slides 表，请在 SQL Editor 中运行 supabase/migrations/0004_hero_slides.sql 后重试。"
+const missingTableMessage =
+  "The hero_slides table is missing in Supabase. Run supabase/migrations/0004_hero_slides.sql in the SQL Editor and try again."
 
 const isMissingTableError = (error: unknown): boolean => {
   if (!error || typeof error !== "object") {

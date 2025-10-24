@@ -1,6 +1,6 @@
 /**
- * 用于本地 SQLite 数据库更新管理员邮箱
- * 使用方法: pnpm tsx scripts/update-admin-local.ts your-email@example.com
+ * Update the admin email in the local SQLite database.
+ * Usage: pnpm tsx scripts/update-admin-local.ts your-email@example.com
  */
 
 import Database from "better-sqlite3"
@@ -12,42 +12,42 @@ type UserRecord = { id: number | string; email: string }
 type RunResult = { changes: number }
 
 async function updateAdminEmailLocal(newEmail: string) {
-  console.log("正在使用本地 SQLite 数据库...")
+  console.log("Using the local SQLite database...")
 
   if (!existsSync(DB_PATH)) {
-    console.error(`数据库文件不存在: ${DB_PATH}`)
-    console.log("请先运行 'pnpm dev' 启动开发服务器以初始化数据库")
+    console.error(`Database file not found: ${DB_PATH}`)
+    console.log("Start the dev server with 'pnpm dev' to initialize the database first.")
     process.exit(1)
   }
 
   const db = new Database(DB_PATH)
 
   try {
-    // 查找当前管理员账号
+    // Locate the current admin account
     const adminUser = db
       .prepare("SELECT id, email FROM users WHERE role = 'admin' LIMIT 1")
       .get() as UserRecord | undefined
 
     if (!adminUser) {
-      console.error("未找到管理员账号")
-      console.log("数据库可能未初始化，请先运行 'pnpm dev'")
+      console.error("Admin account not found.")
+      console.log("The database may not be initialized; run 'pnpm dev' first.")
       process.exit(1)
     }
 
-    console.log(`找到管理员账号: ${adminUser.email}`)
-    console.log(`准备更新为: ${newEmail}`)
+    console.log(`Admin account located: ${adminUser.email}`)
+    console.log(`Preparing to update to: ${newEmail}`)
 
-    // 检查新邮箱是否已存在
+    // Check whether the new email already exists
     const existingUser = db
       .prepare("SELECT id, email FROM users WHERE email = ?")
       .get(newEmail) as UserRecord | undefined
 
     if (existingUser && existingUser.id !== adminUser.id) {
-      console.error(`邮箱 ${newEmail} 已被其他用户使用`)
+      console.error(`The email ${newEmail} is already in use by another user.`)
       process.exit(1)
     }
 
-    // 更新管理员邮箱
+    // Update the admin email
     const result = db
       .prepare(
         `UPDATE users 
@@ -59,40 +59,40 @@ async function updateAdminEmailLocal(newEmail: string) {
       .run(newEmail, adminUser.id) as unknown as RunResult
 
     if (result.changes > 0) {
-      console.log("✅ 管理员邮箱更新成功!")
-      console.log(`新管理员账号: ${newEmail}`)
-      console.log(`密码保持不变: Admin123!`)
-      console.log(`\n现在你可以使用新邮箱和密码登录后台管理界面了。`)
-      console.log(`访问地址: http://localhost:3000/admin`)
-      console.log(`\n请注意: 如果开发服务器正在运行，可能需要重启才能看到更改生效。`)
+      console.log("Admin email updated successfully!")
+      console.log(`New admin account: ${newEmail}`)
+      console.log(`Password remains: Admin123!`)
+      console.log("\nYou can now use the new email and password to access the admin dashboard.")
+      console.log("Admin dashboard: http://localhost:3000/admin")
+      console.log("\nIf the dev server is running, restart it to ensure the change is picked up.")
     } else {
-      console.error("更新失败，未找到对应的管理员账号")
+      console.error("Update failed; no matching admin account was found.")
     }
   } catch (error) {
-    console.error("更新管理员邮箱失败:", error)
+    console.error("Failed to update the admin email:", error)
     throw error
   } finally {
     db.close()
   }
 }
 
-// 从命令行参数获取新邮箱
+// Read the new email from the CLI arguments
 const newEmail = process.argv[2]
 
 if (!newEmail) {
-  console.error("请提供新的管理员邮箱地址")
-  console.log("使用方法: pnpm tsx scripts/update-admin-local.ts your-email@example.com")
+  console.error("Please provide the new admin email address.")
+  console.log("Usage: pnpm tsx scripts/update-admin-local.ts your-email@example.com")
   process.exit(1)
 }
 
-// 验证邮箱格式
+// Validate the email format
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 if (!emailRegex.test(newEmail)) {
-  console.error("无效的邮箱地址格式")
+  console.error("Invalid email address format.")
   process.exit(1)
 }
 
 updateAdminEmailLocal(newEmail).catch((error) => {
-  console.error("更新失败:", error)
+  console.error("Update failed:", error)
   process.exitCode = 1
 })

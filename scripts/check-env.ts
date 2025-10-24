@@ -1,5 +1,5 @@
 /**
- * 检查生产环境所需的环境变量是否已配置
+ * Verify that the environment variables required for production are configured.
  */
 
 const requiredEnvVars = [
@@ -24,23 +24,23 @@ for (const varName of requiredEnvVars) {
 }
 
 if (missingVars.length > 0) {
-  console.error('❌ 缺少以下必需的环境变量：')
+  console.error('Missing required environment variables:')
   missingVars.forEach((varName) => {
     console.error(`   - ${varName}`)
   })
-  console.error('\n请在 .env.local（本地）或 Vercel 环境变量（生产）中配置这些变量。')
-  console.error('参考 .env.example 文件查看所需的环境变量。')
+  console.error('\nConfigure these variables in .env.local (local) or Vercel environment settings (production).')
+  console.error('See .env.example for the full list.')
   process.exit(1)
 }
 
-console.log('✅ 所有必需的环境变量已配置')
+console.log('All required environment variables are configured.')
 
-// 检查可选的 Google OAuth 配置
+// Check the optional Google OAuth configuration
 const missingOptional = optionalEnvVars.filter(varName => !process.env[varName])
 if (missingOptional.length > 0) {
-  console.log('\n⚠️  可选功能：Google 第三方登录未配置')
-  console.log('   用户可以通过邮箱密码注册登录')
-  console.log('   如需启用 Google 登录，请配置以下环境变量：')
+  console.log('\nOptional feature: Google sign-in is not configured.')
+  console.log('   Users can still register and sign in with email and password.')
+  console.log('   To enable Google sign-in, set the following variables:')
   missingOptional.forEach((varName) => {
     console.log(`   - ${varName}`)
   })

@@ -1,82 +1,81 @@
-# 首页轮播功能说明
+# Hero Carousel Guide
 
-## 功能概述
+## Overview
 
-成功为首页添加了轮播功能，支持：
-- 自动播放，每5秒自动切换
-- 左右箭头按钮手动切换
-- 底部指示器，点击可跳转到指定图片
-- 鼠标悬停暂停自动播放
-- 后台管理界面，可以添加、编辑、删除轮播图
+The homepage now includes a hero carousel with the following capabilities:
+- Autoplay with a 5-second interval
+- Manual navigation via left/right arrows
+- Clickable indicators for direct slide access
+- Autoplay pauses while the cursor hovers over the carousel
+- Admin panel support for creating, editing, reordering, and deleting slides
 
-## 技术实现
+## Implementation Details
 
-### 1. 数据库表
-- 新增 `hero_slides` 表存储轮播图数据
-- 字段包括：标题、副标题、图片URL、按钮文本、按钮链接、排序、状态等
+### 1. Database
+- Added the `hero_slides` table to store slide data
+- Columns include: title, subtitle, image URL, button text, button link, sort order, active status, and timestamps
 
-### 2. 后台管理
-- 访问路径：`/admin/hero-slides`
-- 功能：
-  - 添加新轮播图
-  - 编辑现有轮播图
-  - 启用/禁用轮播图
-  - 删除轮播图
-  - 上传图片
+### 2. Admin experience
+- Route: `/admin/hero-slides`
+- Features:
+  - Create new slides
+  - Edit existing slides
+  - Enable or disable slides
+  - Delete slides
+  - Upload new images
 
-### 3. 前台展示
-- 位置：首页顶部 Hero Section
-- 特性：
-  - 图片淡入淡出过渡效果
-  - 响应式设计，移动端友好
-  - 无障碍支持（ARIA 标签）
-  - 如果没有轮播图，显示默认内容
+### 3. Frontend display
+- Location: top of the homepage hero section
+- Highlights:
+  - Cross-fade transition between images
+  - Responsive layout for mobile and desktop
+  - Accessibility support through ARIA attributes
+  - Falls back to the original static hero when no slides exist
 
-## 使用方法
+## How to Use
 
-### 添加首张轮播图
-1. 访问后台管理：`http://localhost:3000/admin/hero-slides`
-2. 点击"添加轮播图"按钮
-3. 填写：
-   - 标题（必填）：例如"凝胶美甲"
-   - 副标题（可选）：例如"探索我们一系列优质按压式美甲"
-   - 图片（必填）：可以上传新图片或输入URL，例如 `/luxury-press-on-nails-hero-image-elegant-hands.jpg`
-   - 按钮文本（可选）：例如"立即购买"
-   - 按钮链接（可选）：例如"/products"
-   - 启用状态：勾选
-4. 点击"创建"保存
+### Add the first slide
+1. Visit `http://localhost:3000/admin/hero-slides`.
+2. Click **Add slide**.
+3. Provide the following:
+   - **Title** (required), e.g., "Gel Manicure"
+  - **Subtitle** (optional), e.g., "Discover our premium press-on nails"
+   - **Image** (required): upload or provide a URL, e.g., `/luxury-press-on-nails-hero-image-elegant-hands.jpg`
+   - **Button text** (optional), e.g., "Shop now"
+   - **Button link** (optional), e.g., `/products`
+   - **Active**: keep enabled to display the slide
+4. Click **Create** to save.
 
-### 添加更多轮播图
-重复上述步骤，添加多张轮播图。建议添加2-5张图片以获得最佳效果。
+### Add more slides
+Repeat the steps above to add additional slides. Two to five slides provide the best experience.
 
-## 文件清单
+## File Reference
 
-### 新增文件
-- `lib/api/hero-slides.ts` - 轮播图数据API
-- `app/api/hero-slides/route.ts` - 前台API路由（获取激活的轮播图）
-- `app/api/admin/hero-slides/route.ts` - 后台API路由（列表、创建、排序）
-- `app/api/admin/hero-slides/[id]/route.ts` - 后台API路由（详情、更新、删除）
-- `app/admin/hero-slides/page.tsx` - 后台管理界面
-- `components/hero-carousel.tsx` - 前台轮播组件
-- `HERO_CAROUSEL_SETUP.md` - 本说明文件
+### Added files
+- `lib/api/hero-slides.ts` - shared helpers for fetching hero slides
+- `app/api/hero-slides/route.ts` - public API for active slides
+- `app/api/admin/hero-slides/route.ts` - admin API for listing, creating, and sorting
+- `app/api/admin/hero-slides/[id]/route.ts` - admin API for detail, update, and delete
+- `app/admin/hero-slides/page.tsx` - admin management screen
+- `components/hero-carousel.tsx` - frontend carousel component
+- `HERO_CAROUSEL_SETUP.md` - this guide
 
-### 修改文件
-- `lib/db/schema.ts` - 添加 hero_slides 表定义
-- `types/database.ts` - 添加数据库类型
-- `types/index.ts` - 添加 HeroSlide 接口
-- `app/page.tsx` - 使用新的轮播组件
-- `components/admin/admin-shell.tsx` - 添加"Hero Slides"导航菜单项
+### Updated files
+- `lib/db/schema.ts` - hero slide table definition
+- `types/database.ts` - generated database types
+- `types/index.ts` - `HeroSlide` interface
+- `app/page.tsx` - integrates the carousel
+- `components/admin/admin-shell.tsx` - adds the "Hero Slides" navigation link
 
-## 注意事项
+## Notes
 
-1. **数据库迁移**：首次启动时会自动创建 `hero_slides` 表
-2. **图片路径**：建议使用 `/public` 目录下的图片或上传新图片
-3. **原有功能**：保持完整，页面风格不变
-4. **国际化**：界面采用中文，符合项目国际化要求
+1. **Database migration:** the `hero_slides` table is created automatically on first run.
+2. **Images:** use assets from the `/public` directory or upload new images from the admin UI.
+3. **Existing features:** the rest of the homepage remains unchanged.
+4. **Localization:** the admin interface text is in English to match the updated project language.
 
-## 测试
+## Testing
 
-访问首页 `http://localhost:3000`，查看轮播效果。如果没有数据，会显示原来的默认内容。
+Visit `http://localhost:3000` to confirm the carousel renders. The fallback hero displays if no slides exist.
 
-访问 `http://localhost:3000/admin/hero-slides` 添加轮播图后，刷新首页即可看到轮播效果。
-
+Create a slide in `http://localhost:3000/admin/hero-slides`, then refresh the homepage to view it.

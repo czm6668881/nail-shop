@@ -168,12 +168,12 @@ export default function AdminCategoriesPage() {
       }
 
       if (!payload.name) {
-        toast.error("分类名称不能为空")
+        toast.error("Category name is required")
         return
       }
 
       if (!payload.slug) {
-        toast.error("分类标识不能为空")
+        toast.error("Category slug is required")
         return
       }
 
@@ -184,7 +184,7 @@ export default function AdminCategoriesPage() {
       if (formState.sortOrder.trim().length > 0) {
         const parsed = Number(formState.sortOrder)
         if (Number.isNaN(parsed)) {
-          toast.error("排序值必须是数字")
+          toast.error("Sort order must be a number")
           return
         }
         payload.sortOrder = parsed
@@ -203,12 +203,12 @@ export default function AdminCategoriesPage() {
 
       if (!response.ok) {
         const message = await response.json().catch(() => ({}))
-        throw new Error(message?.message ?? "操作失败，请稍后重试")
+        throw new Error(message?.message ?? "Operation failed. Please try again later.")
       }
 
       const data = await response.json()
       if (!data?.category) {
-        throw new Error("服务器返回数据异常")
+        throw new Error("Server returned invalid data.")
       }
 
       setCategories((prev) =>
@@ -219,11 +219,11 @@ export default function AdminCategoriesPage() {
         ),
       )
 
-      toast.success(dialogMode === "create" ? "分类创建成功" : "分类更新成功")
+      toast.success(dialogMode === "create" ? "Category created." : "Category updated.")
       setDialogOpen(false)
     } catch (error) {
       console.error(error)
-      toast.error(error instanceof Error ? error.message : "操作失败，请稍后重试")
+      toast.error(error instanceof Error ? error.message : "Operation failed. Please try again later.")
     } finally {
       setFormState((prev) => ({ ...prev, submitting: false }))
     }
@@ -242,16 +242,16 @@ export default function AdminCategoriesPage() {
       })
       if (!response.ok) {
         const message = await response.json().catch(() => ({}))
-        throw new Error(message?.message ?? "删除分类失败")
+        throw new Error(message?.message ?? "Failed to delete category.")
       }
 
       setCategories((prev) => prev.filter((category) => category.id !== categoryToDelete.id))
-      toast.success("分类删除成功")
+      toast.success("Category deleted.")
       setDeleteDialogOpen(false)
       setCategoryToDelete(null)
     } catch (error) {
       console.error(error)
-      toast.error(error instanceof Error ? error.message : "删除分类失败")
+      toast.error(error instanceof Error ? error.message : "Failed to delete category.")
     }
   }
 
@@ -259,7 +259,7 @@ export default function AdminCategoriesPage() {
     try {
       setRefreshing(true)
       await fetchCategories()
-      toast.success("分类列表已刷新")
+      toast.success("Category list refreshed.")
     } catch (error) {
       console.error("Refresh categories failed", error)
     } finally {
@@ -272,7 +272,7 @@ export default function AdminCategoriesPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Product Categories</h1>
-          <p className="text-muted-foreground">管理前台产品分类，保持前后端展示同步</p>
+          <p className="text-muted-foreground">Keep storefront categories in sync with the admin data.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleRefresh} disabled={loading || refreshing}>
@@ -281,7 +281,7 @@ export default function AdminCategoriesPage() {
           </Button>
           <Button onClick={openCreateDialog}>
             <Plus className="h-4 w-4 mr-2" />
-            新增分类
+            Add category
           </Button>
         </div>
       </div>
@@ -291,7 +291,7 @@ export default function AdminCategoriesPage() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="搜索分类名称或标识..."
+          placeholder="Search categories by name or slug..."
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           className="pl-9"
@@ -302,11 +302,11 @@ export default function AdminCategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[220px]">名称</TableHead>
-              <TableHead>标识</TableHead>
-              <TableHead>描述</TableHead>
-              <TableHead className="w-[120px] text-right">排序</TableHead>
-              <TableHead className="w-[140px] text-right">操作</TableHead>
+              <TableHead className="w-[220px]">Name</TableHead>
+              <TableHead>Slug</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="w-[120px] text-right">Sort</TableHead>
+              <TableHead className="w-[140px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -328,7 +328,7 @@ export default function AdminCategoriesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => openEditDialog(category)}
-                      title="编辑分类"
+                      title="Edit category"
                     >
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Edit</span>
@@ -337,7 +337,7 @@ export default function AdminCategoriesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => confirmDelete(category)}
-                      title="删除分类"
+                      title="Delete category"
                     >
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
@@ -349,14 +349,14 @@ export default function AdminCategoriesPage() {
             {loading && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  分类数据加载中...
+                  Loading categories...
                 </TableCell>
               </TableRow>
             )}
             {!loading && filteredCategories.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                  暂无匹配的分类
+                  No matching categories
                 </TableCell>
               </TableRow>
             )}
@@ -365,51 +365,51 @@ export default function AdminCategoriesPage() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        共 {filteredCategories.length} / {categories.length} 个分类
+        Showing {filteredCategories.length} of {categories.length} categories
       </p>
 
       <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{dialogMode === "create" ? "新增分类" : "编辑分类"}</DialogTitle>
+            <DialogTitle>{dialogMode === "create" ? "Add category" : "Edit category"}</DialogTitle>
             <DialogDescription>
-              分类的标识会用于前台筛选及导航链接，请确保与产品设置保持一致。
+              The slug powers storefront filters and navigation links; keep it aligned with your product settings.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="category-name">分类名称</Label>
+              <Label htmlFor="category-name">Category name</Label>
               <Input
                 id="category-name"
                 value={formState.name}
                 onChange={(event) => handleNameChange(event.target.value)}
-                placeholder="如：Classic"
+                placeholder="Example: Classic"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category-slug">分类标识 (slug)</Label>
+              <Label htmlFor="category-slug">Category slug</Label>
               <Input
                 id="category-slug"
                 value={formState.slug}
                 onChange={(event) => handleSlugChange(event.target.value)}
-                placeholder="示例：classic"
+                placeholder="Example: classic"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category-description">分类描述（可选）</Label>
+              <Label htmlFor="category-description">Category description (optional)</Label>
               <Input
                 id="category-description"
                 value={formState.description}
                 onChange={(event) =>
                   setFormState((prev) => ({ ...prev, description: event.target.value }))
                 }
-                placeholder="用于后台备注或前台展示的补充说明"
+                placeholder="Use for admin notes or additional storefront copy."
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category-sort">排序（数字，越小越靠前，可选）</Label>
+              <Label htmlFor="category-sort">Sort order (number, lower values appear first, optional)</Label>
               <Input
                 id="category-sort"
                 type="number"
@@ -417,7 +417,7 @@ export default function AdminCategoriesPage() {
                 onChange={(event) =>
                   setFormState((prev) => ({ ...prev, sortOrder: event.target.value }))
                 }
-                placeholder="例如：1"
+                placeholder="Example: 1"
                 min={0}
               />
             </div>
@@ -428,10 +428,10 @@ export default function AdminCategoriesPage() {
                 onClick={() => handleDialogOpenChange(false)}
                 disabled={formState.submitting}
               >
-                取消
+                Cancel
               </Button>
               <Button type="submit" disabled={formState.submitting}>
-                {formState.submitting ? "保存中..." : "保存"}
+                {formState.submitting ? "Saving..." : "Save"}
               </Button>
             </DialogFooter>
           </form>
@@ -441,20 +441,20 @@ export default function AdminCategoriesPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>确认删除分类</AlertDialogTitle>
+            <AlertDialogTitle>Confirm category deletion</AlertDialogTitle>
             <AlertDialogDescription>
               {categoryToDelete
-                ? `删除后将无法恢复，并会影响与该分类关联的导航显示。分类标识：${categoryToDelete.slug}`
-                : "确定删除该分类吗？"}
+                ? `This action cannot be undone and will affect navigation linked to this category. Slug: ${categoryToDelete.slug}`
+                : "Are you sure you want to delete this category?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}
             >
-              删除
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -462,8 +462,6 @@ export default function AdminCategoriesPage() {
     </div>
   )
 }
-
-
 
 
 

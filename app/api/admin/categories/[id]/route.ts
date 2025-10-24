@@ -98,13 +98,14 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       if (result.reason === "CATEGORY_IN_USE") {
         return NextResponse.json(
           {
-            message: "该分类仍在被商品使用，无法直接删除。请先在商品管理中修改这些商品的分类，然后再尝试删除。",
+            message:
+              "This category is still used by products. Update those products before deleting the category.",
             reason: "CATEGORY_IN_USE",
           },
           { status: 409 },
         )
       }
-      return NextResponse.json({ message: "删除分类失败，请稍后重试。" }, { status: 400 })
+      return NextResponse.json({ message: "Failed to delete category. Try again later." }, { status: 400 })
     }
 
     revalidateCategoryCache()

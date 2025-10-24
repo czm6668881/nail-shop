@@ -6,97 +6,97 @@ const ADMIN_PASSWORD = "Admin123!"
 
 test.describe("Admin Products Management", () => {
   test.beforeEach(async ({ page }) => {
-    // 登录管理员账户
+    // Sign in with the admin account
     await page.goto(`${BASE_URL}/login`)
     await page.fill('input[type="email"]', ADMIN_EMAIL)
     await page.fill('input[type="password"]', ADMIN_PASSWORD)
     await page.click('button[type="submit"]')
     
-    // 等待登录完成
+    // Wait for sign-in to complete
     await page.waitForURL(`${BASE_URL}/`)
     
-    // 导航到产品管理页面
+    // Navigate to the admin products page
     await page.goto(`${BASE_URL}/admin/products`)
     await page.waitForLoadState("networkidle")
   })
 
   test("should display products list", async ({ page }) => {
-    // 检查页面标题
+    // Verify the page heading
     await expect(page.locator("h1")).toContainText("Products")
     
-    // 检查是否有产品表格
+    // Ensure the products table is visible
     await expect(page.locator("table")).toBeVisible()
     
-    // 检查是否有至少一个产品
+    // Ensure at least one product exists
     const rows = page.locator("tbody tr")
     const count = await rows.count()
     expect(count).toBeGreaterThan(0)
   })
 
   test("should navigate to add product page", async ({ page }) => {
-    // 点击添加产品按钮
+    // Click the add product button
     await page.click('button:has-text("Add Product")')
     
-    // 验证跳转到新建产品页面
+    // Confirm navigation to the create product page
     await expect(page).toHaveURL(`${BASE_URL}/admin/products/new`)
     await expect(page.locator("h1")).toContainText("Create Product")
   })
 
   test("should be able to edit a product", async ({ page }) => {
-    // 等待产品加载
+    // Wait for products to load
     await page.waitForSelector("tbody tr")
     
-    // 点击第一个产品的编辑按钮
+    // Click the first product's edit button
     const editButton = page.locator("tbody tr").first().locator('button[title="Edit product"]')
     await editButton.click()
     
-    // 验证跳转到编辑页面
+    // Confirm navigation to the edit page
     await page.waitForURL(/\/admin\/products\/.+/)
     await expect(page.locator("h1")).toContainText("Edit Product")
     
-    // 验证表单已填充
+    // Verify the form is pre-filled
     const nameInput = page.locator('input[id="name"]')
     await expect(nameInput).not.toHaveValue("")
   })
 
   test("should be able to delete a product", async ({ page }) => {
-    // 等待产品列表加载
+    // Wait for the product list to load
     await page.waitForSelector("tbody tr")
     
-    // 点击最后一个产品的删除按钮
+    // Click the last product's delete button
     const deleteButton = page.locator("tbody tr").last().locator('button[title="Delete product"]')
     await deleteButton.click()
     
-    // 验证删除确认对话框出现
+    // Verify the delete confirmation dialog appears
     await expect(page.locator('[role="alertdialog"]')).toBeVisible()
     await expect(page.locator('[role="alertdialog"]')).toContainText("Delete Product")
     
-    // 确认删除
+    // Confirm deletion
     await page.click('button:has-text("Delete")')
     
-    // 等待删除完成
+    // Wait for deletion to finish
     await page.waitForTimeout(1000)
     
-    // 验证产品数量减少（注意：可能需要刷新或等待状态更新）
-    // 这里我们验证成功提示出现
+    // Verify the product count decreases (refresh may be required)
+    // Verify the success toast appears
     await expect(page.locator("text=Product deleted successfully")).toBeVisible()
   })
 
   test("should be able to search products", async ({ page }) => {
-    // 等待产品加载
+    // Wait for products to load
     await page.waitForSelector("tbody tr")
     
-    // 获取第一个产品的名称
+    // Capture the first product name
     const firstProductName = await page.locator("tbody tr").first().locator("td").nth(0).locator("p").first().textContent()
     
     if (firstProductName) {
-      // 搜索第一个产品
+      // Search for the first product
       await page.fill('input[placeholder="Search products..."]', firstProductName.substring(0, 5))
       
-      // 等待搜索结果更新
+      // Wait for search results to update
       await page.waitForTimeout(500)
       
-      // 验证搜索结果
+      // Validate the search results
       const rows = page.locator("tbody tr")
       const count = await rows.count()
       expect(count).toBeGreaterThan(0)
@@ -104,11 +104,11 @@ test.describe("Admin Products Management", () => {
   })
 
   test("should create a new product", async ({ page }) => {
-    // 点击添加产品按钮
+    // Click the add product button
     await page.click('button:has-text("Add Product")')
     await page.waitForURL(`${BASE_URL}/admin/products/new`)
     
-    // 填写产品表单
+    // Fill in the product form
     const timestamp = Date.now()
     await page.fill('input[id="name"]', `Test Product ${timestamp}`)
     await page.fill('input[id="slug"]', `test-product-${timestamp}`)
@@ -116,90 +116,90 @@ test.describe("Admin Products Management", () => {
     await page.fill('input[id="price"]', "29.99")
     await page.fill('input[id="stockQuantity"]', "100")
     
-    // 选择分类
+    // Select a category
     await page.click('button[role="combobox"]')
     await page.click('div[role="option"]:has-text("Press-On Nails")')
     
-    // 选择尺寸
+    // Select sizes
     await page.click('button:has-text("S")')
     await page.click('button:has-text("M")')
     await page.click('button:has-text("L")')
     
-    // 提交表单
+    // Submit the form
     await page.click('button[type="submit"]:has-text("Save Product")')
     
-    // 验证跳转回产品列表并显示成功消息
+    // Confirm we return to the products list and see the success message
     await page.waitForURL(`${BASE_URL}/admin/products`)
     await expect(page.locator("text=Product created successfully")).toBeVisible()
   })
 
   test("should edit an existing product", async ({ page }) => {
-    // 等待产品加载
+    // Wait for products to load
     await page.waitForSelector("tbody tr")
     
-    // 点击第一个产品的编辑按钮
+    // Click the first product's edit button
     const editButton = page.locator("tbody tr").first().locator('button[title="Edit product"]')
     await editButton.click()
     
-    // 等待编辑页面加载
+    // Wait for the edit page to load
     await page.waitForURL(/\/admin\/products\/.+/)
     
-    // 修改产品名称
+    // Update the product name
     const nameInput = page.locator('input[id="name"]')
     const originalName = await nameInput.inputValue()
     await nameInput.fill(`${originalName} (Updated)`)
     
-    // 提交表单
+    // Submit the form
     await page.click('button[type="submit"]:has-text("Save Product")')
     
-    // 验证跳转回产品列表并显示成功消息
+    // Confirm we return to the products list and see the success message
     await page.waitForURL(`${BASE_URL}/admin/products`)
     await expect(page.locator("text=Product updated successfully")).toBeVisible()
   })
 
   test("should display product images and preview on double click", async ({ page }) => {
-    // 等待产品加载
+    // Wait for products to load
     await page.waitForSelector("tbody tr")
     
-    // 点击第一个产品的编辑按钮
+    // Click the first product's edit button
     const editButton = page.locator("tbody tr").first().locator('button[title="Edit product"]')
     await editButton.click()
     
-    // 等待编辑页面加载
+    // Wait for the edit page to load
     await page.waitForURL(/\/admin\/products\/.+/)
     
-    // 等待页面完全加载
+    // Wait for the page to fully load
     await page.waitForLoadState("networkidle")
     
-    // 检查是否有图片
+    // Check whether images exist
     const imageContainers = page.locator(".aspect-square.rounded-lg.border-2")
     const imageCount = await imageContainers.count()
     
     if (imageCount > 0) {
-      // 验证第一张图片可见
+      // Ensure the first image is visible
       await expect(imageContainers.first()).toBeVisible()
       
-      // 双击第一张图片
+      // Double-click the first image
       await imageContainers.first().dblclick()
       
-      // 等待对话框出现
+      // Wait for the dialog to appear
       await page.waitForTimeout(500)
       
-      // 验证预览对话框出现
+      // Verify the preview dialog is visible
       const dialog = page.locator('[role="dialog"]')
       await expect(dialog).toBeVisible()
       
-      // 验证对话框标题
-      await expect(page.locator('text=图片预览')).toBeVisible()
+      // Verify the dialog title
+      await expect(page.locator('text=Image preview')).toBeVisible()
       
-      // 验证大图显示
+      // Verify the large preview renders
       const previewImage = dialog.locator("img")
       await expect(previewImage).toBeVisible()
       
-      // 关闭对话框
+      // Close the dialog
       await page.keyboard.press("Escape")
       
-      // 验证对话框关闭
+      // Confirm the dialog is dismissed
       await expect(dialog).not.toBeVisible()
     } else {
       console.log("No images found in product, skipping preview test")

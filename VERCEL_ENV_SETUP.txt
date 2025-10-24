@@ -1,47 +1,46 @@
-# 复制以下内容到 Vercel 环境变量配置中
-# Vercel Dashboard → Settings → Environment Variables
+# Copy the following into the Vercel environment variable configuration
+# Vercel Dashboard -> Settings -> Environment Variables
 
 # ============================================
-# Google OAuth 配置（必需）
+# Google OAuth configuration (required)
 # ============================================
 
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=你的Google_Client_ID.apps.googleusercontent.com
-GOOGLE_CLIENT_ID=你的Google_Client_ID.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=你的Google_Client_Secret
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_Google_Client_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=your_Google_Client_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_Google_Client_Secret
 
 # ============================================
-# Supabase 配置（生产环境必需）
+# Supabase configuration (required for production)
 # ============================================
 
 DATABASE_PROVIDER=supabase
-NEXT_PUBLIC_SUPABASE_URL=[请从 Supabase Dashboard 获取]
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[请从 Supabase Dashboard 获取]
-SUPABASE_SERVICE_ROLE_KEY=[请从 Supabase Dashboard 获取]
+NEXT_PUBLIC_SUPABASE_URL=[Retrieve from the Supabase Dashboard]
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[Retrieve from the Supabase Dashboard]
+SUPABASE_SERVICE_ROLE_KEY=[Retrieve from the Supabase Dashboard]
 
 # ============================================
-# 配置说明
+# Configuration steps
 # ============================================
 
-1. 登录 Vercel Dashboard
-2. 选择项目 → Settings → Environment Variables
-3. 逐个添加上述变量
-4. 对于 GOOGLE_CLIENT_SECRET 和 SUPABASE_SERVICE_ROLE_KEY，勾选 "Sensitive" 选项
-5. 选择环境：Production 和 Preview（两个都勾选）
-6. 保存后重新部署项目
+1. Sign in to the Vercel Dashboard
+2. Select the project -> Settings -> Environment Variables
+3. Add each variable listed above
+4. Mark GOOGLE_CLIENT_SECRET and SUPABASE_SERVICE_ROLE_KEY as "Sensitive"
+5. Choose both Production and Preview environments
+6. Save and redeploy the project
 
 # ============================================
-# Google Cloud Console 配置
+# Google Cloud Console configuration
 # ============================================
 
-确保在 Google Cloud Console 中配置了以下 Redirect URIs：
+Make sure the following redirect URIs are configured in Google Cloud Console:
 
-开发环境：
+Development environment:
 http://localhost:3000/api/auth/google/callback
 
-生产环境：
+Production environment:
 https://gelmanicure-nail.com/api/auth/google/callback
 https://www.gelmanicure-nail.com/api/auth/google/callback
 
-Vercel 预览环境（可选）：
+Vercel preview environment (optional):
 https://*.vercel.app/api/auth/google/callback
-

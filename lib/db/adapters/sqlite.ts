@@ -880,11 +880,11 @@ export const insertOrder = (order: Order) => {
       const currentRow = selectProductQuantityStmt.get(productId) as { stock_quantity: number } | undefined
 
       if (!currentRow) {
-        throw new InventoryError("PRODUCT_NOT_FOUND", "指定的商品不存在或已下架。", { productId })
+        throw new InventoryError("PRODUCT_NOT_FOUND", "The requested product does not exist or is no longer available.", { productId })
       }
 
       if (currentRow.stock_quantity < quantity) {
-        throw new InventoryError("INSUFFICIENT_STOCK", "库存不足，请调整购买数量后再试。", {
+        throw new InventoryError("INSUFFICIENT_STOCK", "Insufficient stock. Adjust the quantity and try again.", {
           productId,
           available: currentRow.stock_quantity,
           requested: quantity,

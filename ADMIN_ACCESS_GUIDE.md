@@ -1,239 +1,229 @@
-# 后台管理界面访问指南
+# Admin Panel Access Guide
 
-## 一、如何访问后台管理界面
+## 1. How to Access the Admin Panel
 
-### 访问地址
-- **本地开发环境**: `http://localhost:3000/admin`
-- **生产环境**: `https://你的域名/admin`
+### URLs
+- **Local development**: `http://localhost:3000/admin`
+- **Production environment**: `https://your-domain/admin`
 
-### 登录要求
-- 必须使用具有 `admin` 角色的账号登录
-- 登录地址: `http://localhost:3000/login`
-
----
-
-## 二、默认管理员账号
-
-**默认管理员账号信息：**
-- 邮箱: `admin@luxenails.com`
-- 密码: `Admin123!`
-- 角色: admin
+### Login requirements
+- Sign in with an account that has the `admin` role
+- Login page: `http://localhost:3000/login`
 
 ---
 
-## 三、修改管理员邮箱
+## 2. Default Administrator Account
 
-我已经为你创建了两个脚本来更新管理员邮箱地址：
+**Default administrator credentials:**
+- Email: `admin@luxenails.com`
+- Password: `Admin123!`
+- Role: `admin`
 
-### 方法 1: 本地 SQLite 数据库（推荐用于开发环境）
+---
 
-**适用场景**: 使用本地 SQLite 数据库进行开发
+## 3. Update the Admin Email
 
-**步骤**:
+Two helper scripts are provided to update the administrator email address:
 
-1. 确保开发服务器已运行过一次（初始化数据库）:
+### Option 1: Local SQLite database (recommended for development)
+
+**When to use:** You are developing with the local SQLite database.
+
+**Steps:**
+
+1. Start the dev server once to initialize the database:
    ```bash
    pnpm dev
    ```
-   按 `Ctrl+C` 停止服务器
+   Press `Ctrl+C` to stop the server.
 
-2. 运行更新脚本:
+2. Run the update script:
    ```bash
    pnpm run update:admin:local your-email@example.com
    ```
-   或者:
+   or:
    ```bash
    pnpm tsx scripts/update-admin-local.ts your-email@example.com
    ```
 
-3. 重启开发服务器:
+3. Restart the dev server:
    ```bash
    pnpm dev
    ```
 
-4. 使用新邮箱登录:
-   - 邮箱: `your-email@example.com`
-   - 密码: `Admin123!`（保持不变）
+4. Sign in with the new email:
+   - Email: `your-email@example.com`
+   - Password: `Admin123!` (unchanged)
 
-### 方法 2: Supabase 数据库（用于生产环境）
+### Option 2: Supabase database (production ready)
 
-**适用场景**: 已经配置了 Supabase 数据库
+**When to use:** Supabase is configured for this project.
 
-**前提条件**:
-- 已创建 Supabase 项目
-- 已运行数据库迁移
-- 已配置环境变量:
+**Prerequisites:**
+- A Supabase project is created
+- Database migrations have been executed
+- Environment variables are set:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `SUPABASE_SERVICE_ROLE_KEY`
 
-**步骤**:
+**Steps:**
 
-1. 确保已运行种子脚本（创建初始管理员账号）:
+1. Run the seed script (creates the initial admin account):
    ```bash
    pnpm run seed:supabase
    ```
 
-2. 运行更新脚本:
+2. Run the update script:
    ```bash
    pnpm run update:admin your-email@example.com
    ```
-   或者:
+   or:
    ```bash
    pnpm tsx scripts/update-admin-email.ts your-email@example.com
    ```
 
-3. 使用新邮箱登录:
-   - 邮箱: `your-email@example.com`
-   - 密码: `Admin123!`（保持不变）
+3. Sign in with the new email:
+   - Email: `your-email@example.com`
+   - Password: `Admin123!` (unchanged)
 
 ---
 
-## 四、快速开始指南
+## 4. Quick Start
 
-### 选项 A: 快速本地测试（无需配置）
+### Option A: Fast local testing (no configuration required)
 
-1. 安装依赖:
+1. Install dependencies:
    ```bash
    pnpm install
    ```
 
-2. 启动开发服务器（自动使用 SQLite）:
+2. Start the dev server (uses SQLite automatically):
    ```bash
    pnpm dev
    ```
 
-3. 打开浏览器访问:
-   - 登录页面: `http://localhost:3000/login`
-   - 使用默认管理员账号登录:
-     - 邮箱: `admin@luxenails.com`
-     - 密码: `Admin123!`
+3. Open your browser:
+   - Login page: `http://localhost:3000/login`
+   - Sign in with the default admin account:
+     - Email: `admin@luxenails.com`
+     - Password: `Admin123!`
 
-4. 登录后访问后台:
+4. After signing in, open the admin panel:
    - `http://localhost:3000/admin`
 
-5. （可选）修改管理员邮箱:
+5. (Optional) Update the admin email:
    ```bash
    pnpm run update:admin:local your-email@example.com
    ```
 
-### 选项 B: 使用 Supabase（生产就绪）
+### Option B: Supabase (production ready)
 
-请参考 `README.md` 中的 "Supabase Setup" 部分进行完整配置。
+Follow the "Supabase Setup" section in `README.md` for the full configuration.
 
 ---
 
-## 五、修改管理员密码
+## 5. Change the Admin Password
 
-如果需要修改密码，有两种方式：
+If you need to change the password, use either of the following approaches.
 
-### 方式 1: 使用忘记密码功能
-1. 访问 `http://localhost:3000/forgot-password`
-2. 输入管理员邮箱
-3. 按照邮件说明重置密码
+### Approach 1: Forgot password flow
+1. Visit `http://localhost:3000/forgot-password`
+2. Enter the admin email
+3. Follow the instructions in the email to reset the password
 
-### 方式 2: 手动生成新密码哈希
-1. 使用 bcrypt 生成新密码哈希:
+### Approach 2: Manually generate a new password hash
+1. Generate a bcrypt hash for the new password:
    ```bash
-   node -e "console.log(require('bcryptjs').hashSync('你的新密码', 10))"
+   node -e "console.log(require('bcryptjs').hashSync('your-new-password', 10))"
    ```
-
-2. 直接在数据库中更新 `users` 表的 `password_hash` 字段
+2. Update the `password_hash` field in the `users` table directly
 
 ---
 
-## 六、故障排查
+## 6. Troubleshooting
 
-### 问题 1: 无法访问后台（被重定向到登录页）
-**原因**: 未登录或不是管理员角色
+### Issue 1: Redirected back to the login page
+**Cause:** You are not signed in or the account is not an administrator.
 
-**解决方案**:
-1. 确保使用管理员账号登录
-2. 检查用户的 `role` 字段是否为 `admin`
+**Resolution:**
+1. Sign in with an administrator account
+2. Confirm the user's `role` field is set to `admin`
 
-### 问题 2: 数据库未初始化
-**症状**: 运行更新脚本时提示"数据库文件不存在"
+### Issue 2: Database has not been initialized
+**Symptom:** The update script reports that the database file does not exist.
 
-**解决方案**:
+**Resolution:**
 ```bash
-# 先运行一次开发服务器初始化数据库
+# Start the dev server once to initialize the database
 pnpm dev
-# 按 Ctrl+C 停止，然后运行更新脚本
+# Press Ctrl+C to stop, then run the update script again
 ```
 
-### 问题 3: 邮箱已被使用
-**症状**: 更新时提示"邮箱已被其他用户使用"
+### Issue 3: Email already in use
+**Symptom:** The update script reports that the email is already used by another account.
 
-**解决方案**:
-- 使用其他邮箱地址
-- 或先删除/修改冲突的用户账号
-
----
-
-## 七、安全建议
-
-1. **修改默认密码**: 首次登录后立即修改默认密码 `Admin123!`
-
-2. **使用强密码**: 密码应包含：
-   - 至少 8 个字符
-   - 大小写字母
-   - 数字
-   - 特殊字符
-
-3. **限制访问**: 生产环境中确保:
-   - 使用 HTTPS
-   - 配置合适的 CORS 策略
-   - 定期审查管理员账号
-
-4. **环境变量安全**:
-   - 不要将 `.env.local` 提交到 Git
-   - 生产环境使用 Vercel 环境变量
-   - `SUPABASE_SERVICE_ROLE_KEY` 必须保密
+**Resolution:**
+- Use a different email address
+- Or remove/update the conflicting user account first
 
 ---
 
-## 八、后台功能概览
+## 7. Security Recommendations
 
-登录后台后，你可以管理：
-
-- **产品管理** (`/admin/products`)
-  - 添加、编辑、删除产品
-  - 管理产品库存
-  - 设置产品价格和图片
-
-- **订单管理** (`/admin/orders`)
-  - 查看所有订单
-  - 更新订单状态
-  - 添加物流信息
-
-- **系列管理** (`/admin/collections`)
-  - 创建和管理产品系列
-  - 设置精选系列
-
-- **博客管理** (`/admin/blog`)
-  - 创建和发布博客文章
-  - 管理文章分类和标签
-
-- **客户管理** (`/admin/customers`)
-  - 查看客户列表
-  - 管理客户信息
-
-- **评论管理** (`/admin/reviews`)
-  - 审核客户评论
-  - 管理评论显示
+1. **Change the default password:** Update `Admin123!` after the first login.
+2. **Use strong passwords:** Passwords should include:
+   - At least 8 characters
+   - Uppercase and lowercase letters
+   - Numbers
+   - Special characters
+3. **Restrict access:** In production, ensure you:
+   - Use HTTPS
+   - Configure an appropriate CORS policy
+   - Review admin accounts regularly
+4. **Protect environment variables:**
+   - Never commit `.env.local` to Git
+   - Use Vercel environment variables in production
+   - Keep `SUPABASE_SERVICE_ROLE_KEY` secret
 
 ---
 
-## 九、需要帮助？
+## 8. Admin Feature Overview
 
-如果遇到问题，请查看：
-- `README.md` - 项目整体说明
-- `DEPLOYMENT.md` - 部署指南
-- `GOOGLE_SETUP.md` - Google 登录配置
+After signing in, you can manage:
 
-或者查看项目问题跟踪器。
+- **Products** (`/admin/products`)
+  - Create, edit, and delete products
+  - Manage inventory
+  - Set pricing and images
 
+- **Orders** (`/admin/orders`)
+  - View all orders
+  - Update order status
+  - Add fulfillment details
 
+- **Collections** (`/admin/collections`)
+  - Create and manage collections
+  - Configure featured collections
 
+- **Blog** (`/admin/blog`)
+  - Create and publish blog posts
+  - Manage categories and tags
 
+- **Customers** (`/admin/customers`)
+  - View the customer list
+  - Manage customer information
 
+- **Reviews** (`/admin/reviews`)
+  - Moderate customer reviews
+  - Control review visibility
 
+---
+
+## 9. Need Help?
+
+If you run into issues, review:
+- `README.md` - Project overview
+- `DEPLOYMENT.md` - Deployment guide
+- `GOOGLE_SETUP.md` - Google sign-in configuration
+
+You can also consult the project issue tracker.

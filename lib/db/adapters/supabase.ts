@@ -61,11 +61,11 @@ const parseInventoryMeta = (details?: string | null): Record<string, unknown> | 
 
 const handleInventoryPostgrestError = (error: PostgrestError) => {
   if (error.code === "P0001" && error.message === "Insufficient stock") {
-    throw new InventoryError("INSUFFICIENT_STOCK", "库存不足，请调整购买数量后再试。", parseInventoryMeta(error.details))
+    throw new InventoryError("INSUFFICIENT_STOCK", "Insufficient stock. Adjust the quantity and try again.", parseInventoryMeta(error.details))
   }
 
   if (error.code === "P0002" && error.message === "Product not found") {
-    throw new InventoryError("PRODUCT_NOT_FOUND", "指定的商品不存在或已下架。", parseInventoryMeta(error.details))
+    throw new InventoryError("PRODUCT_NOT_FOUND", "The requested product does not exist or is no longer available.", parseInventoryMeta(error.details))
   }
 }
 

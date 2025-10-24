@@ -52,7 +52,7 @@ export function ReviewGallery({ entries }: ReviewGalleryProps) {
             variant={ratingFilter === "all" ? "default" : "outline"}
             onClick={() => setRatingFilter("all")}
           >
-            全部评分
+            All ratings
           </Button>
           {RATING_OPTIONS.map((rating) => (
             <Button
@@ -61,7 +61,7 @@ export function ReviewGallery({ entries }: ReviewGalleryProps) {
               variant={ratingFilter === rating ? "default" : "outline"}
               onClick={() => setRatingFilter(rating)}
             >
-              {rating} 星
+              {rating} Stars
             </Button>
           ))}
         </div>
@@ -71,14 +71,14 @@ export function ReviewGallery({ entries }: ReviewGalleryProps) {
             variant={withPhotosOnly ? "default" : "outline"}
             onClick={() => setWithPhotosOnly((prev) => !prev)}
           >
-            仅看带图
+            Photos only
           </Button>
           <Button
             size="sm"
             variant={verifiedOnly ? "default" : "outline"}
             onClick={() => setVerifiedOnly((prev) => !prev)}
           >
-            仅看已验证
+            Verified only
           </Button>
         </div>
       </div>
@@ -91,8 +91,8 @@ export function ReviewGallery({ entries }: ReviewGalleryProps) {
 
       {filteredEntries.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16">
-          <p className="text-muted-foreground mb-2">暂时没有符合条件的评论。</p>
-          <p className="text-sm text-muted-foreground">试试更换筛选条件。</p>
+          <p className="text-muted-foreground mb-2">No reviews match your filters yet.</p>
+          <p className="text-sm text-muted-foreground">Try adjusting the filters.</p>
         </div>
       )}
     </div>

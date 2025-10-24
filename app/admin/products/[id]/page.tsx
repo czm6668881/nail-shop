@@ -451,12 +451,12 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <Label>产品图片</Label>
+            <Label>Product images</Label>
             <p className="text-sm text-muted-foreground mt-1 mb-3">
-              点击下方按钮上传本地图片，支持 JPG、PNG、GIF、WebP 格式（最大 5MB）
+              Upload local files using the button below. Supported formats: JPG, PNG, GIF, and WebP (max 5MB).
             </p>
             <div className="mt-3 space-y-4">
-              {/* 文件上传区域 */}
+              {/* File upload area */}
               <div className="flex gap-2">
                 <input
                   ref={fileInputRef}
@@ -473,7 +473,7 @@ export default function EditProductPage() {
                   className="w-full"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "上传中..." : "上传图片"}
+                  {uploading ? "Uploading..." : "Upload image"}
                 </Button>
               </div>
               {formData.images.length > 0 ? (
@@ -489,7 +489,7 @@ export default function EditProductPage() {
                       >
                         <Image
                           src={img || "/placeholder.svg"}
-                          alt={`产品图片 ${index + 1}`}
+                          alt={`Product image ${index + 1}`}
                           width={300}
                           height={300}
                           className="object-cover w-full h-full"
@@ -509,10 +509,10 @@ export default function EditProductPage() {
                             onClick={() => removeImage(index)}
                           >
                             <X className="h-4 w-4 mr-1" />
-                            删除
+                            Delete
                           </Button>
                           <span className="text-xs text-white px-2 py-1 bg-black/50 rounded pointer-events-none">
-                            图片 {index + 1} (双击查看大图)
+                            Image {index + 1} (double-click to view larger)
                           </span>
                         </div>
                       </div>
@@ -526,7 +526,7 @@ export default function EditProductPage() {
                             setFormData({ ...formData, images: newImages })
                           }}
                           className="text-xs"
-                          placeholder="图片 URL"
+                          placeholder="Image URL"
                         />
                       </div>
                     </div>
@@ -535,8 +535,8 @@ export default function EditProductPage() {
               ) : (
                 <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
                   <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground font-medium">暂无已上传图片</p>
-                  <p className="text-sm text-muted-foreground mt-1">点击上方按钮上传产品图片。</p>
+                  <p className="text-muted-foreground font-medium">No images uploaded yet.</p>
+                  <p className="text-sm text-muted-foreground mt-1">Use the button above to upload product images.</p>
                 </div>
               )}
             </div>
@@ -613,7 +613,7 @@ export default function EditProductPage() {
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>图片预览</DialogTitle>
+            <DialogTitle>Image preview</DialogTitle>
           </DialogHeader>
           <div className="flex items-center justify-center">
             {previewImage && (

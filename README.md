@@ -27,7 +27,7 @@ SQLite is used only for local development and comes pre-seeded via `lib/db/seed.
    supabase link --project-ref <your-project-ref>
    supabase db push
    ```
-   The migrations live in `supabase/migrations` (make sure both `0001_init.sql` 和 `0002_google_oauth.sql` 被执行)。
+   The migrations live in `supabase/migrations` (make sure both `0001_init.sql` and `0002_google_oauth.sql` are applied).
 3. Seed baseline data:
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=<url> \
@@ -45,19 +45,19 @@ SQLite is used only for local development and comes pre-seeded via `lib/db/seed.
    GOOGLE_CLIENT_SECRET=...
    ```
 
-## Google Sign-In 配置
+## Google Sign-In Setup
 
-1. 前往 [Google Cloud Console](https://console.cloud.google.com/) 创建或选择项目。
-2. 在 `APIs & Services → OAuth consent screen` 配置应用信息并将生产域名加入授权域。
-3. 在 `APIs & Services → Credentials` 新建 **OAuth Client ID** (`Web application` 类型)：
-   - 在 `Authorized redirect URIs` 中添加 `https://<你的域名>/api/auth/google/callback`（本地开发可使用 `http://localhost:3000/api/auth/google/callback`）。
-4. 复制生成的 `Client ID` 和 `Client secret`，分别写入：
+1. Visit the [Google Cloud Console](https://console.cloud.google.com/) and create or select a project.
+2. In `APIs & Services -> OAuth consent screen`, configure the app info and add your production domain to the authorized domain list.
+3. In `APIs & Services -> Credentials`, create a new **OAuth Client ID** (choose the `Web application` type):
+   - Add `https://<your-domain>/api/auth/google/callback` under `Authorized redirect URIs` (use `http://localhost:3000/api/auth/google/callback` for local development).
+4. Copy the generated `Client ID` and `Client secret`, then set:
    ```
-   NEXT_PUBLIC_GOOGLE_CLIENT_ID=<同上 client id>
-   GOOGLE_CLIENT_ID=<同上 client id>
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=<same client id>
+   GOOGLE_CLIENT_ID=<same client id>
    GOOGLE_CLIENT_SECRET=<client secret>
    ```
-5. 重新部署或重启本地开发服务，登录页将自动显示 “Continue with Google” 按钮。
+5. Redeploy or restart local development; the login page will automatically show the "Continue with Google" button.
 
 ## Vercel Deployment
 

@@ -43,8 +43,8 @@ export default function HeroSlidesAdminPage() {
     } catch (error) {
       console.error("Failed to fetch hero slides", error)
       toast({
-        title: "错误",
-        description: "无法加载轮播图数据",
+        title: "Error",
+        description: "Unable to load hero slides.",
         variant: "destructive",
       })
     } finally {
@@ -71,14 +71,14 @@ export default function HeroSlidesAdminPage() {
 
       setFormData((prev) => ({ ...prev, image: url }))
       toast({
-        title: "成功",
-        description: "图片上传成功",
+        title: "Success",
+        description: "Image uploaded successfully.",
       })
     } catch (error) {
       console.error("Failed to upload hero slide image", error)
       toast({
-        title: "错误",
-        description: "图片上传失败",
+        title: "Error",
+        description: "Image upload failed.",
         variant: "destructive",
       })
     } finally {
@@ -91,8 +91,8 @@ export default function HeroSlidesAdminPage() {
 
     if (!formData.image) {
       toast({
-        title: "错误",
-        description: "图片为必填项",
+        title: "Error",
+        description: "Image is required.",
         variant: "destructive",
       })
       return
@@ -120,8 +120,8 @@ export default function HeroSlidesAdminPage() {
       if (!res.ok) throw new Error("Failed to save slide")
 
       toast({
-        title: "成功",
-        description: editingSlide ? "轮播图已更新" : "轮播图已创建",
+        title: "Success",
+        description: editingSlide ? "Slide updated." : "Slide created.",
       })
 
       setDialogOpen(false)
@@ -130,8 +130,8 @@ export default function HeroSlidesAdminPage() {
     } catch (error) {
       console.error("Failed to save hero slide", error)
       toast({
-        title: "错误",
-        description: "保存失败",
+        title: "Error",
+        description: "Failed to save slide.",
         variant: "destructive",
       })
     }
@@ -147,7 +147,7 @@ export default function HeroSlidesAdminPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这个轮播图吗？")) return
+    if (!confirm("Are you sure you want to delete this slide?")) return
 
     try {
       const res = await fetch(`/api/admin/hero-slides/${id}`, {
@@ -157,16 +157,16 @@ export default function HeroSlidesAdminPage() {
       if (!res.ok) throw new Error("Failed to delete slide")
 
       toast({
-        title: "成功",
-        description: "轮播图已删除",
+        title: "Success",
+        description: "Slide deleted.",
       })
 
       fetchSlides()
     } catch (error) {
       console.error("Failed to delete hero slide", error)
       toast({
-        title: "错误",
-        description: "删除失败",
+        title: "Error",
+        description: "Failed to delete slide.",
         variant: "destructive",
       })
     }
@@ -186,8 +186,8 @@ export default function HeroSlidesAdminPage() {
     } catch (error) {
       console.error("Failed to update hero slide status", error)
       toast({
-        title: "错误",
-        description: "更新状态失败",
+        title: "Error",
+        description: "Failed to update status.",
         variant: "destructive",
       })
     }
@@ -209,7 +209,7 @@ export default function HeroSlidesAdminPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">加载中...</div>
+        <div className="text-lg">Loading...</div>
       </div>
     )
   }
@@ -218,12 +218,12 @@ export default function HeroSlidesAdminPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">首页轮播管理</h1>
-          <p className="text-muted-foreground mt-2">管理首页的轮播图片和内容</p>
+          <h1 className="text-3xl font-bold">Hero carousel management</h1>
+          <p className="text-muted-foreground mt-2">Manage the hero images and content that appear on the homepage.</p>
         </div>
         <Button onClick={handleOpenDialog}>
           <Plus className="mr-2 h-4 w-4" />
-          添加轮播图
+          Add slide
         </Button>
       </div>
 
@@ -231,7 +231,7 @@ export default function HeroSlidesAdminPage() {
         {slides.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              暂无轮播图，点击上方按钮添加
+              No slides yet. Use the button above to add one.
             </CardContent>
           </Card>
         ) : (
@@ -242,7 +242,7 @@ export default function HeroSlidesAdminPage() {
                   <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden">
                     <Image
                       src={slide.image}
-                      alt="幻灯片图片"
+                      alt="Slide image"
                       fill
                       className="object-cover"
                     />
@@ -250,9 +250,9 @@ export default function HeroSlidesAdminPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-xl font-semibold">幻灯片图片</h3>
+                        <h3 className="text-xl font-semibold">Slide image</h3>
                         <p className="text-muted-foreground mt-1 text-sm">
-                          标题固定为 &quot;gelmanicure&quot;
+                          Title is fixed to &quot;gelmanicure&quot;
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -287,24 +287,24 @@ export default function HeroSlidesAdminPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editingSlide ? "编辑轮播图" : "添加轮播图"}</DialogTitle>
+            <DialogTitle>{editingSlide ? "Edit slide" : "Add slide"}</DialogTitle>
             <DialogDescription>
-              {editingSlide ? "更新轮播图信息" : "创建新的轮播图"}
+              {editingSlide ? "Update slide details" : "Create a new slide"}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label>标题（固定）</Label>
+                <Label>Title (fixed)</Label>
                 <div className="px-3 py-2 bg-muted rounded-md text-muted-foreground">
                   gelmanicure
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  标题固定为 &quot;gelmanicure&quot;，不可修改
+                  Title is fixed to &quot;gelmanicure&quot; and cannot be changed.
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="image">轮播图片 *</Label>
+                <Label htmlFor="image">Slide image *</Label>
                 <div className="flex gap-2">
                   <Input
                     id="image"
@@ -312,7 +312,7 @@ export default function HeroSlidesAdminPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, image: e.target.value }))
                     }
-                    placeholder="图片URL"
+                    placeholder="Image URL"
                     required
                   />
                   <Button
@@ -322,7 +322,7 @@ export default function HeroSlidesAdminPage() {
                     disabled={uploading}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    {uploading ? "上传中..." : "上传"}
+                    {uploading ? "Uploading..." : "Upload"}
                   </Button>
                   <input
                     id="file-upload"
@@ -336,7 +336,7 @@ export default function HeroSlidesAdminPage() {
                   <div className="relative w-full h-48 mt-2 rounded-lg overflow-hidden">
                     <Image
                       src={formData.image}
-                      alt="预览"
+                      alt="Preview"
                       fill
                       className="object-cover"
                     />
@@ -351,7 +351,7 @@ export default function HeroSlidesAdminPage() {
                     setFormData((prev) => ({ ...prev, active: checked }))
                   }
                 />
-                <Label htmlFor="active">启用</Label>
+                <Label htmlFor="active">Active</Label>
               </div>
             </div>
             <DialogFooter>
@@ -360,10 +360,10 @@ export default function HeroSlidesAdminPage() {
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
-                取消
+                Cancel
               </Button>
               <Button type="submit">
-                {editingSlide ? "更新" : "创建"}
+                {editingSlide ? "Update" : "Create"}
               </Button>
             </DialogFooter>
           </form>
