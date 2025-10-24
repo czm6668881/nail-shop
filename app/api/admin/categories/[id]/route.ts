@@ -12,13 +12,7 @@ import {
 import { revalidateCategoryCache } from "@/lib/cache"
 import { slugify } from "@/lib/utils/slug"
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     await requireAdminUser(cookies())
   } catch {
@@ -89,7 +83,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   try {
     await requireAdminUser(cookies())
   } catch {
