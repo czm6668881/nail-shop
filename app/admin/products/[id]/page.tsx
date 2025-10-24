@@ -56,7 +56,6 @@ export default function EditProductPage() {
     images: [] as string[],
     sizes: [] as string[],
     features: [] as string[],
-    featureInput: "",
     materials: [] as string[],
     materialInput: "",
   })
@@ -118,7 +117,6 @@ export default function EditProductPage() {
         images: product.images,
         sizes: product.sizes,
         features: product.features,
-        featureInput: "",
         materials: product.materials,
         materialInput: "",
       })
@@ -265,27 +263,6 @@ export default function EditProductPage() {
       sizes: formData.sizes.includes(size)
         ? formData.sizes.filter((s) => s !== size)
         : [...formData.sizes, size],
-    })
-  }
-
-  const addFeature = () => {
-    if (formData.featureInput.trim().length === 0) {
-      toast.error("Please enter a feature before adding.")
-      return
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      features: [...prev.features, prev.featureInput.trim()],
-      featureInput: "",
-    }))
-
-    toast.success("Feature added")
-  }
-  const removeFeature = (index: number) => {
-    setFormData({
-      ...formData,
-      features: formData.features.filter((_, i) => i !== index),
     })
   }
 
@@ -448,15 +425,6 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <Label htmlFor="collection">Collection</Label>
-            <Input
-              id="collection"
-              value={formData.collection}
-              onChange={(e) => setFormData({ ...formData, collection: e.target.value })}
-            />
-          </div>
-
-          <div>
             <Label htmlFor="application">Application Instructions</Label>
             <Textarea
               id="application"
@@ -571,131 +539,6 @@ export default function EditProductPage() {
                   <p className="text-sm text-muted-foreground mt-1">点击上方按钮上传产品图片。</p>
                 </div>
               )}
-            </div>
-          </div>
-          <div>
-            <Label>Product Images</Label>
-            <p className="text-sm text-muted-foreground mt-1 mb-3">
-              Click the button below to upload local images. Supported formats: JPG, PNG, GIF, WebP (max 5MB).
-            </p>
-            <div className="mt-3 space-y-4">
-              <div className="flex gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <Button
-                  type="button"
-                  onClick={handleFileSelect}
-                  disabled={uploading}
-                  variant="default"
-                  className="w-full"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "Uploading..." : "Upload Image"}
-                </Button>
-              </div>
-              {formData.images.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="group relative">
-                      <div
-                        className="aspect-square rounded-lg border-2 border-border overflow-hidden bg-muted cursor-pointer"
-                        onDoubleClick={() => {
-                          setPreviewImage(img)
-                          setIsPreviewOpen(true)
-                        }}
-                      >
-                        <Image
-                          src={img || "/placeholder.svg"}
-                          alt={`Product image ${index + 1}`}
-                          width={300}
-                          height={300}
-                          className="object-cover w-full h-full"
-                          unoptimized={img.startsWith('http')}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement
-                            target.src = "/placeholder.svg"
-                          }}
-                        />
-                      </div>
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center pointer-events-none">
-                        <div className="flex flex-col items-center gap-2 pointer-events-auto">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeImage(index)}
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Remove
-                          </Button>
-                          <span className="text-xs text-white px-2 py-1 bg-black/50 rounded pointer-events-none">
-                            Image {index + 1} (double-click to preview)
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        <Input
-                          value={img}
-                          onChange={(e) => {
-                            const newImages = [...formData.images]
-                            newImages[index] = e.target.value
-                            setFormData({ ...formData, images: newImages })
-                          }}
-                          className="text-xs"
-                          placeholder="Image URL"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
-                  <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground font-medium">No images yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Click the upload button above to add product images.</p>
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="featureInput">Product Features</Label>
-            <p className="text-sm text-muted-foreground mt-1 mb-3">
-              Add key selling points or highlights for this product.
-            </p>
-            <div className="flex gap-2 mb-2">
-              <Input
-                id="featureInput"
-                placeholder="Enter a feature and click Add"
-                value={formData.featureInput}
-                onChange={(e) => setFormData({ ...formData, featureInput: e.target.value })}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    addFeature()
-                  }
-                }}
-                className="flex-1"
-              />
-              <Button type="button" onClick={addFeature} className="shrink-0">
-                <Plus className="h-4 w-4 mr-2" />
-                Add
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {formData.features.map((feature, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                  <Input value={feature} readOnly />
-                  <Button type="button" variant="destructive" size="sm" onClick={() => removeFeature(index)}>
-                    <X className="h-4 w-4 mr-1" />
-                    Remove
-                  </Button>
-                </div>
-              ))}
             </div>
           </div>
           <div>
