@@ -1,6 +1,6 @@
-﻿"use client"
+"use client"
 
-import { type FocusEvent, useEffect, useState } from "react"
+import { type FocusEvent, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ShoppingBag, Search, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,8 @@ export function SiteHeader() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [catalogCategories, setCatalogCategories] = useState<NavigationDropdownItem[]>([])
+  const [catalogLoading, setCatalogLoading] = useState(false)
+  const [catalogError, setCatalogError] = useState<string | null>(null)
 
   useEffect(() => {
     initializeCart().catch(() => undefined)
@@ -39,10 +41,14 @@ export function SiteHeader() {
 
     const loadCategories = async () => {
       try {
+        setCatalogLoading(true)
+        setCatalogError(null)
+
         const response = await fetch("/api/categories")
         if (!response.ok) {
           throw new Error("Failed to load categories")
         }
+
         const data = await response.json()
         if (!active) return
 
@@ -58,9 +64,14 @@ export function SiteHeader() {
           }))
 
         setCatalogCategories(items)
+        setCatalogLoading(false)
       } catch (error) {
         console.error("Failed to load categories", error)
+        if (!active) return
+
         setCatalogCategories([])
+        setCatalogError("Unable to load categories right now.")
+        setCatalogLoading(false)
       }
     }
 
@@ -71,9 +82,29 @@ export function SiteHeader() {
     }
   }, [])
 
+  const catalogColumns = useMemo(() => {
+    if (catalogCategories.length === 0) {
+      return []
+    }
+
+    const columnCount = Math.min(3, Math.max(1, Math.ceil(catalogCategories.length / 4)))
+    const chunkSize = Math.ceil(catalogCategories.length / columnCount)
+
+    return Array.from({ length: columnCount }, (_, columnIndex) =>
+      catalogCategories.slice(columnIndex * chunkSize, (columnIndex + 1) * chunkSize),
+    )
+  }, [catalogCategories])
+
+  const catalogGridClass =
+    catalogColumns.length === 3
+      ? "grid-cols-3"
+      : catalogColumns.length === 2
+        ? "grid-cols-2"
+        : "grid-cols-1"
+
   const navigation: NavigationItem[] = [
     { name: "HOME", href: "/" },
-    { name: "CATALOG", href: "/collections", dropdownItems: catalogCategories.length > 0 ? catalogCategories : undefined },
+    { name: "CATALOG", href: "/collections", dropdownItems: catalogCategories },
     { name: "REVIEWS", href: "/reviews" },
     { name: "BLOG", href: "/blog" },
   ]
@@ -100,18 +131,49 @@ export function SiteHeader() {
                     >
                       {item.name}
                     </Link>
-                    {item.dropdownItems && (
+                    {item.name === "CATALOG" ? (
                       <div className="ml-4 flex flex-col gap-2">
-                        {item.dropdownItems.map((dropdown) => (
-                          <Link
-                            key={dropdown.name}
-                            href={dropdown.href}
-                            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                          >
-                            {dropdown.name}
-                          </Link>
-                        ))}
+                        {catalogLoading && (
+                          <span className="text-sm text-muted-foreground">Loading categories…</span>
+                        )}
+                        {!catalogLoading && catalogError && (
+                          <span className="text-sm font-medium text-destructive">{catalogError}</span>
+                        )}
+                        {!catalogLoading && !catalogError && item.dropdownItems && item.dropdownItems.length > 0 && (
+                          item.dropdownItems.map((dropdown) => (
+                            <Link
+                              key={dropdown.name}
+                              href={dropdown.href}
+                              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                              {dropdown.name}
+                            </Link>
+                          ))
+                        )}
+                        {!catalogLoading && !catalogError && item.dropdownItems && item.dropdownItems.length === 0 && (
+                          <span className="text-sm text-muted-foreground">Categories coming soon.</span>
+                        )}
+                        <Link
+                          href="/collections"
+                          className="text-sm font-semibold text-primary transition-colors hover:text-primary/80"
+                        >
+                          View full catalog
+                        </Link>
                       </div>
+                    ) : (
+                      item.dropdownItems && (
+                        <div className="ml-4 flex flex-col gap-2">
+                          {item.dropdownItems.map((dropdown) => (
+                            <Link
+                              key={dropdown.name}
+                              href={dropdown.href}
+                              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                              {dropdown.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )
                     )}
                   </div>
                 ))}
@@ -139,6 +201,8 @@ export function SiteHeader() {
                 )
               }
 
+              const isCatalog = item.name === "CATALOG"
+
               return (
                 <div
                   key={item.name}
@@ -161,24 +225,63 @@ export function SiteHeader() {
                     {item.name}
                   </Link>
                   <div
-                    className={`absolute left-1/2 top-full z-40 w-56 -translate-x-1/2 pt-3 transition-transform transition-opacity duration-200 ease-out ${
+                    className={`absolute left-1/2 top-full z-40 w-72 -translate-x-1/2 pt-3 transition-transform transition-opacity duration-200 ease-out ${
                       openDropdown === item.name
                         ? "translate-y-0 opacity-100 pointer-events-auto"
                         : "-translate-y-2 opacity-0 pointer-events-none"
                     }`}
                   >
                     <div className="overflow-hidden rounded-lg border border-border/60 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/90">
-                      <div className="flex flex-col py-2">
-                        {item.dropdownItems.map((dropdown) => (
-                          <Link
-                            key={dropdown.name}
-                            href={dropdown.href}
-                            className="px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-                          >
-                            {dropdown.name}
-                          </Link>
-                        ))}
-                      </div>
+                      {isCatalog ? (
+                        <div className="px-4 py-3">
+                          {catalogLoading && (
+                            <p className="text-sm text-muted-foreground">Loading categories…</p>
+                          )}
+                          {!catalogLoading && catalogError && (
+                            <p className="text-sm font-semibold text-destructive">{catalogError}</p>
+                          )}
+                          {!catalogLoading && !catalogError && catalogColumns.length > 0 && (
+                            <div className={`grid gap-y-1 gap-x-4 ${catalogGridClass}`}>
+                              {catalogColumns.map((column, columnIndex) => (
+                                <div key={`catalog-column-${columnIndex}`} className="flex flex-col gap-1">
+                                  {column.map((dropdown) => (
+                                    <Link
+                                      key={dropdown.name}
+                                      href={dropdown.href}
+                                      className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                                    >
+                                      {dropdown.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {!catalogLoading && !catalogError && catalogColumns.length === 0 && (
+                            <p className="text-sm text-muted-foreground">Categories coming soon.</p>
+                          )}
+                          <div className="mt-3 border-t border-border/60 pt-3">
+                            <Link
+                              href="/collections"
+                              className="block text-sm font-semibold text-primary transition-colors hover:text-primary/80"
+                            >
+                              View full catalog
+                            </Link>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col py-2">
+                          {item.dropdownItems.map((dropdown) => (
+                            <Link
+                              key={dropdown.name}
+                              href={dropdown.href}
+                              className="px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                            >
+                              {dropdown.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -204,7 +307,7 @@ export function SiteHeader() {
               <Link href="/cart">
                 <ShoppingBag className="h-5 w-5" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                     {itemCount}
                   </span>
                 )}
@@ -217,8 +320,3 @@ export function SiteHeader() {
     </header>
   )
 }
-
-
-
-
-
