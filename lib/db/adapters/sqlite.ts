@@ -16,9 +16,23 @@ import type {
   ProductCategory,
 } from "@/types"
 import { db } from "../client"
-import { ensureDefaultAdmin } from "../seed"
+import { migrate } from "../schema"
+import { seed, ensureDefaultAdmin } from "../seed"
 import { randomUUID, randomBytes, createHash } from "crypto"
 import { InventoryError } from "@/lib/db/errors"
+
+let sqliteInitialized = false
+
+const ensureSqliteInitialized = () => {
+  if (sqliteInitialized) {
+    return
+  }
+  migrate()
+  seed()
+  sqliteInitialized = true
+}
+
+ensureSqliteInitialized()
 
 type ProductRow = {
   id: string

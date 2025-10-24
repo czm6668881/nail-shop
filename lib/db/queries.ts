@@ -1,5 +1,3 @@
-import "./index"
-
 import type {
   Product,
   Collection,
