@@ -153,12 +153,6 @@ export function SiteHeader() {
                         {!catalogLoading && !catalogError && item.dropdownItems && item.dropdownItems.length === 0 && (
                           <span className="text-sm text-muted-foreground">Categories coming soon.</span>
                         )}
-                        <Link
-                          href="/collections"
-                          className="text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-                        >
-                          View full catalog
-                        </Link>
                       </div>
                     ) : (
                       item.dropdownItems && (
@@ -260,14 +254,6 @@ export function SiteHeader() {
                           {!catalogLoading && !catalogError && catalogColumns.length === 0 && (
                             <p className="text-sm text-muted-foreground">Categories coming soon.</p>
                           )}
-                          <div className="mt-3 border-t border-border/60 pt-3">
-                            <Link
-                              href="/collections"
-                              className="block text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-                            >
-                              View full catalog
-                            </Link>
-                          </div>
                         </div>
                       ) : (
                         <div className="flex flex-col py-2">
