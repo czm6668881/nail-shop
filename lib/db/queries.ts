@@ -14,7 +14,6 @@ import type {
 } from "@/types"
 
 import { createHash } from "crypto"
-import { fallbackProductCategories } from "@/lib/data/categories"
 import type * as SqliteModuleType from "./adapters/sqlite"
 import type * as SupabaseModuleType from "./adapters/supabase"
 
@@ -91,51 +90,7 @@ export const searchProductsByQuery = wrap("searchProductsByQuery")
 export const upsertProduct = wrap("upsertProduct")
 export const deleteProduct = wrap("deleteProduct")
 export const toggleProductFeatured = wrap("toggleProductFeatured")
-const listProductCategoriesImpl = wrap("listProductCategories")
-const isSupabaseProvider = () => provider.toLowerCase() === "supabase"
-
-const shouldFallbackToCategories = (error: unknown) => {
-  if (!isSupabaseProvider()) {
-    return false
-  }
-
-  const message =
-    error instanceof Error
-      ? `${error.name ?? "Error"}: ${error.message}`
-      : typeof error === "string"
-        ? error
-        : ""
-
-  if (!message) {
-    return false
-  }
-
-  return (
-    message.includes("Supabase admin client is not configured") ||
-    message.includes("Failed to load Supabase adapter") ||
-    message.includes("relation \"product_categories\" does not exist") ||
-    message.includes("relation 'product_categories' does not exist") ||
-    message.includes("does not exist in schema") ||
-    message.includes("fetch failed") ||
-    message.includes("Failed to fetch")
-  )
-}
-
-export const listProductCategories = async () => {
-  try {
-    const categories = await listProductCategoriesImpl()
-    if (!categories || categories.length === 0) {
-      return categories ?? []
-    }
-    return categories
-  } catch (error) {
-    if (shouldFallbackToCategories(error)) {
-      console.warn("[categories] Falling back to default categories due to Supabase error.", error)
-      return fallbackProductCategories
-    }
-    throw error
-  }
-}
+export const listProductCategories = wrap("listProductCategories")
 export const findProductCategoryById = wrap("findProductCategoryById")
 export const findProductCategoryBySlug = wrap("findProductCategoryBySlug")
 export const createProductCategory = wrap("createProductCategory")
