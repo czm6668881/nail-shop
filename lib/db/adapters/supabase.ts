@@ -508,7 +508,7 @@ export const createProductCategory = async (category: {
       .select("sort_order")
       .order("sort_order", { ascending: false })
       .limit(1)
-      .maybeSingle()
+      .maybeSingle<{ sort_order: number | null }>()
 
     if (maxError && maxError.code !== "PGRST116") {
       throw maxError
