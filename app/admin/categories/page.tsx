@@ -276,7 +276,7 @@ export default function AdminCategoriesPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleRefresh} disabled={loading || refreshing}>
-            <RefreshCcw className="h-4 w-4 mr-2 animate-spin" hidden={!refreshing} />
+            <RefreshCcw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : "opacity-0"}`} />
             {refreshing ? "Refreshing..." : "Refresh"}
           </Button>
           <Button onClick={openCreateDialog}>
