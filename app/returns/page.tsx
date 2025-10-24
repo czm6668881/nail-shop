@@ -64,7 +64,7 @@ export default function ReturnsPage() {
 
       <div className="max-w-3xl mx-auto space-y-4 text-sm text-muted-foreground leading-relaxed">
         <p>
-          Need help choosing a better fit or finish? Email support@gelmanicure.com with photos of your manicure goals
+          Need help choosing a better fit or finish? Email gelmanicure-nail@outlook.com with photos of your manicure goals
           and we will suggest the best sets for your next order.
         </p>
         <p>

@@ -49,7 +49,7 @@ const sections = [
   {
     heading: "Contact",
     content:
-      "Questions about these terms? Email legal@gelmanicure.com or mail us at 2104 Sunset Blvd, Suite 120, Los Angeles, CA 90026.",
+      "Questions about these terms? Email gelmanicure-nail@outlook.com or mail us at 2104 Sunset Blvd, Suite 120, Los Angeles, CA 90026.",
   },
 ]
 

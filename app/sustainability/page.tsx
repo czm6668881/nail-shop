@@ -86,7 +86,7 @@ export default function SustainabilityPage() {
         <h2 className="text-3xl font-semibold">Join Our Progress</h2>
         <p className="text-muted-foreground leading-relaxed">
           We are continually improving our environmental practices and welcome collaborations with suppliers, artists,
-          and customers. Share your ideas with sustainability@gelmanicure.com—we would love to hear from you.
+          and customers. Share your ideas with gelmanicure-nail@outlook.com—we would love to hear from you.
         </p>
       </div>
     </div>

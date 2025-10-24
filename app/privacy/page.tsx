@@ -37,14 +37,14 @@ const sections = [
     body: [
       "Update profile details anytime within your account dashboard.",
       "Opt out of marketing emails directly from the email footer.",
-      "Request data exports or deletion by reaching out to privacy@gelmanicure.com. We respond within 30 days.",
+      "Request data exports or deletion by reaching out to gelmanicure-nail@outlook.com. We respond within 30 days.",
       "Disable cookies in your browser to limit analytics tracking. Essential cookies remain to support basic site functions.",
     ],
   },
   {
     heading: "Contact Us",
     body: [
-      "Questions about this policy? Email privacy@gelmanicure.com or write to us at 2104 Sunset Blvd, Suite 120, Los Angeles, CA 90026.",
+      "Questions about this policy? Email gelmanicure-nail@outlook.com or write to us at 2104 Sunset Blvd, Suite 120, Los Angeles, CA 90026.",
     ],
   },
 ]

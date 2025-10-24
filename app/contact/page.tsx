@@ -11,7 +11,7 @@ const contactChannels = [
   {
     icon: Mail,
     heading: "Email Us",
-    detail: "support@gelmanicure.com",
+    detail: "gelmanicure-nail@outlook.com",
     helper: "We respond within one business day.",
   },
   {
