@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ShoppingBag, Search, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ export function SiteHeader() {
   const initializeCart = useCartStore((state) => state.init)
   const initAuth = useAuthStore((state) => state.init)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     initializeCart().catch(() => undefined)
@@ -100,15 +101,29 @@ export function SiteHeader() {
               }
 
               return (
-                <div key={item.name} className="relative group">
+                <div
+                  key={item.name}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(item.name)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                  onFocusCapture={() => setOpenDropdown(item.name)}
+                  onBlurCapture={() => setOpenDropdown(null)}
+                >
                   <Link
                     href={item.href}
                     aria-haspopup="true"
+                    aria-expanded={openDropdown === item.name}
                     className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {item.name}
                   </Link>
-                  <div className="pointer-events-none absolute left-1/2 top-full z-40 mt-3 w-56 -translate-x-1/2 -translate-y-2 opacity-0 transition-transform transition-opacity duration-200 ease-out group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
+                  <div
+                    className={`absolute left-1/2 top-full z-40 mt-3 w-56 -translate-x-1/2 transition-transform transition-opacity duration-200 ease-out ${
+                      openDropdown === item.name
+                        ? "translate-y-0 opacity-100 pointer-events-auto"
+                        : "-translate-y-2 opacity-0 pointer-events-none"
+                    }`}
+                  >
                     <div className="overflow-hidden rounded-lg border border-border/60 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/90">
                       <div className="flex flex-col py-2">
                         {item.dropdownItems.map((dropdown) => (
