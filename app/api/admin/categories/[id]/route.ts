@@ -12,7 +12,7 @@ import {
 import { revalidateCategoryCache } from "@/lib/cache"
 import { slugify } from "@/lib/utils/slug"
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdminUser(cookies())
   } catch {
@@ -20,7 +20,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 
   try {
-    const category = await findProductCategoryById(params.id)
+    const { id } = await params
+    const category = await findProductCategoryById(id)
     if (!category) {
       return NextResponse.json({ message: "Category not found." }, { status: 404 })
     }
@@ -83,7 +84,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdminUser(cookies())
   } catch {
@@ -91,7 +92,8 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   }
 
   try {
-    const result = await deleteProductCategory(params.id)
+    const { id } = await params
+    const result = await deleteProductCategory(id)
     if (!result.success) {
       if (result.reason === "CATEGORY_IN_USE") {
         return NextResponse.json(
