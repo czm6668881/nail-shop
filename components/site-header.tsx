@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { type FocusEvent, useEffect, useState } from "react"
 import Link from "next/link"
 import { ShoppingBag, Search, Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -107,7 +107,11 @@ export function SiteHeader() {
                   onMouseEnter={() => setOpenDropdown(item.name)}
                   onMouseLeave={() => setOpenDropdown(null)}
                   onFocusCapture={() => setOpenDropdown(item.name)}
-                  onBlurCapture={() => setOpenDropdown(null)}
+                  onBlurCapture={(event: FocusEvent<HTMLDivElement>) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) {
+                      setOpenDropdown(null)
+                    }
+                  }}
                 >
                   <Link
                     href={item.href}
@@ -118,7 +122,7 @@ export function SiteHeader() {
                     {item.name}
                   </Link>
                   <div
-                    className={`absolute left-1/2 top-full z-40 mt-3 w-56 -translate-x-1/2 transition-transform transition-opacity duration-200 ease-out ${
+                    className={`absolute left-1/2 top-full z-40 w-56 -translate-x-1/2 pt-3 transition-transform transition-opacity duration-200 ease-out ${
                       openDropdown === item.name
                         ? "translate-y-0 opacity-100 pointer-events-auto"
                         : "-translate-y-2 opacity-0 pointer-events-none"
