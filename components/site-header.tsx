@@ -44,7 +44,7 @@ export function SiteHeader() {
         setCatalogLoading(true)
         setCatalogError(null)
 
-        const response = await fetch("/api/categories")
+        const response = await fetch("/api/categories", { cache: "no-store" })
         if (!response.ok) {
           throw new Error("Failed to load categories")
         }
