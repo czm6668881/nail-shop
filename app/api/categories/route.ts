@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server"
 import { listProductCategories } from "@/lib/db/queries"
+import { fallbackProductCategories } from "@/lib/data/categories"
 
 export async function GET() {
   try {
@@ -9,6 +10,7 @@ export async function GET() {
     return NextResponse.json({ categories })
   } catch (error) {
     console.error("Categories list error", error)
-    return NextResponse.json({ message: "Unable to load categories." }, { status: 500 })
+    console.warn("Falling back to default categories due to load failure.")
+    return NextResponse.json({ categories: fallbackProductCategories, fallback: true })
   }
 }
