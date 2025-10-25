@@ -91,34 +91,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Leopard Gel Nails */}
-      <section className="py-20 bg-muted/20 border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Leopard Gel Nails</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Fierce, fashion-forward sets with animal-inspired detailing and long-wear gel shine.
-            </p>
-          </div>
-          {leopardSpotlight.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {leopardSpotlight.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="mb-8 rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
-              Our leopard capsule is almost here. Subscribe below to be first in line when it drops.
-            </div>
-          )}
-          <div className="text-center">
-            <Button size="lg" asChild>
-              <Link href={leopardLink}>Shop Leopard Styles</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Best Sellers */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -142,6 +114,34 @@ export default async function HomePage() {
           <div className="text-center">
             <Button size="lg" variant="outline" asChild>
               <Link href="/products?filter=bestsellers">Browse Best Sellers</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Leopard Gel Nails */}
+      <section className="py-20 bg-muted/20 border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Leopard Gel Nails</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Fierce, fashion-forward sets with animal-inspired detailing and long-wear gel shine.
+            </p>
+          </div>
+          {leopardSpotlight.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {leopardSpotlight.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="mb-8 rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
+              Our leopard capsule is almost here. Subscribe below to be first in line when it drops.
+            </div>
+          )}
+          <div className="text-center">
+            <Button size="lg" asChild>
+              <Link href={leopardLink}>Shop Leopard Styles</Link>
             </Button>
           </div>
         </div>
