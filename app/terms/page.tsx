@@ -31,26 +31,6 @@ const sections = [
     content:
       "You are responsible for maintaining the confidentiality of your account credentials and restricting access to your devices. Notify us immediately if you suspect unauthorized access.",
   },
-  {
-    heading: "Intellectual Property",
-    content:
-      "All content on this site—including images, text, graphics, and logos—is owned by gelmanicure or our content creators. You may not copy, distribute, or use materials without written permission.",
-  },
-  {
-    heading: "Limitation of Liability",
-    content:
-      "To the fullest extent permitted by law, gelmanicure is not liable for indirect, incidental, or consequential damages arising from the use of our products or services.",
-  },
-  {
-    heading: "Governing Law",
-    content:
-      "These terms are governed by the laws of the State of California, without regard to conflict of law principles. Any disputes will be handled in the state or federal courts located in Los Angeles County, California.",
-  },
-  {
-    heading: "Contact",
-    content:
-      "Questions about these terms? Email gelmanicure-nail@outlook.com or mail us at 2104 Sunset Blvd, Suite 120, Los Angeles, CA 90026.",
-  },
 ]
 
 export default function TermsPage() {

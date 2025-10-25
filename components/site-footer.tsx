@@ -76,11 +76,6 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/returns" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Returns & Exchanges
-                </Link>
-              </li>
-              <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
                   Contact Us
                 </Link>
@@ -95,11 +90,6 @@ export function SiteFooter() {
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                   About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/sustainability" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Sustainability
                 </Link>
               </li>
               <li>
