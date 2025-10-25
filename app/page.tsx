@@ -30,10 +30,20 @@ export default async function HomePage() {
     .slice(0, 4)
   const leopardSpotlight = allProducts
     .filter((product) => {
-      const nameMatch = product.name.toLowerCase().includes("leopard")
-      const featureMatch = product.features.some((feature) => feature.toLowerCase().includes("leopard"))
-      const descriptionMatch = product.description.toLowerCase().includes("leopard")
-      return nameMatch || featureMatch || descriptionMatch
+      const featureValues = Array.isArray(product.features) ? product.features : []
+      const searchPool = [
+        product.name,
+        product.description,
+        product.slug,
+        product.category,
+        product.categoryLabel,
+        product.collection,
+        ...featureValues,
+      ]
+        .filter((value): value is string => typeof value === "string" && value.length > 0)
+        .map((value) => value.toLowerCase())
+
+      return searchPool.some((value) => value.includes("leopard"))
     })
     .slice(0, 4)
 
