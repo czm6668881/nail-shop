@@ -15,28 +15,16 @@ const revalidateMany = (...paths: Array<string | null | undefined>) => {
   }
 }
 
-export const revalidateProductCache = (options: { slug?: string | null; collectionSlug?: string | null } = {}) => {
-  revalidateMany("/", "/products", "/collections")
+export const revalidateProductCache = (options: { slug?: string | null } = {}) => {
+  revalidateMany("/", "/products")
 
   if (options.slug) {
     revalidateMany(`/products/${options.slug}`)
-  }
-
-  if (options.collectionSlug) {
-    revalidateMany(`/collections/${options.collectionSlug}`)
   }
 }
 
 export const revalidateCategoryCache = () => {
   revalidateMany("/", "/products")
-}
-
-export const revalidateCollectionCache = (slug?: string | null) => {
-  revalidateMany("/", "/collections")
-
-  if (slug) {
-    revalidateMany(`/collections/${slug}`)
-  }
 }
 
 export const revalidateBlogCache = (slug?: string | null) => {

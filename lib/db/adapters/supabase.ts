@@ -2,7 +2,6 @@ import { randomBytes, randomUUID, createHash } from "crypto"
 import type { SupabaseClient, PostgrestError } from "@supabase/supabase-js"
 import type {
   Product,
-  Collection,
   Review,
   BlogPost,
   Cart,
@@ -25,7 +24,6 @@ const supabase = (): SupabaseClient<Database> => getSupabaseAdminClient()
 
 type Tables = Database["public"]["Tables"]
 type ProductRow = Tables["products"]["Row"]
-type CollectionRow = Tables["collections"]["Row"]
 type ReviewRow = Tables["reviews"]["Row"]
 type BlogPostRow = Tables["blog_posts"]["Row"]
 type CartRow = Tables["carts"]["Row"]
@@ -164,16 +162,6 @@ const mapProduct = (row: ProductRow & { category_label?: string | null }): Produ
   featured: row.featured,
   rating: row.rating,
   reviewCount: row.review_count,
-})
-
-const mapCollection = (row: CollectionRow): Collection => ({
-  id: row.id,
-  name: row.name,
-  description: row.description ?? "",
-  slug: row.slug,
-  image: row.image ?? "",
-  productCount: row.product_count,
-  featured: row.featured,
 })
 
 const mapProductCategory = (row: ProductCategoryRow): ProductCategory => ({
@@ -398,20 +386,6 @@ export const listFeaturedProducts = async (): Promise<Product[]> => {
     .eq("featured", true)
     .order("created_at", { ascending: false })
     .limit(12)
-
-  if (error) {
-    throw error
-  }
-
-  return (data ?? []).map(mapProduct)
-}
-
-export const listProductsByCollection = async (collectionSlug: string): Promise<Product[]> => {
-  const { data, error } = await supabase()
-    .from("products")
-    .select("*")
-    .eq("collection_slug", collectionSlug)
-    .order("created_at", { ascending: false })
 
   if (error) {
     throw error
@@ -673,79 +647,6 @@ export const toggleProductFeatured = async (id: string, featured: boolean): Prom
   const { error } = await supabase().from("products").update(updates as never)
     .eq("id", id)
 
-  if (error) {
-    throw error
-  }
-}
-
-export const listCollections = async (): Promise<Collection[]> => {
-  const { data, error } = await supabase().from("collections").select("*").order("name", { ascending: true })
-  if (error) {
-    throw error
-  }
-  return (data ?? []).map(mapCollection)
-}
-
-export const listFeaturedCollections = async (): Promise<Collection[]> => {
-  const { data, error } = await supabase()
-    .from("collections")
-    .select("*")
-    .eq("featured", true)
-    .order("name", { ascending: true })
-  if (error) {
-    throw error
-  }
-  return (data ?? []).map(mapCollection)
-}
-
-export const findCollectionBySlug = async (slug: string): Promise<Collection | null> => {
-  const { data, error } = await supabase()
-    .from("collections")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle()
-  if (error) {
-    throw error
-  }
-  return data ? mapCollection(data) : null
-}
-
-export const toggleCollectionFeatured = async (id: string, featured: boolean) => {
-  const { error } = await supabase()
-    .from("collections")
-    .update({ featured } as never)
-    .eq("id", id)
-  if (error) {
-    throw error
-  }
-}
-
-export const removeCollection = async (id: string) => {
-  const { data: collection, error: collectionError } = await supabase()
-    .from("collections")
-    .select("slug")
-    .eq("id", id)
-    .maybeSingle<{ slug: string }>()
-
-  if (collectionError) {
-    throw collectionError
-  }
-
-  if (!collection) {
-    return
-  }
-
-  const client = supabase()
-  const { error: productUpdateError } = await client
-    .from("products")
-    .update({ collection_slug: null } as never)
-    .eq("collection_slug", collection.slug)
-
-  if (productUpdateError) {
-    throw productUpdateError
-  }
-
-  const { error } = await client.from("collections").delete().eq("id", id)
   if (error) {
     throw error
   }

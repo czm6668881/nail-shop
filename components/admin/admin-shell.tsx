@@ -3,7 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Package, ShoppingCart, Users, Star, LayoutDashboard, FileText, FolderOpen, Image, Tags } from "lucide-react"
+import { Package, ShoppingCart, Users, Star, LayoutDashboard, FileText, Image, Tags } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -15,7 +15,6 @@ const navigation = [
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Blog", href: "/admin/blog", icon: FileText },
-  { name: "Collections", href: "/admin/collections", icon: FolderOpen },
 ]
 
 interface AdminShellProps {

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test"
-import type { Collection, Order } from "@/types"
+import type { Order } from "@/types"
 
 const adminCredentials = {
   email: "admin@luxenails.com",
@@ -30,7 +30,6 @@ test.describe("Admin backend integration", () => {
       { path: "/api/admin/orders", key: "orders" },
       { path: "/api/admin/customers", key: "users" },
       { path: "/api/admin/blog", key: "posts" },
-      { path: "/api/admin/collections", key: "collections" },
     ] as const
 
     for (const endpoint of adminEndpoints) {
@@ -42,53 +41,6 @@ test.describe("Admin backend integration", () => {
       expect(Array.isArray(value)).toBeTruthy()
       expect(value.length).toBeGreaterThan(0)
     }
-  })
-
-  test("toggling a collection propagates to the storefront", async ({ page }) => {
-    await establishAdminSession(page)
-    await page.goto("/admin/collections")
-    await expect(page.getByRole("heading", { name: "Collections" })).toBeVisible()
-
-    const collectionsResponse = await page.request.get("/api/admin/collections")
-    expect(collectionsResponse.ok()).toBeTruthy()
-
-    const { collections } = (await collectionsResponse.json()) as { collections: Collection[] }
-    const target = collections.find((item) => item.name === "Essentials")
-    expect(target, "Expected to find Essentials collection in seed data").toBeDefined()
-
-    if (!target) {
-      return
-    }
-
-    const originalFeatured = target.featured
-    const toggledValue = !originalFeatured
-
-    const assertStorefrontState = async (featured: boolean) => {
-      await page.goto("/")
-      await page.waitForLoadState("networkidle")
-      const heading = page.getByRole("heading", { name: "Essentials" })
-      if (featured) {
-        await expect(heading).toBeVisible()
-      } else {
-        await expect(heading).toHaveCount(0)
-      }
-    }
-
-    await assertStorefrontState(originalFeatured)
-
-    const updateResponse = await page.request.patch(`/api/admin/collections/${target.id}/feature`, {
-      data: { featured: toggledValue },
-    })
-    expect(updateResponse.ok()).toBeTruthy()
-
-    await assertStorefrontState(toggledValue)
-
-    const revertResponse = await page.request.patch(`/api/admin/collections/${target.id}/feature`, {
-      data: { featured: originalFeatured },
-    })
-    expect(revertResponse.ok()).toBeTruthy()
-
-    await assertStorefrontState(originalFeatured)
   })
 
   test("orders view reflects backend data for monitoring", async ({ page }) => {

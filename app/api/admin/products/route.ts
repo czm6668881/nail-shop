@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     }
 
     await upsertProduct(product)
-    revalidateProductCache({ slug: product.slug, collectionSlug: product.collection })
+    revalidateProductCache({ slug: product.slug })
     return NextResponse.json({ product, message: "Product created successfully" }, { status: 201 })
   } catch (error) {
     console.error("Admin create product error", error)

@@ -2,7 +2,6 @@ import { describe, expect, it, afterAll, beforeAll } from "vitest"
 import {
   listProducts,
   findProductBySlug,
-  listCollections,
   ensureCart,
   fetchCart,
   upsertCartItem,
@@ -35,11 +34,6 @@ describe("data smoke checks", () => {
     const target = products[0]
     const product = await findProductBySlug(target.slug)
     expect(product?.id).toBe(target.id)
-  })
-
-  it("returns collections", async () => {
-    const collections = await listCollections()
-    expect(collections.length).toBeGreaterThan(0)
   })
 
   it("creates and updates a cart", async () => {

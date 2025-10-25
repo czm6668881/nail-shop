@@ -201,10 +201,6 @@ After signing in, you can manage:
   - Update order status
   - Add fulfillment details
 
-- **Collections** (`/admin/collections`)
-  - Create and manage collections
-  - Configure featured collections
-
 - **Blog** (`/admin/blog`)
   - Create and publish blog posts
   - Manage categories and tags

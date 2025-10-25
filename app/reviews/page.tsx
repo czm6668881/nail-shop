@@ -61,7 +61,7 @@ export default async function ReviewsPage() {
             <Link href="/products">Shop best sellers</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link href="/collections">Explore all collections</Link>
+            <Link href="/products">Explore all styles</Link>
           </Button>
         </div>
       </section>

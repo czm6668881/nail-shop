@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { randomUUID } from "crypto"
 import type { Database } from "@/types/database"
-import { collections as collectionsData, products as productsData } from "@/lib/data/products"
+import { products as productsData } from "@/lib/data/products"
 import { mockAddresses, mockBlogPosts, mockOrders, mockReviews } from "@/lib/data/mock-data"
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -54,23 +54,7 @@ async function seedUsers() {
   }
 }
 
-async function seedCollections() {
-  const payload = collectionsData.map((collection) => ({
-    id: collection.id,
-    name: collection.name,
-    description: collection.description ?? null,
-    slug: collection.slug,
-    image: collection.image ?? null,
-    product_count: collection.productCount,
-    featured: collection.featured,
-  }))
-
-  await supabase.from("collections").upsert(payload as never, { onConflict: "id" })
-}
-
 async function seedProducts() {
-  const collectionSlugByName = new Map(collectionsData.map((collection) => [collection.name, collection.slug]))
-
   const payload = productsData.map((product) => ({
     id: product.id,
     name: product.name,
@@ -79,7 +63,7 @@ async function seedProducts() {
     compare_at_price: product.compareAtPrice ?? null,
     images: product.images,
     category: product.category,
-    collection_slug: product.collection ? collectionSlugByName.get(product.collection) ?? null : null,
+    collection_slug: null,
     in_stock: product.inStock,
     stock_quantity: product.stockQuantity,
     sizes: product.sizes,
@@ -181,7 +165,6 @@ async function seedAddresses() {
 
 async function run() {
   await seedUsers()
-  await seedCollections()
   await seedProducts()
   await seedReviews()
   await seedBlogPosts()

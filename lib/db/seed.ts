@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto"
 import bcrypt from "bcryptjs"
 import { db } from "./client"
-import { products as seedProducts, collections as seedCollections } from "@/lib/data/products"
+import { products as seedProducts } from "@/lib/data/products"
 import { mockBlogPosts, mockReviews, mockOrders, mockAddresses } from "@/lib/data/mock-data"
 
 const defaultProductCategories = [
@@ -175,28 +175,6 @@ export const seed = () => {
 
   ensureDefaultAdminUser()
 
-  // Seed collections
-  if (getCount("collections") === 0) {
-    const insertCollection = db.prepare(`
-      INSERT INTO collections (id, name, description, slug, image, product_count, featured)
-      VALUES (@id, @name, @description, @slug, @image, @product_count, @featured)
-    `)
-
-    seedCollections.forEach((collection) => {
-      insertCollection.run({
-        id: collection.id,
-        name: collection.name,
-        description: collection.description,
-        slug: collection.slug,
-        image: collection.image,
-        product_count: collection.productCount,
-        featured: collection.featured ? 1 : 0,
-      })
-    })
-  }
-
-  const collectionSlugMap = new Map(seedCollections.map((collection) => [collection.name, collection.slug]))
-
   // Seed addresses for the default customer
   if (getCount("addresses") === 0 && defaultCustomerId) {
     const insertAddress = db.prepare(`
@@ -303,7 +281,6 @@ export const seed = () => {
     `)
 
     seedProducts.forEach((product) => {
-      const collectionSlug = product.collection ? collectionSlugMap.get(product.collection) ?? null : null
       insertProduct.run({
         id: product.id,
         name: product.name,
@@ -312,7 +289,7 @@ export const seed = () => {
         compare_at_price: product.compareAtPrice ?? null,
         images: JSON.stringify(product.images),
         category: product.category,
-        collection_slug: collectionSlug,
+        collection_slug: null,
         in_stock: product.inStock ? 1 : 0,
         stock_quantity: product.stockQuantity,
         sizes: JSON.stringify(product.sizes),

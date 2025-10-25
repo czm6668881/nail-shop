@@ -1,6 +1,5 @@
 import type {
   Product,
-  Collection,
   Review,
   BlogPost,
   Order,
@@ -84,7 +83,6 @@ export const listProducts = wrap("listProducts")
 export const findProductBySlug = wrap("findProductBySlug")
 export const findProductById = wrap("findProductById")
 export const listFeaturedProducts = wrap("listFeaturedProducts")
-export const listProductsByCollection = wrap("listProductsByCollection")
 export const listProductsByCategory = wrap("listProductsByCategory")
 export const searchProductsByQuery = wrap("searchProductsByQuery")
 export const upsertProduct = wrap("upsertProduct")
@@ -96,11 +94,6 @@ export const findProductCategoryBySlug = wrap("findProductCategoryBySlug")
 export const createProductCategory = wrap("createProductCategory")
 export const updateProductCategory = wrap("updateProductCategory")
 export const deleteProductCategory = wrap("deleteProductCategory")
-export const listCollections = wrap("listCollections")
-export const listFeaturedCollections = wrap("listFeaturedCollections")
-export const findCollectionBySlug = wrap("findCollectionBySlug")
-export const toggleCollectionFeatured = wrap("toggleCollectionFeatured")
-export const removeCollection = wrap("removeCollection")
 export const listReviews = wrap("listReviews")
 export const listReviewsByProductId = wrap("listReviewsByProductId")
 export const listFeaturedReviews = wrap("listFeaturedReviews")
@@ -163,7 +156,6 @@ export const toPublicUser = (user: AuthUser): User => ({
 
 export type {
   Product,
-  Collection,
   Review,
   BlogPost,
   Order,

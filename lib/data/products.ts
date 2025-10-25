@@ -1,4 +1,4 @@
-import type { Product, Collection } from "@/types"
+import type { Product } from "@/types"
 
 export const products: Product[] = [
   {
@@ -237,44 +237,5 @@ export const products: Product[] = [
     featured: true,
     rating: 4.8,
     reviewCount: 128,
-  },
-]
-
-export const collections: Collection[] = [
-  {
-    id: "1",
-    name: "Classics",
-    description: "Timeless designs that never go out of style",
-    slug: "classics",
-    image: "/placeholder.svg?height=400&width=600",
-    productCount: 12,
-    featured: true,
-  },
-  {
-    id: "2",
-    name: "Metallics",
-    description: "Shine bright with our chrome and metallic finishes",
-    slug: "metallics",
-    image: "/placeholder.svg?height=400&width=600",
-    productCount: 8,
-    featured: true,
-  },
-  {
-    id: "3",
-    name: "Night Out",
-    description: "Glamorous designs for special occasions",
-    slug: "night-out",
-    image: "/placeholder.svg?height=400&width=600",
-    productCount: 10,
-    featured: true,
-  },
-  {
-    id: "4",
-    name: "Essentials",
-    description: "Everyday nails for every occasion",
-    slug: "essentials",
-    image: "/placeholder.svg?height=400&width=600",
-    productCount: 15,
-    featured: false,
   },
 ]

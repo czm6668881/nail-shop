@@ -71,10 +71,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     await upsertProduct(product)
-    revalidateProductCache({ slug: product.slug, collectionSlug: product.collection })
+    revalidateProductCache({ slug: product.slug })
 
-    if (existing && (existing.slug !== product.slug || existing.collection !== product.collection)) {
-      revalidateProductCache({ slug: existing.slug, collectionSlug: existing.collection })
+    if (existing && existing.slug !== product.slug) {
+      revalidateProductCache({ slug: existing.slug })
     }
 
     return NextResponse.json({ product, message: "Product updated successfully" })
@@ -96,8 +96,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const existing = await findProductById(id)
 
     await deleteProduct(id)
-    if (existing) {
-      revalidateProductCache({ slug: existing.slug, collectionSlug: existing.collection })
+    if (existing?.slug) {
+      revalidateProductCache({ slug: existing.slug })
     } else {
       revalidateProductCache()
     }

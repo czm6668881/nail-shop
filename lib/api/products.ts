@@ -1,16 +1,13 @@
 import {
   findProductBySlug,
-  listCollections,
-  listFeaturedCollections,
   listFeaturedProducts,
   listProducts,
   listProductsByCategory,
-  listProductsByCollection,
   searchProductsByQuery,
   listProductCategories,
   listOrders,
 } from "@/lib/db/queries"
-import type { Product, Collection, ProductCategory } from "@/types"
+import type { Product, ProductCategory } from "@/types"
 import { sortProductCategories } from "@/lib/utils/categories"
 
 export async function getProducts(): Promise<Product[]> {
@@ -27,18 +24,6 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductsByCategory(category: string): Promise<Product[]> {
   return listProductsByCategory(category)
-}
-
-export async function getProductsByCollection(collection: string): Promise<Product[]> {
-  return listProductsByCollection(collection)
-}
-
-export async function getCollections(): Promise<Collection[]> {
-  return listCollections()
-}
-
-export async function getFeaturedCollections(): Promise<Collection[]> {
-  return listFeaturedCollections()
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {

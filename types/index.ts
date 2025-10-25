@@ -113,16 +113,6 @@ export interface Review {
   createdAt: string
 }
 
-export interface Collection {
-  id: string
-  name: string
-  description: string
-  slug: string
-  image: string
-  productCount: number
-  featured: boolean
-}
-
 export interface BlogPost {
   id: string
   title: string

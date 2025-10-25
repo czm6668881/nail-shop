@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, TrendingDown, Star, FileText, FolderOpen, Tags } from "lucide-react"
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, TrendingDown, Star, FileText, Tags } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSessionUser } from "@/lib/auth/session"
 import { getDashboardSnapshot } from "@/lib/api/admin/dashboard"
@@ -48,7 +48,6 @@ export default async function AdminDashboard() {
     { title: "Reviews", description: "Manage customer reviews", href: "/admin/reviews", icon: Star },
     { title: "Blog", description: "Manage blog posts and content", href: "/admin/blog", icon: FileText },
     { title: "Categories", description: "Organize product categories", href: "/admin/categories", icon: Tags },
-    { title: "Collections", description: "Organize product collections", href: "/admin/collections", icon: FolderOpen },
   ]
 
   return (

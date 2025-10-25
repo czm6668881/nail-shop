@@ -1,6 +1,5 @@
 import type {
   Product,
-  Collection,
   Review,
   BlogPost,
   Cart,
@@ -59,16 +58,6 @@ type ProductRow = {
 }
 
 const DEFAULT_ADMIN_EMAIL = "admin@luxenails.com"
-
-type CollectionRow = {
-  id: string
-  name: string
-  description: string
-  slug: string
-  image: string
-  product_count: number
-  featured: number
-}
 
 type ProductCategoryRow = {
   id: string
@@ -215,16 +204,6 @@ const mapProduct = (row: ProductRow): Product => ({
   reviewCount: row.review_count,
 })
 
-const mapCollection = (row: CollectionRow): Collection => ({
-  id: row.id,
-  name: row.name,
-  description: row.description,
-  slug: row.slug,
-  image: row.image,
-  productCount: row.product_count,
-  featured: Boolean(row.featured),
-})
-
 const mapCategory = (row: ProductCategoryRow): ProductCategory => ({
   id: row.id,
   name: row.name,
@@ -346,14 +325,6 @@ export const listFeaturedProducts = (): Product[] => {
     `${PRODUCT_SELECT_BASE} WHERE p.featured = 1 ORDER BY datetime(p.created_at) DESC LIMIT 12`,
   )
   const rows = stmt.all() as ProductRow[]
-  return rows.map(mapProduct)
-}
-
-export const listProductsByCollection = (collectionSlug: string): Product[] => {
-  const stmt = db.prepare(
-    `${PRODUCT_SELECT_BASE} WHERE p.collection_slug = @collection_slug ORDER BY datetime(p.created_at) DESC`,
-  )
-  const rows = stmt.all({ collection_slug: collectionSlug }) as ProductRow[]
   return rows.map(mapProduct)
 }
 
@@ -605,35 +576,6 @@ export const toggleProductFeatured = (id: string, featured: boolean) => {
     new Date().toISOString(),
     id,
   )
-}
-
-export const listCollections = (): Collection[] => {
-  const stmt = db.prepare("SELECT * FROM collections ORDER BY name ASC")
-  const rows = stmt.all() as CollectionRow[]
-  return rows.map(mapCollection)
-}
-
-export const listFeaturedCollections = (): Collection[] => {
-  const stmt = db.prepare("SELECT * FROM collections WHERE featured = 1 ORDER BY name ASC")
-  const rows = stmt.all() as CollectionRow[]
-  return rows.map(mapCollection)
-}
-
-export const findCollectionBySlug = (slug: string): Collection | null => {
-  const stmt = db.prepare("SELECT * FROM collections WHERE slug = ?")
-  const row = stmt.get(slug) as CollectionRow | undefined
-  return row ? mapCollection(row) : null
-}
-
-export const toggleCollectionFeatured = (id: string, featured: boolean) => {
-  db.prepare("UPDATE collections SET featured = ? WHERE id = ?").run(featured ? 1 : 0, id)
-}
-
-export const removeCollection = (id: string) => {
-  const collection = db.prepare("SELECT slug FROM collections WHERE id = ?").get(id) as { slug: string } | undefined
-  if (!collection) return
-  db.prepare("UPDATE products SET collection_slug = NULL WHERE collection_slug = ?").run(collection.slug)
-  db.prepare("DELETE FROM collections WHERE id = ?").run(id)
 }
 
 export const listReviews = (): Review[] => {
