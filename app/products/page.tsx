@@ -85,6 +85,24 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const sortKey =
     typeof resolvedSearchParams.filter === "string" ? resolvedSearchParams.filter : undefined
 
+  const { pageTitle, pageDescription } =
+    sortKey === "new"
+      ? {
+          pageTitle: "New Arrivals",
+          pageDescription:
+            "See the latest designs added to our collection of premium press-on nails. Fresh styles drop weekly.",
+        }
+      : sortKey === "bestsellers"
+        ? {
+            pageTitle: "Best Sellers",
+            pageDescription:
+              "Shop the sets customers love most—from everyday neutrals to statement finishes that sell out fast.",
+          }
+        : {
+            pageTitle: "All Products",
+            pageDescription: "Discover our complete collection of premium press-on nails.",
+          }
+
   const filteredProducts = applySort(
     allProducts.filter((product) => {
       const matchesCategory =
@@ -108,10 +126,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">All Products</h1>
-        <p className="text-lg text-muted-foreground">
-          Discover our complete collection of premium press-on nails
-        </p>
+        <h1 className="text-4xl font-bold mb-4">{pageTitle}</h1>
+        <p className="text-lg text-muted-foreground">{pageDescription}</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
