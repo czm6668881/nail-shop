@@ -73,21 +73,36 @@ export async function getBestSellingProducts(limit = 4, options: BestSellerOptio
 
     if (!Array.isArray(order.items)) continue
 
-    for (const rawItem of order.items as Array<Record<string, unknown>>) {
+    type OrderItemLike =
+      | {
+          productId?: unknown
+          product?: { id?: unknown } | null
+          quantity?: unknown
+        }
+      | null
+      | undefined
+
+    const normalizedItems = order.items as OrderItemLike[]
+
+    for (const rawItem of normalizedItems) {
       if (!rawItem) continue
 
+      const maybeProduct = rawItem.product
       const productIdRaw =
         typeof rawItem.productId === "string"
           ? rawItem.productId
-          : typeof rawItem.product === "object" && rawItem.product !== null && typeof (rawItem.product as { id?: unknown }).id === "string"
-            ? (rawItem.product as { id: string }).id
+          : maybeProduct &&
+              typeof maybeProduct === "object" &&
+              "id" in maybeProduct &&
+              typeof (maybeProduct as { id: unknown }).id === "string"
+            ? (maybeProduct as { id: string }).id
             : undefined
 
       if (!productIdRaw || !productMap.has(productIdRaw)) {
         continue
       }
 
-      const quantityRaw = typeof rawItem.quantity === "number" ? rawItem.quantity : 1
+      const quantityRaw = typeof rawItem.quantity === "number" ? rawItem.quantity : Number(rawItem.quantity)
       const units = Number.isFinite(quantityRaw) && quantityRaw > 0 ? quantityRaw : 1
 
       const previous = sales.get(productIdRaw)
