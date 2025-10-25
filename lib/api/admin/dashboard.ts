@@ -1,5 +1,5 @@
 import { listOrders, listProducts, listUsers } from "@/lib/db/queries"
-import type { Order, Product, User } from "@/types"
+import type { Order } from "@/types"
 
 type TrendDirection = "up" | "down"
 
