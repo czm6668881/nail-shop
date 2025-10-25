@@ -6,7 +6,7 @@ import { ReviewCard } from "@/components/review-card"
 import { BlogCard } from "@/components/blog-card"
 import { NewsletterSignup } from "@/components/newsletter-signup"
 import { HeroCarousel } from "@/components/hero-carousel"
-import { getProducts } from "@/lib/api/products"
+import { getProducts, getBestSellingProducts } from "@/lib/api/products"
 import { getFeaturedReviews } from "@/lib/api/reviews"
 import { getBlogPosts } from "@/lib/api/blog"
 import { getActiveHeroSlides } from "@/lib/api/hero-slides"
@@ -18,16 +18,8 @@ export default async function HomePage() {
     getBlogPosts(),
     getActiveHeroSlides(),
   ])
+  const bestSellers = await getBestSellingProducts(4, { seedProducts: allProducts })
   const latestPosts = blogPosts.slice(0, 3)
-  const bestSellers = allProducts
-    .slice()
-    .sort((a, b) => {
-      if (b.reviewCount !== a.reviewCount) {
-        return b.reviewCount - a.reviewCount
-      }
-      return b.rating - a.rating
-    })
-    .slice(0, 4)
   const leopardSpotlight = allProducts
     .filter((product) => {
       const featureValues = Array.isArray(product.features) ? product.features : []
