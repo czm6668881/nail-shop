@@ -46,6 +46,12 @@ export default async function HomePage() {
       return searchPool.some((value) => value.includes("leopard"))
     })
     .slice(0, 4)
+  const leopardCategorySlug =
+    leopardSpotlight.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
+    undefined
+  const leopardLink = leopardCategorySlug
+    ? `/products?category=${encodeURIComponent(leopardCategorySlug)}`
+    : "/products?q=leopard"
 
   return (
     <div className="flex flex-col">
@@ -107,7 +113,7 @@ export default async function HomePage() {
           )}
           <div className="text-center">
             <Button size="lg" asChild>
-              <Link href="/products?q=leopard">Shop Leopard Styles</Link>
+              <Link href={leopardLink}>Shop Leopard Styles</Link>
             </Button>
           </div>
         </div>
