@@ -1,5 +1,4 @@
 import Link from "next/link"
-import Image from "next/image"
 import { Sparkles, Clock, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
@@ -27,6 +26,14 @@ export default async function HomePage() {
         return b.reviewCount - a.reviewCount
       }
       return b.rating - a.rating
+    })
+    .slice(0, 4)
+  const leopardSpotlight = allProducts
+    .filter((product) => {
+      const nameMatch = product.name.toLowerCase().includes("leopard")
+      const featureMatch = product.features.some((feature) => feature.toLowerCase().includes("leopard"))
+      const descriptionMatch = product.description.toLowerCase().includes("leopard")
+      return nameMatch || featureMatch || descriptionMatch
     })
     .slice(0, 4)
 
@@ -68,54 +75,30 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Leopard Gel Nails Feature */}
+      {/* Leopard Gel Nails */}
       <section className="py-20 bg-muted/20 border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-            <div className="space-y-6">
-              <p className="uppercase tracking-[0.3em] text-xs text-muted-foreground">Spotlight</p>
-              <h2 className="text-3xl lg:text-4xl font-bold">Leopard Gel Nails Are Roaring In</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Meet the statement set we have been obsessing over in the studio—high-definition leopard detailing on a
-                gel-finish base that wears comfortably all week. Each capsule includes multiple accent prints so you can
-                mix, match, and layer your look.
-              </p>
-              <ul className="grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
-                <li className="flex items-center gap-2">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                  Hand-painted leopard artwork with glossy seal
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                  Includes reusable salon-length tips in 10 sizes
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                  Comfort-fit adhesive tabs and gel kit inside
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="inline-flex h-2 w-2 rounded-full bg-primary" />
-                  Limited early run—ships in small batches
-                </li>
-              </ul>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button size="lg" asChild>
-                  <Link href="/products?q=leopard">Shop Leopard Styles</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/blog">See Styling Tips</Link>
-                </Button>
-              </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Leopard Gel Nails</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Fierce, fashion-forward sets with animal-inspired detailing and long-wear gel shine.
+            </p>
+          </div>
+          {leopardSpotlight.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {leopardSpotlight.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
-              <Image
-                src="/placeholder.jpg"
-                alt="Leopard gel press-on nail set with accent tips"
-                fill
-                className="object-cover"
-                priority
-              />
+          ) : (
+            <div className="mb-8 rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
+              Our leopard capsule is almost here. Subscribe below to be first in line when it drops.
             </div>
+          )}
+          <div className="text-center">
+            <Button size="lg" asChild>
+              <Link href="/products?q=leopard">Shop Leopard Styles</Link>
+            </Button>
           </div>
         </div>
       </section>
