@@ -4,64 +4,60 @@ import { Sparkles, Heart, Palette, Award, Users } from "lucide-react"
 export const metadata: Metadata = {
   title: "About gelmanicure",
   description:
-    "Discover the story behind gelmanicure and our dedication to crafting salon-quality press-on nails you can apply at home.",
+    "Meet the small team building gelmanicure and our mission to craft salon-quality press-on nails for modern routines.",
 }
 
 const values = [
   {
     icon: Sparkles,
-    title: "Salon-Level Finish",
-    description: "Each set is designed with premium gels and hand-painted detailing for a refined, long-lasting shine.",
+    title: "Small-Batch Quality",
+    description: "We produce each run in limited batches so we can monitor finish, fit, and wear before scaling.",
   },
   {
     icon: Palette,
-    title: "Design-Forward Aesthetic",
-    description: "Our creative team blends runway trends with everyday wearability so you always have a set that fits the moment.",
+    title: "Iterative Design",
+    description: "Every shade and silhouette is refined through rapid prototyping and feedback from our earliest supporters.",
   },
   {
     icon: Heart,
-    title: "Kind to Your Nails",
+    title: "Care-First Experience",
     description:
-      "Comfort-fit forms, breathable gels, and gentle removal guidance help you maintain healthy natural nails between looks.",
+      "Comfort-fit forms, breathable gels, and gentle removal guidance keep your natural nails healthy between sets.",
   },
   {
     icon: Users,
-    title: "Community-Led Creation",
+    title: "Built With Community",
     description:
-      "We prototype collections with a panel of beauty pros and nail enthusiasts to refine every curve, color, and finish.",
+      "We co-create with a tight group of pros and nail enthusiasts, inviting feedback on every curve, color, and finish.",
   },
   {
     icon: Award,
-    title: "Trusted Craftsmanship",
+    title: "Transparent Craft",
     description:
-      "From rigorous wear-testing to sustainable packaging, we sweat the details so your at-home manicure feels truly elevated.",
+      "We share sourcing stories, test results, and packaging decisions openly so you know exactly what arrives at your door.",
   },
 ]
 
 const milestones = [
   {
-    year: "2021",
-    headline: "The Idea Takes Shape",
-    detail:
-      "Our founder sketched the first gelmanicure designs after searching for premium press-ons that matched salon standards.",
-  },
-  {
-    year: "2022",
-    headline: "Studio & Sourcing",
-    detail:
-      "We partnered with artisans using medical-grade gels, set up our first design studio, and released limited beta sets.",
-  },
-  {
-    year: "2023",
-    headline: "Collection Launch",
-    detail:
-      "The Classics and Night Out collections debuted, quickly earning praise for comfort fit and multi-week wearability.",
+    year: "2024",
+    headline: "Idea & First Sketches",
+    detail: "We mapped out gelmanicure after struggling to find press-ons that felt salon-level without salon pricing.",
   },
   {
     year: "2024",
-    headline: "Community Expansion",
-    detail:
-      "Our editorial-led blog, pro tutorials, and virtual fittings helped hundreds of thousands find their perfect match.",
+    headline: "Prototype Sessions",
+    detail: "Small tester groups helped us tune the fit, adhesives, and wear tests before placing any production orders.",
+  },
+  {
+    year: "2025",
+    headline: "Soft Launch",
+    detail: "We introduced our first capsule sets online, prioritizing responsive support and real-time product tweaks.",
+  },
+  {
+    year: "2025",
+    headline: "Growing With You",
+    detail: "Today we are a lean team shipping in small waves while expanding shades, lengths, and tutorials with our community.",
   },
 ]
 
@@ -72,8 +68,9 @@ export default function AboutPage() {
         <p className="uppercase tracking-[0.3em] text-xs text-muted-foreground mb-4">About gelmanicure</p>
         <h1 className="text-4xl font-bold mb-4">Elevated Press-On Nails, Crafted With Intention</h1>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          gelmanicure was born from a simple idea: salon artistry should be accessible without sacrificing quality. We
-          obsess over every pigment, curve, and finish so your manicure moment feels effortless yet extraordinary.
+          gelmanicure is an emerging studio built by founders who believe salon artistry should be accessible without
+          sacrificing quality. We obsess over every pigment, curve, and finish so your manicure moment feels effortless
+          yet extraordinary—even while we are still learning and growing.
         </p>
       </div>
 
@@ -104,8 +101,8 @@ export default function AboutPage() {
       <div className="max-w-3xl mx-auto text-center space-y-6">
         <h2 className="text-3xl font-semibold">Our Promise</h2>
         <p className="text-muted-foreground leading-relaxed">
-          We believe that beauty rituals should enrich, not exhaust. From inclusive sizing to mindful packaging, every
-          decision at gelmanicure focuses on your confidence and comfort. Thank you for inviting us into your routine.
+          We believe beauty rituals should enrich, not exhaust. From inclusive sizing to mindful packaging, every early
+          decision at gelmanicure centers on your confidence and comfort. Thank you for growing with us.
         </p>
       </div>
     </div>
