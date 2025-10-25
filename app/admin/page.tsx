@@ -1,49 +1,42 @@
 import Link from "next/link"
-import {
-  Package,
-  ShoppingCart,
-  Users,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Star,
-  FileText,
-  FolderOpen,
-  Tags,
-} from "lucide-react"
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, TrendingDown, Star, FileText, FolderOpen, Tags } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSessionUser } from "@/lib/auth/session"
+import { getDashboardSnapshot } from "@/lib/api/admin/dashboard"
 
 export default async function AdminDashboard() {
   const user = await getSessionUser()
+  const snapshot = await getDashboardSnapshot()
+  const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" })
+  const numberFormatter = new Intl.NumberFormat("en-US")
 
   const stats = [
     {
       title: "Total Revenue",
-      value: "$12,345",
-      change: "+12.5%",
-      trend: "up" as const,
+      value: currencyFormatter.format(snapshot.stats.revenue.total),
+      change: snapshot.stats.revenue.change,
+      trend: snapshot.stats.revenue.trend,
       icon: DollarSign,
     },
     {
       title: "Total Orders",
-      value: "234",
-      change: "+8.2%",
-      trend: "up" as const,
+      value: numberFormatter.format(snapshot.stats.orders.total),
+      change: snapshot.stats.orders.change,
+      trend: snapshot.stats.orders.trend,
       icon: ShoppingCart,
     },
     {
       title: "Total Products",
-      value: "48",
-      change: "+4",
-      trend: "up" as const,
+      value: numberFormatter.format(snapshot.stats.products.total),
+      change: snapshot.stats.products.change,
+      trend: snapshot.stats.products.trend,
       icon: Package,
     },
     {
       title: "Total Customers",
-      value: "1,234",
-      change: "+15.3%",
-      trend: "up" as const,
+      value: numberFormatter.format(snapshot.stats.customers.total),
+      change: snapshot.stats.customers.change,
+      trend: snapshot.stats.customers.trend,
       icon: Users,
     },
   ]
@@ -116,22 +109,32 @@ export default async function AdminDashboard() {
         <Card>
           <CardContent className="p-0">
             <div className="divide-y divide-border">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">Order #ORD-2025-00{i}234</p>
-                      <p className="text-sm text-muted-foreground">Customer Name • 2 items</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">${(100 + i * 12).toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(Date.now() - i * 86400000).toLocaleDateString()}
-                      </p>
+              {snapshot.recentOrders.length > 0 ? (
+                snapshot.recentOrders.map((order) => (
+                  <div key={order.id} className="p-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Order #{order.orderNumber}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {order.customerName} • {order.itemCount} {order.itemCount === 1 ? "item" : "items"} • {order.status}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{currencyFormatter.format(order.total)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="p-6 text-sm text-muted-foreground text-center">No orders recorded yet.</div>
+              )}
             </div>
           </CardContent>
         </Card>
