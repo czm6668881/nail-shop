@@ -119,7 +119,14 @@ export async function POST(request: Request) {
 
     if (!stripeResponse.ok || !session?.url) {
       console.error("Stripe session creation failed", session)
-      return NextResponse.json({ message: "Unable to initiate payment." }, { status: 500 })
+      const message = typeof session?.error?.message === "string" ? session.error.message : undefined
+      return NextResponse.json(
+        {
+          message: message ?? "Unable to initiate payment.",
+          details: session,
+        },
+        { status: 500 },
+      )
     }
 
     return NextResponse.json({ checkoutUrl: session.url })
