@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://gelmanicure-nail.com"),
   title: "Gel nails - gelmanicure Premium Press-On Nails",
   description:
     "Gel nails by gelmanicure - Discover salon-quality press-on nails with gel-like finish. Shop our collection of elegant, easy-to-apply nail designs. Free worldwide shipping on all orders.",
@@ -30,6 +31,9 @@ export const metadata: Metadata = {
     description: "Gel nails with salon-quality press-on nails delivered to your door. Easy application, stunning gel-like results.",
     type: "website",
     url: "https://gelmanicure-nail.com",
+  },
+  alternates: {
+    canonical: "/",
   },
     generator: 'v0.app'
 }
