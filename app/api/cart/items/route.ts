@@ -8,7 +8,7 @@ import type { NailSize } from "@/types"
 const addItemSchema = z.object({
   productId: z.string().min(1),
   size: z.string().min(1),
-  quantity: z.number().int().min(1).max(10),
+  quantity: z.coerce.number().int().min(1).max(10),
 })
 
 export async function POST(request: Request) {

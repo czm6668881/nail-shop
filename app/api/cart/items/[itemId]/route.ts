@@ -5,7 +5,7 @@ import { CART_COOKIE } from "@/lib/auth/session"
 import { fetchCart, updateCartItemQuantity, removeCartItem, touchCart } from "@/lib/db/queries"
 
 const quantitySchema = z.object({
-  quantity: z.number().int().min(1).max(10),
+  quantity: z.coerce.number().int().min(1).max(10),
 })
 
 const ensureCartId = async () => {
