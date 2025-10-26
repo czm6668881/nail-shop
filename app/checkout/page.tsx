@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { CreditCard, Truck, Lock } from "lucide-react"
@@ -23,15 +23,12 @@ const initialForm = {
   zipCode: "",
   country: "United States",
   phone: "",
-  cardNumber: "",
-  cardExpiry: "",
-  cardCvc: "",
 }
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const cart = useCartStore((state) => state.cart)
-  const clearCart = useCartStore((state) => state.clearCart)
   const initializeCart = useCartStore((state) => state.init)
   const initialized = useCartStore((state) => state.initialized)
   const loading = useCartStore((state) => state.loading)
@@ -65,8 +62,13 @@ export default function CheckoutPage() {
       }
 
       const data = await response.json()
-      await clearCart()
-      router.push(`/order-confirmation?orderNumber=${encodeURIComponent(data.orderNumber)}`)
+
+      if (typeof data.checkoutUrl === "string") {
+        window.location.href = data.checkoutUrl
+        return
+      }
+
+      throw new Error("Invalid payment response.")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to complete checkout.")
     } finally {
@@ -89,6 +91,9 @@ export default function CheckoutPage() {
     router.push("/cart")
     return null
   }
+
+  const canceled = searchParams?.get("canceled")
+  const checkoutError = searchParams?.get("error")
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -200,50 +205,23 @@ export default function CheckoutPage() {
             <div className="bg-card rounded-lg p-6 border border-border">
               <div className="flex items-center gap-2 mb-6">
                 <CreditCard className="h-5 w-5 text-primary" />
-                <h2 className="text-xl font-bold">Payment Information</h2>
+                <h2 className="text-xl font-bold">Secure Payment</h2>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="cardNumber">Card Number</Label>
-                  <Input
-                    id="cardNumber"
-                    required
-                    value={formData.cardNumber}
-                    onChange={(event) => setFormData({ ...formData, cardNumber: event.target.value })}
-                    placeholder="1234 5678 9012 3456"
-                    maxLength={19}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="cardExpiry">Expiry Date</Label>
-                    <Input
-                      id="cardExpiry"
-                      required
-                      value={formData.cardExpiry}
-                      onChange={(event) => setFormData({ ...formData, cardExpiry: event.target.value })}
-                      placeholder="MM/YY"
-                      maxLength={5}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="cardCvc">CVC</Label>
-                    <Input
-                      id="cardCvc"
-                      required
-                      value={formData.cardCvc}
-                      onChange={(event) => setFormData({ ...formData, cardCvc: event.target.value })}
-                      placeholder="123"
-                      maxLength={4}
-                    />
-                  </div>
-                </div>
-              </div>
-
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Payments are processed through Stripe. After reviewing your order details, you&apos;ll be redirected to
+                complete payment on a secure, PCI-compliant checkout page.
+              </p>
               <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                 <Lock className="h-4 w-4" />
-                <span>Your payment information is secure and encrypted</span>
+                <span>Your billing details remain protected at every step.</span>
               </div>
+              {(canceled || checkoutError) && (
+                <p className="text-sm text-destructive mt-4">
+                  {!checkoutError
+                    ? "Payment was canceled. You can try again when you’re ready."
+                    : "We couldn’t process the payment. Please try again or use a different method."}
+                </p>
+              )}
               {(error || cartError) && (
                 <p className="text-sm text-destructive mt-4">{error ?? cartError}</p>
               )}
@@ -303,7 +281,7 @@ export default function CheckoutPage() {
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={isProcessing || loading}>
-                {isProcessing ? "Processing…" : "Complete Order"}
+                {isProcessing ? "Redirecting…" : "Continue to Payment"}
               </Button>
 
               <p className="text-xs text-center text-muted-foreground mt-4">
