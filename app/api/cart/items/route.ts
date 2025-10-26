@@ -7,7 +7,7 @@ import type { NailSize } from "@/types"
 
 const addItemSchema = z.object({
   productId: z.string().min(1),
-  size: z.string().min(1),
+  size: z.string().min(1).optional(),
   quantity: z.coerce.number().int().min(1).max(10),
 })
 
@@ -25,8 +25,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Product is currently out of stock." }, { status: 400 })
     }
 
-    const selectedSize = size as NailSize
-    if (!product.sizes.includes(selectedSize)) {
+    const availableSizes = Array.isArray(product.sizes) ? product.sizes : []
+    if (availableSizes.length === 0) {
+      return NextResponse.json({ message: "Selected product is missing size options." }, { status: 400 })
+    }
+
+    const normalizedSize = (size ?? availableSizes[0]) as NailSize
+    if (!availableSizes.includes(normalizedSize)) {
       return NextResponse.json({ message: "Selected size is not available for this product." }, { status: 400 })
     }
 
@@ -47,7 +52,7 @@ export async function POST(request: Request) {
       })
     }
 
-    await upsertCartItem({ cartId: cart.id, productId, size: selectedSize, quantity })
+    await upsertCartItem({ cartId: cart.id, productId, size: normalizedSize, quantity })
     await touchCart(cart.id)
 
     const updatedCart = await fetchCart(cart.id)
