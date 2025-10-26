@@ -8,7 +8,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold">gelmanicure</h3>
+            <h2 className="text-lg font-bold">gelmanicure</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Premium press-on nails for the modern woman. Salon-quality results at home.
             </p>
@@ -30,7 +30,7 @@ export function SiteFooter() {
 
           {/* Shop */}
           <div>
-            <h4 className="font-semibold mb-4">Shop</h4>
+            <h3 className="font-semibold mb-4">Shop</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/products" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -63,7 +63,7 @@ export function SiteFooter() {
 
           {/* Support */}
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -85,7 +85,7 @@ export function SiteFooter() {
 
           {/* Company */}
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
