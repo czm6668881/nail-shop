@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -26,6 +26,23 @@ const initialForm = {
 }
 
 export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-md mx-auto text-center space-y-6">
+            <h1 className="text-3xl font-bold">Preparing checkout…</h1>
+            <p className="text-muted-foreground">We&apos;re loading your cart details.</p>
+          </div>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
+  )
+}
+
+function CheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const cart = useCartStore((state) => state.cart)
