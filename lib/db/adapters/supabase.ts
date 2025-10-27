@@ -840,12 +840,13 @@ export const insertOrder = async (order: Order) => {
 
 export const updateOrderTrackingNumber = async (orderId: string, trackingNumber: string | null): Promise<Order> => {
   const now = new Date().toISOString()
+  const updatePayload: Tables["orders"]["Update"] = {
+    tracking_number: trackingNumber ?? null,
+    updated_at: now,
+  }
   const { data, error } = await supabase()
     .from("orders")
-    .update({
-      tracking_number: trackingNumber ?? null,
-      updated_at: now,
-    })
+    .update(updatePayload as never)
     .eq("id", orderId)
     .select("*")
     .maybeSingle<OrderRow>()
