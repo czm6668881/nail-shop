@@ -22,6 +22,19 @@ export default function AdminCustomersPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null)
 
+  const handleComposeEmail = (email: string) => {
+    const sanitizedEmail = email.trim()
+    if (!sanitizedEmail) {
+      return
+    }
+    const params = new URLSearchParams({ to: sanitizedEmail })
+    const outlookUrl = `https://outlook.office.com/mail/deeplink/compose?${params.toString()}`
+    const newWindow = window.open(outlookUrl, "_blank", "noopener,noreferrer")
+    if (!newWindow) {
+      window.location.href = `mailto:${sanitizedEmail}`
+    }
+  }
+
   useEffect(() => {
     const loadCustomers = async () => {
       try {
@@ -105,13 +118,7 @@ export default function AdminCustomersPage() {
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View details</span>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          window.location.href = `mailto:${customer.email}`
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleComposeEmail(customer.email)}>
                         <Mail className="h-4 w-4" />
                         <span className="sr-only">Send email</span>
                       </Button>
@@ -182,11 +189,12 @@ export default function AdminCustomersPage() {
           )}
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2">
             <Button
+              type="button"
               variant="outline"
               className="w-full sm:w-auto"
               onClick={() => {
                 if (selectedCustomer) {
-                  window.location.href = `mailto:${selectedCustomer.email}`
+                  handleComposeEmail(selectedCustomer.email)
                 }
               }}
             >
