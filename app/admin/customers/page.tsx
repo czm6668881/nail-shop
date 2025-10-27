@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Eye, Mail } from "lucide-react"
+import { ArrowLeft, Eye, Trash2 } from "lucide-react"
 import type { User } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Separator } from "@/components/ui/separator"
 
 export default function AdminCustomersPage() {
@@ -21,17 +31,31 @@ export default function AdminCustomersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const handleComposeEmail = (email: string) => {
-    const sanitizedEmail = email.trim()
-    if (!sanitizedEmail) {
+  const handleDeleteCustomer = async () => {
+    if (!deleteTarget) {
       return
     }
-    const params = new URLSearchParams({ to: sanitizedEmail })
-    const outlookUrl = `https://outlook.office.com/mail/deeplink/compose?${params.toString()}`
-    const newWindow = window.open(outlookUrl, "_blank", "noopener,noreferrer")
-    if (!newWindow) {
-      window.location.href = `mailto:${sanitizedEmail}`
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      const response = await fetch(`/api/admin/customers/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.message ?? "Unable to delete customer.")
+      }
+      setCustomers((prev) => prev.filter((customer) => customer.id !== deleteTarget.id))
+      setSelectedCustomer((prev) => (prev?.id === deleteTarget.id ? null : prev))
+      setDeleteTarget(null)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Unable to delete customer.")
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -118,9 +142,16 @@ export default function AdminCustomersPage() {
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View details</span>
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleComposeEmail(customer.email)}>
-                        <Mail className="h-4 w-4" />
-                        <span className="sr-only">Send email</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setDeleteError(null)
+                          setDeleteTarget(customer)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete customer</span>
                       </Button>
                     </div>
                   </td>
@@ -190,23 +221,68 @@ export default function AdminCustomersPage() {
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2">
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
               className="w-full sm:w-auto"
               onClick={() => {
                 if (selectedCustomer) {
-                  handleComposeEmail(selectedCustomer.email)
+                  setDeleteError(null)
+                  setDeleteTarget(selectedCustomer)
                 }
               }}
             >
-              <Mail className="mr-2 h-4 w-4" />
-              Send Email
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Customer
             </Button>
-            <Button className="w-full sm:w-auto" onClick={() => setSelectedCustomer(null)}>
+            <Button type="button" className="w-full sm:w-auto" onClick={() => setSelectedCustomer(null)}>
               Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setDeleteTarget(null)
+            setDeleteError(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete customer</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action permanently removes the customer&apos;s account. Past orders will remain but will no longer be associated with this user.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={deleting}
+              onClick={() => {
+                if (!deleting) {
+                  setDeleteTarget(null)
+                  setDeleteError(null)
+                }
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deleting) {
+                  void handleDeleteCustomer()
+                }
+              }}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

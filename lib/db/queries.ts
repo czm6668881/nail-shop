@@ -140,6 +140,7 @@ export const insertUser = wrap("insertUser")
 export const updateUserProfile = wrap("updateUserProfile")
 export const linkGoogleAccount = wrap("linkGoogleAccount")
 export const listUsers = wrap("listUsers")
+export const deleteUser = wrap("deleteUser")
 
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex")
 

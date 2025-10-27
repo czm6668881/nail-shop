@@ -1545,3 +1545,10 @@ export const listUsers = (): User[] => {
   const rows = db.prepare("SELECT * FROM users ORDER BY datetime(created_at) DESC").all() as UserRow[]
   return rows.map((row) => toPublicUser(mapUser(row)))
 }
+
+export const deleteUser = (userId: string) => {
+  const result = db.prepare("DELETE FROM users WHERE id = ?").run(userId)
+  if (result.changes === 0) {
+    throw new Error("USER_NOT_FOUND")
+  }
+}

@@ -1616,3 +1616,20 @@ export const listUsers = async (): Promise<User[]> => {
   }
   return (data ?? []).map((row) => mapPublicUserRow(row))
 }
+
+export const deleteUser = async (userId: string) => {
+  const { data, error } = await supabase()
+    .from("users")
+    .delete()
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    throw new Error("USER_NOT_FOUND")
+  }
+}
