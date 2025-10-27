@@ -3,7 +3,7 @@
 import type { FormEvent } from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Eye } from "lucide-react"
+import { ArrowLeft, Truck } from "lucide-react"
 import type { Order } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -172,10 +172,15 @@ export default function AdminOrdersPage() {
                     <Badge className={statusVariants[order.status]}>{order.status.toUpperCase()}</Badge>
                   </td>
                   <td className="p-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openTrackingDialog(order)}>
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">Manage tracking</span>
+                    <div className="flex items-center justify-end">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="gap-2 rounded-full shadow-sm"
+                        onClick={() => openTrackingDialog(order)}
+                      >
+                        <Truck className="h-4 w-4" />
+                        <span className="font-medium text-sm">Manage Tracking</span>
                       </Button>
                     </div>
                   </td>
