@@ -3,14 +3,14 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { updateOrderTrackingNumber } from "@/lib/db/queries"
 
-export async function PATCH(request: Request, context: { params: Record<string, string | string[]> }) {
+export async function PATCH(request: Request, context: any) {
   try {
     await requireAdminUser(cookies())
   } catch {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  const { orderId } = context.params
+  const { orderId } = context?.params ?? {}
   if (typeof orderId !== "string" || orderId.length === 0) {
     return NextResponse.json({ message: "Invalid order id." }, { status: 400 })
   }
