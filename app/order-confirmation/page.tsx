@@ -10,8 +10,7 @@ interface OrderConfirmationPageProps {
 
 export default async function OrderConfirmationPage({ searchParams }: OrderConfirmationPageProps) {
   const resolvedSearchParams = await searchParams
-  const orderNumber =
-    resolvedSearchParams.orderNumber ?? `ORD-${Date.now().toString().slice(-8)}`
+  const orderNumber = resolvedSearchParams.orderNumber ?? "Order pending"
 
   return (
     <div className="container mx-auto px-4 py-20">

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import type { User } from "@/types"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -16,14 +17,6 @@ export default function ProfilePage() {
   const { user, isAuthenticated, updateProfile } = useAuthStore()
   const initAuth = useAuthStore((state) => state.init)
   const authInitialized = useAuthStore((state) => state.initialized)
-  const [isSaving, setIsSaving] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
-
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-  })
 
   useEffect(() => {
     initAuth().catch(() => undefined)
@@ -33,18 +26,35 @@ export default function ProfilePage() {
     if (!authInitialized) return
     if (!isAuthenticated) {
       router.push("/login")
-    } else if (user) {
-      setFormData({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      })
     }
   }, [authInitialized, isAuthenticated, user, router])
 
   if (!authInitialized || !isAuthenticated || !user) {
     return null
   }
+
+  return (
+    <ProfileForm
+      key={user.id}
+      user={user}
+      onSave={updateProfile}
+    />
+  )
+}
+
+type ProfileFormProps = {
+  user: User
+  onSave: (data: { firstName: string; lastName: string; email: string }) => void
+}
+
+function ProfileForm({ user, onSave }: ProfileFormProps) {
+  const [isSaving, setIsSaving] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [formData, setFormData] = useState(() => ({
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+  }))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +64,7 @@ export default function ProfilePage() {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    updateProfile(formData)
+    onSave(formData)
     setSuccessMessage("Profile updated successfully!")
     setIsSaving(false)
 
