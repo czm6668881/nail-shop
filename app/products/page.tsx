@@ -94,9 +94,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         }
       : sortKey === "bestsellers"
         ? {
-            pageTitle: "Best Sellers",
+            pageTitle: "Best Sellers Gel nails",
             pageDescription:
-              "Shop the sets customers love most—from everyday neutrals to statement finishes that sell out fast.",
+              "Shop the gel nail sets customers love most—from everyday neutrals to statement finishes that sell out fast.",
           }
         : {
             pageTitle: "All Products",

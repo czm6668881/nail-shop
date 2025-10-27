@@ -55,7 +55,7 @@ export function SiteFooter() {
                   href="/products?filter=bestsellers"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Best Sellers
+                  Best Sellers Gel nails
                 </Link>
               </li>
             </ul>

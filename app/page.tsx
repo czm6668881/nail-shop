@@ -83,11 +83,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Best Sellers */}
+      {/* Best Sellers Gel nails */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Best Sellers</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Best Sellers Gel nails</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Our community-favorite sets with the highest reviews and repeat purchases.
             </p>
@@ -105,7 +105,7 @@ export default async function HomePage() {
           )}
           <div className="text-center">
             <Button size="lg" variant="outline" asChild>
-              <Link href="/products?filter=bestsellers">Browse Best Sellers</Link>
+              <Link href="/products?filter=bestsellers">Browse Best Sellers Gel nails</Link>
             </Button>
           </div>
         </div>
