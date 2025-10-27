@@ -3,14 +3,14 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { deleteUser } from "@/lib/db/queries"
 
-export async function DELETE(_request: Request, { params }: { params: { userId: string } }) {
+export async function DELETE(_request: Request, context: unknown) {
   try {
     await requireAdminUser(cookies())
   } catch {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  const userId = params.userId
+  const { userId } = (context as { params?: { userId?: unknown } })?.params ?? {}
   if (typeof userId !== "string" || userId.length === 0) {
     return NextResponse.json({ message: "Invalid user id." }, { status: 400 })
   }
