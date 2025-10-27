@@ -6,11 +6,21 @@ import { ArrowLeft, Eye, Mail } from "lucide-react"
 import type { User } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null)
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -66,12 +76,7 @@ export default function AdminCustomersPage() {
                 <tr key={customer.id} className="hover:bg-muted/50 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-semibold text-primary">
-                          {customer.firstName[0]}
-                          {customer.lastName[0]}
-                        </span>
-                      </div>
+                      <CustomerAvatar customer={customer} />
                       <div>
                         <p className="font-medium">
                           {customer.firstName} {customer.lastName}
@@ -96,11 +101,17 @@ export default function AdminCustomersPage() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" onClick={() => setSelectedCustomer(customer)}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View details</span>
                       </Button>
-                      <Button variant="ghost" size="icon">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          window.location.href = `mailto:${customer.email}`
+                        }}
+                      >
                         <Mail className="h-4 w-4" />
                         <span className="sr-only">Send email</span>
                       </Button>
@@ -132,6 +143,81 @@ export default function AdminCustomersPage() {
           <p className="text-sm text-muted-foreground">Showing {customers.length} customers</p>
         </div>
       )}
+
+      <Dialog open={selectedCustomer !== null} onOpenChange={(open) => !open && setSelectedCustomer(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customer details</DialogTitle>
+            <DialogDescription>Quick reference for contact and account status.</DialogDescription>
+          </DialogHeader>
+          {selectedCustomer && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <CustomerAvatar customer={selectedCustomer} size="lg" />
+                <div>
+                  <p className="text-lg font-semibold">
+                    {selectedCustomer.firstName}
+                    {" "}
+                    {selectedCustomer.lastName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{selectedCustomer.email}</p>
+                </div>
+              </div>
+              <Separator />
+              <div className="grid gap-3 text-sm">
+                <DetailRow label="User ID" value={selectedCustomer.id} />
+                <DetailRow
+                  label="Joined"
+                  value={new Date(selectedCustomer.createdAt).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                />
+                <DetailRow label="Role" value={selectedCustomer.role.toUpperCase()} />
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-end sm:space-x-2">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => {
+                if (selectedCustomer) {
+                  window.location.href = `mailto:${selectedCustomer.email}`
+                }
+              }}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Send Email
+            </Button>
+            <Button className="w-full sm:w-auto" onClick={() => setSelectedCustomer(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function CustomerAvatar({ customer, size = "md" }: { customer: User; size?: "md" | "lg" }) {
+  const initials = `${customer.firstName?.[0] ?? ""}${customer.lastName?.[0] ?? ""}`.toUpperCase() || "?"
+  const dimension = size === "lg" ? "h-12 w-12 text-base" : "h-10 w-10 text-sm"
+  return (
+    <div className={`rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ${dimension}`}>
+      <span className="font-semibold text-primary">{initials}</span>
+    </div>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-right break-all">{value}</span>
     </div>
   )
 }
