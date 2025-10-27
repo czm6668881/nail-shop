@@ -3,13 +3,7 @@ import { cookies } from "next/headers"
 import { requireAdminUser } from "@/lib/auth/session"
 import { updateOrderTrackingNumber } from "@/lib/db/queries"
 
-type RouteParams = {
-  params: {
-    orderId: string
-  }
-}
-
-export async function PATCH(request: Request, { params }: RouteParams) {
+export async function PATCH(request: Request, { params }: { params: { orderId: string } }) {
   try {
     await requireAdminUser(cookies())
   } catch {
