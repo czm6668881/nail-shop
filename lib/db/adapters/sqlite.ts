@@ -887,6 +887,33 @@ export const insertOrder = (order: Order) => {
   }
 }
 
+export const updateOrderTrackingNumber = (orderId: string, trackingNumber: string | null): Order => {
+  const now = new Date().toISOString()
+  const updateStmt = db.prepare(`
+    UPDATE orders
+    SET tracking_number = @tracking_number,
+        updated_at = @updated_at
+    WHERE id = @id
+  `)
+
+  const result = updateStmt.run({
+    tracking_number: trackingNumber ?? null,
+    updated_at: now,
+    id: orderId,
+  })
+
+  if (result.changes === 0) {
+    throw new Error("ORDER_NOT_FOUND")
+  }
+
+  const row = db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId) as OrderRow | undefined
+  if (!row) {
+    throw new Error("ORDER_NOT_FOUND")
+  }
+
+  return mapOrder(row)
+}
+
 const mapOrder = (row: OrderRow): Order => ({
   id: row.id,
   userId: row.user_id ?? "",

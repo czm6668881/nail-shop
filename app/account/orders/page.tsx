@@ -133,12 +133,14 @@ export default function OrdersPage() {
                     <span className="text-muted-foreground">Total Amount</span>
                     <span className="font-semibold">${order.total.toFixed(2)}</span>
                   </div>
-                  {order.trackingNumber && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tracking Number</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tracking Number</span>
+                    {order.trackingNumber ? (
                       <span className="font-mono text-xs">{order.trackingNumber}</span>
-                    </div>
-                  )}
+                    ) : (
+                      <span className="italic text-muted-foreground">Pending</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-3">

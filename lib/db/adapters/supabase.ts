@@ -838,6 +838,29 @@ export const insertOrder = async (order: Order) => {
   }
 }
 
+export const updateOrderTrackingNumber = async (orderId: string, trackingNumber: string | null): Promise<Order> => {
+  const now = new Date().toISOString()
+  const { data, error } = await supabase()
+    .from("orders")
+    .update({
+      tracking_number: trackingNumber ?? null,
+      updated_at: now,
+    })
+    .eq("id", orderId)
+    .select("*")
+    .maybeSingle<OrderRow>()
+
+  if (error) {
+    throw error
+  }
+
+  if (!data) {
+    throw new Error("ORDER_NOT_FOUND")
+  }
+
+  return mapOrder(data)
+}
+
 export const ensureCart = async (
   cartId?: string,
   userId?: string,

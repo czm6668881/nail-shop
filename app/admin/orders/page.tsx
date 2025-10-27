@@ -1,11 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Eye } from "lucide-react"
 import type { Order } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 const statusVariants: Record<Order["status"], string> = {
   pending: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
@@ -19,6 +29,11 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [trackingInput, setTrackingInput] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -38,6 +53,53 @@ export default function AdminOrdersPage() {
 
     loadOrders()
   }, [])
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open)
+    if (!open) {
+      setSelectedOrder(null)
+      setTrackingInput("")
+      setFormError(null)
+    }
+  }
+
+  const openTrackingDialog = (order: Order) => {
+    setSelectedOrder(order)
+    setTrackingInput(order.trackingNumber ?? "")
+    setFormError(null)
+    setDialogOpen(true)
+  }
+
+  const handleTrackingSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!selectedOrder) {
+      return
+    }
+    setSaving(true)
+    setFormError(null)
+    try {
+      const response = await fetch(`/api/admin/orders/${selectedOrder.id}/tracking`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ trackingNumber: trackingInput.trim() }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.message ?? "Unable to update tracking number.")
+      }
+      const data = await response.json()
+      const updatedOrder: Order = data.order
+      setOrders((prev) => prev.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)))
+      setSelectedOrder(updatedOrder)
+      handleDialogOpenChange(false)
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Unable to update tracking number.")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -75,6 +137,15 @@ export default function AdminOrdersPage() {
                 <tr key={order.id} className="hover:bg-muted/50 transition-colors">
                   <td className="p-4">
                     <p className="font-medium font-mono text-sm">{order.orderNumber}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Tracking:
+                      {" "}
+                      {order.trackingNumber ? (
+                        <span className="font-mono text-xs text-foreground">{order.trackingNumber}</span>
+                      ) : (
+                        <span className="italic">Pending</span>
+                      )}
+                    </p>
                   </td>
                   <td className="p-4">
                     <div>
@@ -101,9 +172,9 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" onClick={() => openTrackingDialog(order)}>
                         <Eye className="h-4 w-4" />
-                        <span className="sr-only">View details</span>
+                        <span className="sr-only">Manage tracking</span>
                       </Button>
                     </div>
                   </td>
@@ -133,6 +204,41 @@ export default function AdminOrdersPage() {
           <p className="text-sm text-muted-foreground">Showing {orders.length} orders</p>
         </div>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
+        <DialogContent className="max-w-md">
+          <form onSubmit={handleTrackingSubmit} className="space-y-6">
+            <DialogHeader>
+              <DialogTitle>Update tracking</DialogTitle>
+              <DialogDescription>
+                {selectedOrder ? `Set the tracking number for order ${selectedOrder.orderNumber}. Leave blank to clear it.` : "Set the tracking number for this order."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="trackingNumber">Tracking number</Label>
+                <Input
+                  id="trackingNumber"
+                  value={trackingInput}
+                  onChange={(event) => setTrackingInput(event.target.value)}
+                  placeholder="e.g. 1Z999AA10123456784"
+                  disabled={saving}
+                  autoFocus
+                />
+              </div>
+              {formError && <p className="text-sm text-destructive">{formError}</p>}
+            </div>
+            <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+              <Button type="button" variant="outline" onClick={() => handleDialogOpenChange(false)} disabled={saving}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
