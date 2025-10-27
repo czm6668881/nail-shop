@@ -58,7 +58,7 @@ export default async function HomePage() {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold">Premium Quality</h2>
+              <p className="text-xl font-semibold">Premium Quality</p>
               <p className="text-sm text-muted-foreground text-pretty">
                 Salon-quality materials and finishes that look and feel luxurious
               </p>
@@ -67,7 +67,7 @@ export default async function HomePage() {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Clock className="h-6 w-6 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold">Long-Lasting Wear</h2>
+              <p className="text-xl font-semibold">Long-Lasting Wear</p>
               <p className="text-sm text-muted-foreground text-pretty">
                 Enjoy beautiful nails for a full week with proper application and gentle removal
               </p>
@@ -76,7 +76,7 @@ export default async function HomePage() {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Package className="h-6 w-6 text-primary" />
               </div>
-              <h2 className="text-xl font-semibold">Free Shipping</h2>
+              <p className="text-xl font-semibold">Free Shipping</p>
               <p className="text-sm text-muted-foreground text-pretty">Complimentary tracked shipping on every order worldwide</p>
             </div>
           </div>
