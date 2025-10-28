@@ -1,9 +1,9 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Truck } from "lucide-react"
+import { ArrowLeft, Trash2, Truck } from "lucide-react"
 import type { Order } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,16 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const statusVariants: Record<Order["status"], string> = {
   pending: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
@@ -35,6 +45,10 @@ export default function AdminOrdersPage() {
   const [trackingInput, setTrackingInput] = useState("")
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [deleteTarget, setDeleteTarget] = useState<Order | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -102,6 +116,45 @@ export default function AdminOrdersPage() {
     }
   }
 
+  const filteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return orders
+    }
+    const query = searchQuery.trim().toLowerCase()
+    return orders.filter((order) => {
+      const email = order.email ?? ""
+      return (
+        order.orderNumber.toLowerCase().includes(query) ||
+        email.toLowerCase().includes(query) ||
+        order.shippingAddress.firstName.toLowerCase().includes(query) ||
+        order.shippingAddress.lastName.toLowerCase().includes(query)
+      )
+    })
+  }, [orders, searchQuery])
+
+  const handleDeleteOrder = async () => {
+    if (!deleteTarget) {
+      return
+    }
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      const response = await fetch(`/api/admin/orders/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => null)
+        throw new Error(data?.message ?? "Unable to delete order.")
+      }
+      setOrders((prev) => prev.filter((order) => order.id !== deleteTarget.id))
+      setDeleteTarget(null)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Unable to delete order.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
@@ -121,6 +174,15 @@ export default function AdminOrdersPage() {
       {error && <div className="mb-4 text-destructive">{error}</div>}
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="p-4 border-b border-border flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-muted-foreground">Search by order number, customer name, or email.</p>
+          <Input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search orders…"
+            className="w-full md:w-64"
+          />
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border">
@@ -135,7 +197,7 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-muted/50 transition-colors">
                   <td className="p-4">
                     <p className="font-medium font-mono text-sm">{order.orderNumber}</p>
@@ -186,6 +248,18 @@ export default function AdminOrdersPage() {
                         <Truck className="h-4 w-4" />
                         <span className="font-medium text-sm">Manage Tracking</span>
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="ml-2 text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setDeleteError(null)
+                          setDeleteTarget(order)
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete order</span>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -197,10 +271,10 @@ export default function AdminOrdersPage() {
                   </td>
                 </tr>
               )}
-              {!loading && orders.length === 0 && (
+              {!loading && filteredOrders.length === 0 && (
                 <tr>
                   <td colSpan={7} className="p-6 text-center text-muted-foreground">
-                    No orders yet.
+                    {searchQuery.trim().length > 0 ? "No orders match your search." : "No orders yet."}
                   </td>
                 </tr>
               )}
@@ -249,6 +323,50 @@ export default function AdminOrdersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setDeleteTarget(null)
+            setDeleteError(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete order</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action permanently removes the order record. Inventory adjustments are not automatically restored.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={deleting}
+              onClick={() => {
+                if (!deleting) {
+                  setDeleteTarget(null)
+                  setDeleteError(null)
+                }
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deleting) {
+                  void handleDeleteOrder()
+                }
+              }}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

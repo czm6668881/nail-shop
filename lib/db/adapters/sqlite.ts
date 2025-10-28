@@ -952,6 +952,27 @@ const mapOrder = (row: OrderRow, email?: string): Order => ({
   updatedAt: row.updated_at,
 })
 
+export const deleteOrder = (orderId: string) => {
+  const transaction = db.transaction(() => {
+    db.prepare("DELETE FROM inventory_events WHERE reference_type = 'order' AND reference_id = ?").run(orderId)
+    const result = db.prepare("DELETE FROM orders WHERE id = ?").run(orderId)
+    if (result.changes === 0) {
+      throw new Error("ORDER_NOT_FOUND")
+    }
+  })
+
+  transaction()
+}
+
+export const deleteAllOrders = () => {
+  const transaction = db.transaction(() => {
+    db.prepare("DELETE FROM inventory_events WHERE reference_type = 'order'").run()
+    db.prepare("DELETE FROM orders").run()
+  })
+
+  transaction()
+}
+
 export const ensureCart = (cartId?: string, userId?: string): { cart: CartRow; newlyCreated: boolean } => {
   if (cartId) {
     const existing = db.prepare("SELECT * FROM carts WHERE id = ?").get(cartId) as CartRow | undefined

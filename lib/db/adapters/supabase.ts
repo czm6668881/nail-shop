@@ -306,6 +306,38 @@ const fetchUserEmails = async (userIds: string[]): Promise<Map<string, string>> 
   return map
 }
 
+export const deleteOrder = async (orderId: string) => {
+  const client = supabase()
+  const { error: inventoryError } = await client
+    .from("inventory_events")
+    .delete()
+    .eq("reference_type", "order")
+    .eq("reference_id", orderId)
+  if (inventoryError) {
+    throw inventoryError
+  }
+
+  const { data, error } = await client.from("orders").delete().eq("id", orderId).select("id").maybeSingle()
+  if (error) {
+    throw error
+  }
+  if (!data) {
+    throw new Error("ORDER_NOT_FOUND")
+  }
+}
+
+export const deleteAllOrders = async () => {
+  const client = supabase()
+  const { error: inventoryError } = await client.from("inventory_events").delete().eq("reference_type", "order")
+  if (inventoryError) {
+    throw inventoryError
+  }
+  const { error } = await client.from("orders").delete()
+  if (error) {
+    throw error
+  }
+}
+
 const mapAddress = (row: AddressRow): Address => ({
   id: row.id,
   userId: row.user_id,
