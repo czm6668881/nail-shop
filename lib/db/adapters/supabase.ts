@@ -828,7 +828,7 @@ export const listOrders = async (): Promise<Order[]> => {
   if (error) {
     throw error
   }
-  const rows = data ?? []
+  const rows = (data ?? []) as OrderRow[]
   const emailMap = await fetchUserEmails(rows.map((row) => row.user_id ?? ""))
   return rows.map((row) => mapOrder(row, row.user_id ? emailMap.get(row.user_id) : undefined))
 }
@@ -842,7 +842,7 @@ export const listOrdersByUser = async (userId: string): Promise<Order[]> => {
   if (error) {
     throw error
   }
-  const rows = data ?? []
+  const rows = (data ?? []) as OrderRow[]
   const emailMap = await fetchUserEmails(rows.map((row) => row.user_id ?? ""))
   return rows.map((row) => mapOrder(row, row.user_id ? emailMap.get(row.user_id) : undefined))
 }
@@ -894,9 +894,10 @@ export const updateOrderTrackingNumber = async (orderId: string, trackingNumber:
     throw new Error("ORDER_NOT_FOUND")
   }
 
-  const emailMap = await fetchUserEmails(data.user_id ? [data.user_id] : [])
-  const email = data.user_id ? emailMap.get(data.user_id) : undefined
-  return mapOrder(data, email)
+  const row = data as OrderRow
+  const emailMap = await fetchUserEmails(row.user_id ? [row.user_id] : [])
+  const email = row.user_id ? emailMap.get(row.user_id) : undefined
+  return mapOrder(row, email)
 }
 
 export const ensureCart = async (
