@@ -1,13 +1,12 @@
 "use client"
 
 import Image from "next/image"
-import { type FocusEvent, useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { ShoppingBag, Search, Menu, User } from "lucide-react"
+import { ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart-store"
 import { useAuthStore } from "@/lib/store/auth-store"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import type { ProductCategory } from "@/types"
 import { sortProductCategories } from "@/lib/utils/categories"
 
@@ -95,26 +94,6 @@ export function SiteHeader() {
   const effectiveCatalogCategories =
     catalogCategories.length > 0 ? catalogCategories : FALLBACK_CATEGORIES
 
-  const catalogColumns = useMemo(() => {
-    if (effectiveCatalogCategories.length === 0) {
-      return []
-    }
-
-    const columnCount = Math.min(3, Math.max(1, Math.ceil(effectiveCatalogCategories.length / 4)))
-    const chunkSize = Math.ceil(effectiveCatalogCategories.length / columnCount)
-
-    return Array.from({ length: columnCount }, (_, columnIndex) =>
-      effectiveCatalogCategories.slice(columnIndex * chunkSize, (columnIndex + 1) * chunkSize),
-    )
-  }, [effectiveCatalogCategories])
-
-  const catalogGridClass =
-    catalogColumns.length === 3
-      ? "grid-cols-3"
-      : catalogColumns.length === 2
-        ? "grid-cols-2"
-        : "grid-cols-1"
-
   const navigation: NavigationItem[] = [
     { name: "HOME", href: "/" },
     { name: "CATALOG", href: "/products", dropdownItems: effectiveCatalogCategories },
@@ -122,100 +101,68 @@ export function SiteHeader() {
     { name: "BLOG", href: "/blog" },
   ]
 
+  const renderActions = (className: string) => (
+    <div className={`flex items-center gap-1.5 md:gap-2 ${className}`}>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/search">
+          <Search className="h-5 w-5" />
+          <span className="sr-only">Search</span>
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link href={isAuthenticated ? "/account" : "/login"}>
+          <User className="h-5 w-5" />
+          <span className="sr-only">Account</span>
+        </Link>
+      </Button>
+      <Button variant="ghost" size="icon" className="relative" asChild>
+        <Link href="/cart">
+          <ShoppingBag className="h-5 w-5" />
+          {itemCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+              {itemCount}
+            </span>
+          )}
+          <span className="sr-only">Shopping cart</span>
+        </Link>
+      </Button>
+    </div>
+  )
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
-              <nav className="mt-8 flex flex-col gap-4">
-                {navigation.map((item) => (
-                  <div key={item.name} className="space-y-2">
-                    <Link
-                      href={item.href}
-                      className="text-lg font-medium transition-colors hover:text-primary"
-                    >
-                      {item.name}
-                    </Link>
-                    {item.name === "CATALOG" ? (
-                      <div className="ml-4 flex flex-col gap-2">
-                        {catalogLoading && (
-                          <span className="text-sm text-muted-foreground">Loading categories…</span>
-                        )}
-                        {catalogError && (
-                          <span className="text-sm font-medium text-destructive">{catalogError}</span>
-                        )}
-                        {item.dropdownItems && item.dropdownItems.length > 0 ? (
-                          item.dropdownItems.map((dropdown) => (
-                            <Link
-                              key={dropdown.name}
-                              href={dropdown.href}
-                              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                              {dropdown.name}
-                            </Link>
-                          ))
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Categories coming soon.</span>
-                        )}
-                      </div>
-                    ) : (
-                      item.dropdownItems && (
-                        <div className="ml-4 flex flex-col gap-2">
-                          {item.dropdownItems.map((dropdown) => (
-                            <Link
-                              key={dropdown.name}
-                              href={dropdown.href}
-                              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                              {dropdown.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )
-                    )}
-                  </div>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+        <div className="flex flex-col gap-3 py-3 md:h-16 md:flex-row md:items-center md:justify-between md:py-0">
+          <div className="flex items-center justify-between gap-3">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/logo-gelmanicure-nail.svg"
+                alt="gelmanicure nail logo"
+                width={160}
+                height={64}
+                priority
+                className="h-10 w-auto md:h-12"
+              />
+              <span className="sr-only">gelmanicure-nail home</span>
+            </Link>
+            {renderActions("md:hidden")}
+          </div>
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/logo-gelmanicure-nail.svg"
-              alt="gelmanicure nail logo"
-              width={160}
-              height={64}
-              priority
-              className="h-10 w-auto md:h-12"
-            />
-            <span className="sr-only">gelmanicure-nail home</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-  <nav className="hidden items-center gap-5 md:flex">
+          <nav className="order-last flex w-full flex-wrap items-center justify-center gap-3 text-sm font-medium text-muted-foreground md:order-none md:flex-1 md:justify-center">
             {navigation.map((item) => {
               if (!item.dropdownItems) {
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {item.name}
                   </Link>
                 )
               }
 
-              const isCatalog = item.name === "CATALOG"
+              const isOpen = openDropdown === item.name
 
               return (
                 <div
@@ -223,70 +170,52 @@ export function SiteHeader() {
                   className="relative"
                   onMouseEnter={() => setOpenDropdown(item.name)}
                   onMouseLeave={() => setOpenDropdown(null)}
-                  onFocusCapture={() => setOpenDropdown(item.name)}
-                  onBlurCapture={(event: FocusEvent<HTMLDivElement>) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) {
-                      setOpenDropdown(null)
-                    }
-                  }}
                 >
-                  <Link
-                    href={item.href}
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown((current) => (current === item.name ? null : item.name))}
                     aria-haspopup="true"
-                    aria-expanded={openDropdown === item.name}
-                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    aria-expanded={isOpen}
+                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {item.name}
-                  </Link>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                  </button>
+
                   <div
-                    className={`absolute left-1/2 top-full z-40 w-72 -translate-x-1/2 pt-3 transition-transform transition-opacity duration-200 ease-out ${
-                      openDropdown === item.name
-                        ? "translate-y-0 opacity-100 pointer-events-auto"
-                        : "-translate-y-2 opacity-0 pointer-events-none"
+                    className={`absolute left-1/2 top-full z-40 mt-2 w-60 -translate-x-1/2 overflow-hidden rounded-lg border border-border/60 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/90 ${
+                      isOpen ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
-                    <div className="overflow-hidden rounded-lg border border-border/60 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/90">
-                      {isCatalog ? (
-                        <div className="px-4 py-3">
-                          {catalogLoading && (
-                            <p className="text-sm text-muted-foreground">Loading categories…</p>
-                          )}
-                          {catalogError && (
-                            <p className="text-sm font-semibold text-destructive">{catalogError}</p>
-                          )}
-                          {catalogColumns.length > 0 ? (
-                            <div className={`grid gap-y-1 gap-x-4 ${catalogGridClass}`}>
-                              {catalogColumns.map((column, columnIndex) => (
-                                <div key={`catalog-column-${columnIndex}`} className="flex flex-col gap-1">
-                                  {column.map((dropdown) => (
-                                    <Link
-                                      key={dropdown.name}
-                                      href={dropdown.href}
-                                      className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-                                    >
-                                      {dropdown.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">Categories coming soon.</p>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex flex-col py-2">
-                          {item.dropdownItems.map((dropdown) => (
-                            <Link
-                              key={dropdown.name}
-                              href={dropdown.href}
-                              className="px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-                            >
-                              {dropdown.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
+                    <div className="flex flex-col py-2">
+                      <Link
+                        href={item.href}
+                        className="px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted/60"
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        All Products
+                      </Link>
+                      <div className="grid gap-1 px-2 py-1 sm:grid-cols-2">
+                        {catalogLoading && (
+                          <span className="px-2 py-2 text-sm text-muted-foreground">Loading categories…</span>
+                        )}
+                        {catalogError && (
+                          <span className="px-2 py-2 text-sm font-semibold text-destructive">{catalogError}</span>
+                        )}
+                        {item.dropdownItems?.map((dropdown) => (
+                          <Link
+                            key={dropdown.name}
+                            href={dropdown.href}
+                            className="rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                            onClick={() => setOpenDropdown(null)}
+                          >
+                            {dropdown.name}
+                          </Link>
+                        ))}
+                        {!catalogLoading && !catalogError && item.dropdownItems?.length === 0 && (
+                          <span className="px-2 py-2 text-sm text-muted-foreground">Categories coming soon.</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -294,32 +223,7 @@ export function SiteHeader() {
             })}
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1.5 md:gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/search">
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={isAuthenticated ? "/account" : "/login"}>
-                <User className="h-5 w-5" />
-                <span className="sr-only">Account</span>
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link href="/cart">
-                <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                    {itemCount}
-                  </span>
-                )}
-                <span className="sr-only">Shopping cart</span>
-              </Link>
-            </Button>
-          </div>
+          {renderActions("hidden md:flex")}
         </div>
       </div>
     </header>
