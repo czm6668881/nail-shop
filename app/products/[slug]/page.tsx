@@ -12,6 +12,10 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Metadata } from "next"
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gelmanicure-nail.com"
+const DEFAULT_PRODUCT_IMAGE = `${SITE_URL}/luxury-press-on-nails-hero-image-elegant-hands.jpg`
+const ORG_NAME = "gelmanicure"
+
 interface ProductPageProps {
   params: Promise<{
     slug: string
@@ -35,13 +39,28 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     }
   }
 
+  const canonicalUrl = `${SITE_URL}/products/${product.slug}`
+  const images = (product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]).map((image) =>
+    image.startsWith("http") ? image : `${SITE_URL}${image}`,
+  )
+
   return {
-    title: `${product.name} - Luxe Nails`,
+    title: `${product.name} | gelmanicure`,
     description: product.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: product.name,
       description: product.description,
-      images: [product.images[0]],
+      url: canonicalUrl,
+      images: images.map((url) => ({ url })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.description,
+      images,
     },
   }
 }
@@ -62,8 +81,43 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
 
+  const canonicalUrl = `${SITE_URL}/products/${product.slug}`
+  const productImageUrls = (product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]).map((image) =>
+    image.startsWith("http") ? image : `${SITE_URL}${image}`,
+  )
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: productImageUrls,
+    sku: product.id,
+    brand: {
+      "@type": "Brand",
+      name: ORG_NAME,
+    },
+    offers: {
+      "@type": "Offer",
+      url: canonicalUrl,
+      priceCurrency: "USD",
+      price: product.price.toFixed(2),
+      availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+    ...(product.reviewCount > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating.toFixed(1),
+            reviewCount: product.reviewCount,
+          },
+        }
+      : {}),
+  }
+
   return (
     <div className="container mx-auto px-4 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       {/* Product Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
         {/* Images */}

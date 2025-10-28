@@ -11,6 +11,9 @@ import { getFeaturedReviews } from "@/lib/api/reviews"
 import { getBlogPosts } from "@/lib/api/blog"
 import { getActiveHeroSlides } from "@/lib/api/hero-slides"
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gelmanicure-nail.com"
+const ORG_NAME = "gelmanicure"
+
 export default async function HomePage() {
   const [allProducts, featuredReviews, blogPosts, heroSlides] = await Promise.all([
     getProducts(),
@@ -45,8 +48,32 @@ export default async function HomePage() {
     ? `/products?category=${encodeURIComponent(leopardCategorySlug)}`
     : "/products?q=leopard"
 
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: ORG_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/placeholder-logo.png`,
+  }
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: ORG_NAME,
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${SITE_URL}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  }
+
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationJsonLd, websiteJsonLd]) }}
+      />
       {/* Hero Section with Carousel */}
       <HeroCarousel slides={heroSlides} />
 

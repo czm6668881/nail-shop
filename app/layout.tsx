@@ -7,35 +7,44 @@ import { SiteFooter } from "@/components/site-footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
+const SITE_URL = "https://gelmanicure-nail.com"
+const DEFAULT_OG_IMAGE = `${SITE_URL}/luxury-press-on-nails-hero-image-elegant-hands.jpg`
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gelmanicure-nail.com"),
-  title: "Gel nails - gelmanicure Premium Press-On Nails",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Gel Nails & Premium Press-On Nails | gelmanicure",
+    template: "%s | gelmanicure",
+  },
   description:
-    "Gel nails by gelmanicure - Discover salon-quality press-on nails with gel-like finish. Shop our collection of elegant, easy-to-apply nail designs. Free worldwide shipping on all orders.",
-  keywords: [
-    "gel nails",
-    "gel manicure",
-    "press-on nails",
-    "fake nails",
-    "artificial nails",
-    "nail art",
-    "manicure",
-    "gelmanicure",
-    "luxury nails",
-    "reusable nails",
-    "gel nail polish",
-    "gel press-on nails",
-  ],
+    "Discover gelmanicure's salon-quality gel press-on nails and wearable nail art. Shop reusable gel tips, chic designs, and custom sets with fast worldwide shipping.",
   openGraph: {
-    title: "Gel nails - gelmanicure Premium Press-On Nails",
-    description: "Gel nails with salon-quality press-on nails delivered to your door. Easy application, stunning gel-like results.",
+    title: "Gel Nails & Premium Press-On Nails | gelmanicure",
+    description:
+      "Salon-quality gel press-on nails by gelmanicure. Explore reusable styles, fast application tips, and worldwide delivery.",
     type: "website",
-    url: "https://gelmanicure-nail.com",
+    url: SITE_URL,
+    siteName: "gelmanicure",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "gelmanicure premium gel press-on nails hero image",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gel Nails & Premium Press-On Nails | gelmanicure",
+    description:
+      "Shop reusable gel press-on nails, custom sets, and pro nail care essentials from gelmanicure.",
+    images: [DEFAULT_OG_IMAGE],
   },
   alternates: {
-    canonical: "/",
+    canonical: SITE_URL,
   },
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({

@@ -17,6 +17,17 @@ const isMissingTableError = (error: unknown): boolean => {
   return typeof maybeMessage === "string" && maybeMessage.includes("public.hero_slides")
 }
 
+const isNetworkError = (error: unknown): boolean => {
+  if (error instanceof TypeError) {
+    return true
+  }
+  if (!error || typeof error !== "object") {
+    return false
+  }
+  const message = (error as { message?: unknown }).message
+  return typeof message === "string" && message.toLowerCase().includes("fetch failed")
+}
+
 const mapRowToHeroSlide = (row: HeroSlideRow): HeroSlide => ({
   id: row.id,
   title: row.title,
@@ -43,6 +54,10 @@ export async function getActiveHeroSlides(): Promise<HeroSlide[]> {
       console.warn("[hero-slides] hero_slides table missing in Supabase, returning empty list.")
       return []
     }
+    if (isNetworkError(error)) {
+      console.warn("[hero-slides] Network error fetching hero slides, returning empty list.")
+      return []
+    }
     throw new Error(`Failed to fetch active hero slides: ${error.message}`)
   }
 
@@ -59,6 +74,10 @@ export async function getAllHeroSlides(): Promise<HeroSlide[]> {
   if (error) {
     if (isMissingTableError(error)) {
       console.warn("[hero-slides] hero_slides table missing in Supabase, returning empty list.")
+      return []
+    }
+    if (isNetworkError(error)) {
+      console.warn("[hero-slides] Network error fetching hero slides, returning empty list.")
       return []
     }
     throw new Error(`Failed to fetch hero slides: ${error.message}`)
