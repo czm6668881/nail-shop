@@ -19,7 +19,7 @@ export const siteConfig = {
   name: "gelmanicure",
   url: resolvedSiteUrl,
   defaultOgImagePath: "/luxury-press-on-nails-hero-image-elegant-hands.jpg",
-  defaultLogoPath: "/placeholder-logo.png",
+  defaultLogoPath: "/logo-gelmanicure-nail.svg",
 }
 
 export const getSiteUrl = () => siteConfig.url

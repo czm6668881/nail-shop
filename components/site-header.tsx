@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { type FocusEvent, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ShoppingBag, Search, Menu, User } from "lucide-react"
@@ -188,7 +189,15 @@ export function SiteHeader() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold tracking-tight">gelmanicure-nail</span>
+            <Image
+              src="/logo-gelmanicure-nail.svg"
+              alt="gelmanicure nail logo"
+              width={160}
+              height={64}
+              priority
+              className="h-12 w-auto"
+            />
+            <span className="sr-only">gelmanicure-nail home</span>
           </Link>
 
           {/* Desktop Navigation */}

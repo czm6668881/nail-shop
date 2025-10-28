@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 140">
+  <defs>
+    <linearGradient id="nail-base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe0ef" />
+      <stop offset="100%" stop-color="#f3b6c9" />
+    </linearGradient>
+    <linearGradient id="nail-highlight" x1="20%" y1="10%" x2="80%" y2="90%">
+      <stop offset="0%" stop-color="#fff9fb" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffd7e7" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="accent-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef3f8" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#f4cad7" stop-opacity="0.1" />
+    </radialGradient>
+  </defs>
+  <rect width="320" height="140" rx="24" fill="url(#accent-glow)" />
+  <g transform="translate(30 20)">
+    <ellipse cx="70" cy="78" rx="66" ry="50" fill="#edb39e" />
+    <path d="M40 10c12-14 48-14 60 0 20 20 20 94 0 114-12 12-48 12-60 0-20-20-20-94 0-114z" fill="url(#nail-base)" />
+    <path d="M50 16c8-10 32-10 42 0 14 14 14 78 0 92-8 8-32 8-42 0-14-14-14-78 0-92z" fill="url(#nail-highlight)" />
+    <path d="M34 100c24 20 80 20 104 0" fill="none" stroke="#0f0a0b" stroke-width="4" stroke-linecap="round" />
+    <path d="M100 28c-4 12-30 32-50 38" fill="none" stroke="#d387a5" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+    <g transform="translate(110 0)">
+      <path d="M18 8l3 9h9l-7 5 3 9-8-6-8 6 3-9-7-5h9z" fill="#fff4f9" stroke="#d592b2" stroke-width="1.2" />
+      <path d="M56 18l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z" fill="#fff4f9" stroke="#d592b2" stroke-width="1" opacity="0.85" />
+    </g>
+  </g>
+  <text x="175" y="70" text-anchor="middle" font-size="36" font-family="'Didot', 'Playfair Display', 'Times New Roman', serif" fill="#1d1617" letter-spacing="2">
+    GELMANICURE-
+  </text>
+  <text x="210" y="104" text-anchor="middle" font-size="34" font-family="'Didot', 'Playfair Display', 'Times New Roman', serif" fill="#1d1617" letter-spacing="3">
+    NAIL
+  </text>
+</svg>
