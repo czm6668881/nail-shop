@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Plus, Edit, Trash2, Eye } from "lucide-react"
+import { Search, Plus, Edit, Trash2, Eye, CheckCircle2, EyeOff } from "lucide-react"
 import type { BlogPost, BlogCategory } from "@/types"
 
 const categoryLabels: Record<BlogCategory, string> = {
@@ -25,11 +26,13 @@ const categoryLabels: Record<BlogCategory, string> = {
 }
 
 export default function AdminBlogPage() {
+  const router = useRouter()
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [publishUpdating, setPublishUpdating] = useState<string | null>(null)
 
   const fetchPosts = useCallback(async () => {
     setLoading(true)
@@ -40,6 +43,7 @@ export default function AdminBlogPage() {
       }
       const data = await response.json()
       setPosts(data.posts)
+      setError(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load blog posts.")
     } finally {
@@ -65,6 +69,7 @@ export default function AdminBlogPage() {
   }
 
   const togglePublish = async (id: string, nextState: boolean) => {
+    setPublishUpdating(id)
     try {
       const response = await fetch(`/api/admin/blog/${id}/publish`, {
         method: "PATCH",
@@ -77,6 +82,8 @@ export default function AdminBlogPage() {
       setPosts((prev) => prev.map((post) => (post.id === id ? { ...post, published: nextState } : post)))
     } catch (err) {
       alert(err instanceof Error ? err.message : "Unable to update publish status.")
+    } finally {
+      setPublishUpdating(null)
     }
   }
 
@@ -88,6 +95,14 @@ export default function AdminBlogPage() {
     })
   }, [posts, searchQuery, categoryFilter])
 
+  const handleCreate = () => {
+    router.push("/admin/blog/new")
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/admin/blog/${id}`)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -95,7 +110,7 @@ export default function AdminBlogPage() {
           <h1 className="text-3xl font-bold">Blog Posts</h1>
           <p className="text-muted-foreground">Manage your blog content</p>
         </div>
-        <Button>
+        <Button onClick={handleCreate}>
           <Plus className="h-4 w-4 mr-2" />
           New Post
         </Button>
@@ -170,8 +185,16 @@ export default function AdminBlogPage() {
                         <Eye className="h-4 w-4" />
                       </a>
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => togglePublish(post.id, !post.published)}>
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(post.id)}>
                       <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => togglePublish(post.id, !post.published)}
+                      disabled={publishUpdating === post.id}
+                    >
+                      {post.published ? <EyeOff className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(post.id)}>
                       <Trash2 className="h-4 w-4" />
