@@ -276,6 +276,8 @@ const mapOrder = (row: OrderRow, email?: string): Order => ({
   updatedAt: row.updated_at,
 })
 
+type UserEmailRow = Pick<UserRow, "id" | "email">
+
 const fetchUserEmails = async (userIds: string[]): Promise<Map<string, string>> => {
   const uniqueIds = Array.from(
     new Set(
@@ -294,9 +296,10 @@ const fetchUserEmails = async (userIds: string[]): Promise<Map<string, string>> 
     throw error
   }
 
+  const rows: UserEmailRow[] = (data ?? []) as UserEmailRow[]
   const map = new Map<string, string>()
-  for (const row of data ?? []) {
-    if (row && typeof row.id === "string" && typeof row.email === "string") {
+  for (const row of rows) {
+    if (typeof row.id === "string" && typeof row.email === "string") {
       map.set(row.id, row.email)
     }
   }
