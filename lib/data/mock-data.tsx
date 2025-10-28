@@ -25,77 +25,6 @@ export const mockAddresses: Address[] = [
     phone: "+1 (555) 123-4567",
     isDefault: true,
   },
-  {
-    id: "blog-7",
-    title: "如何在家一个人做出美丽的美甲 | DIY Gel Manicure at Home",
-    slug: "diy-gel-manicure-at-home",
-    excerpt:
-      "Follow this solo-friendly gel manicure routine to prep, apply, and care for eco-conscious press-on gel nails without leaving home.",
-    content: `
-      <h2>Why Choose Gel Press-On Nails at Home?</h2>
-      <p>Gel press-on nails offer salon-level shine with zero UV lamps, no harsh fumes, and a commitment to reusable designs. Because our adhesive system relies on medical-grade gel tabs, the application is gentle on natural nails while keeping toxins to a minimum.</p>
-      <ul>
-        <li><strong>Quick transformation:</strong> Create a polished look in under 20 minutes.</li>
-        <li><strong>Health-forward formulas:</strong> Odor-free gel tabs avoid the strong chemicals found in traditional acrylic systems.</li>
-        <li><strong>Reusable styles:</strong> Remove, cleanse, and reapply your favorite set for multiple wears.</li>
-        <li><strong>Travel ready:</strong> Lightweight kits slip into a carry-on so touch-ups are effortless anywhere.</li>
-      </ul>
-
-      <h2>What You Need Before You Start</h2>
-      <p>Set up a clean, well-lit surface and gather these essentials. Every gelmanicure kit includes the reusable gel nails and adhesive gel tabs—just add a few home staples.</p>
-      <ul>
-        <li>Reusable gel press-on set in your preferred shape.</li>
-        <li>Eco nail file or glass buffer for gentle surface prep.</li>
-        <li>Cuticle pusher and lint-free wipes.</li>
-        <li>Rubbing alcohol or gentle cleanser to remove natural oils.</li>
-        <li>Optional: jojoba oil for hydrating cuticles post-application.</li>
-      </ul>
-
-      <h2>Step-by-Step: Solo Gel Manicure Routine</h2>
-      <p>Follow the numbered routine below and reference the installation graphic for a quick visual refresher any time you reapply.</p>
-      <figure>
-        <img src="/blog-gel-manicure-steps.svg" alt="Six illustrated steps demonstrating how to prep, align, and apply gel press-on nails at home." />
-        <figcaption>From prep to final press, the process stays clean, fast, and mess-free.</figcaption>
-      </figure>
-      <ol>
-        <li><strong>Fit first:</strong> Lay out the gel tips from thumb to pinky and make sure each one hugs the side walls without touching skin.</li>
-        <li><strong>Shape &amp; buff:</strong> Lightly buff the natural nail surface in a single direction to remove shine. Avoid over-filing to keep nails strong.</li>
-        <li><strong>Cleanse:</strong> Swipe every nail with alcohol. A squeaky-clean surface ensures the gel tab bonds instantly.</li>
-        <li><strong>Apply gel tab:</strong> Peel a gel tab, place it slightly away from the cuticle, and press toward the free edge to smooth out bubbles.</li>
-        <li><strong>Press &amp; tilt:</strong> Angle the gel nail at roughly 45 degrees, align the cuticle edge first, then roll it down to seal the sides.</li>
-        <li><strong>Lock the bond:</strong> Hold firm pressure for 30 seconds, focusing on the center and the sides to remove pockets of air.</li>
-      </ol>
-
-      <h2>Aftercare for Long-Lasting Shine</h2>
-      <p>A few mindful habits help your gel manicure last up to two weeks:</p>
-      <ul>
-        <li>Keep nails dry for the first hour so the gel tab fully cures.</li>
-        <li>Wear gloves when cleaning or gardening to avoid lifted edges.</li>
-        <li>Apply cuticle oil nightly to keep the surrounding skin supple.</li>
-        <li>Store removed sets in their tray and wipe with alcohol before the next wear.</li>
-      </ul>
-
-      <h2>Frequently Asked Questions</h2>
-      <p><strong>Can I remove the nails without damaging my natural nails?</strong><br />Yes. Soak fingertips in warm water with a drop of nourishing oil for 5–7 minutes, then gently slide off the tip—no harsh acetone required.</p>
-      <p><strong>How often can I reuse one set?</strong><br />With proper cleansing, gelmanicure tips can be worn up to five times. Replace gel tabs with fresh ones whenever you reapply.</p>
-      <p><strong>Do I need a UV lamp?</strong><br />No. Our eco gel tabs cure with light finger pressure, making them ideal for travel or quick changes.</p>
-
-      <h2>Ready to Create Your Own Gel Manicure?</h2>
-      <p>Explore our <a href="/products">curated gel press-on collections</a> and choose a finish that matches your next mood. With the right prep and a little solo time, you can master a studio-worthy manicure that is kind to your nails and the planet.</p>
-    `,
-    coverImage: "/blog-gel-manicure-steps.svg",
-    author: {
-      name: "Sophia Chen",
-      avatar: "/placeholder.svg?height=100&width=100",
-    },
-    category: "tutorial",
-    tags: ["home-manicure", "gel", "sustainable", "how-to"],
-    published: true,
-    publishedAt: "2025-02-18T10:00:00Z",
-    createdAt: "2025-02-16T08:00:00Z",
-    updatedAt: "2025-02-18T10:00:00Z",
-    readTime: 9,
-  },
 ]
 
 export const mockOrders: Order[] = [
@@ -366,5 +295,76 @@ export const mockBlogPosts: BlogPost[] = [
     createdAt: "2025-01-01T09:00:00Z",
     updatedAt: "2025-01-03T10:00:00Z",
     readTime: 5,
+  },
+  {
+    id: "blog-7",
+    title: "如何在家一个人做出美丽的美甲 | DIY Gel Manicure at Home",
+    slug: "diy-gel-manicure-at-home",
+    excerpt:
+      "Follow this solo-friendly gel manicure routine to prep, apply, and care for eco-conscious press-on gel nails without leaving home.",
+    content: `
+      <h2>Why Choose Gel Press-On Nails at Home?</h2>
+      <p>Gel press-on nails offer salon-level shine with zero UV lamps, no harsh fumes, and a commitment to reusable designs. Because our adhesive system relies on medical-grade gel tabs, the application is gentle on natural nails while keeping toxins to a minimum.</p>
+      <ul>
+        <li><strong>Quick transformation:</strong> Create a polished look in under 20 minutes.</li>
+        <li><strong>Health-forward formulas:</strong> Odor-free gel tabs avoid the strong chemicals found in traditional acrylic systems.</li>
+        <li><strong>Reusable styles:</strong> Remove, cleanse, and reapply your favorite set for multiple wears.</li>
+        <li><strong>Travel ready:</strong> Lightweight kits slip into a carry-on so touch-ups are effortless anywhere.</li>
+      </ul>
+
+      <h2>What You Need Before You Start</h2>
+      <p>Set up a clean, well-lit surface and gather these essentials. Every gelmanicure kit includes the reusable gel nails and adhesive gel tabs—just add a few home staples.</p>
+      <ul>
+        <li>Reusable gel press-on set in your preferred shape.</li>
+        <li>Eco nail file or glass buffer for gentle surface prep.</li>
+        <li>Cuticle pusher and lint-free wipes.</li>
+        <li>Rubbing alcohol or gentle cleanser to remove natural oils.</li>
+        <li>Optional: jojoba oil for hydrating cuticles post-application.</li>
+      </ul>
+
+      <h2>Step-by-Step: Solo Gel Manicure Routine</h2>
+      <p>Follow the numbered routine below and reference the installation graphic for a quick visual refresher any time you reapply.</p>
+      <figure>
+        <img src="/blog-gel-manicure-steps.svg" alt="Six illustrated steps demonstrating how to prep, align, and apply gel press-on nails at home." />
+        <figcaption>From prep to final press, the process stays clean, fast, and mess-free.</figcaption>
+      </figure>
+      <ol>
+        <li><strong>Fit first:</strong> Lay out the gel tips from thumb to pinky and make sure each one hugs the side walls without touching skin.</li>
+        <li><strong>Shape &amp; buff:</strong> Lightly buff the natural nail surface in a single direction to remove shine. Avoid over-filing to keep nails strong.</li>
+        <li><strong>Cleanse:</strong> Swipe every nail with alcohol. A squeaky-clean surface ensures the gel tab bonds instantly.</li>
+        <li><strong>Apply gel tab:</strong> Peel a gel tab, place it slightly away from the cuticle, and press toward the free edge to smooth out bubbles.</li>
+        <li><strong>Press &amp; tilt:</strong> Angle the gel nail at roughly 45 degrees, align the cuticle edge first, then roll it down to seal the sides.</li>
+        <li><strong>Lock the bond:</strong> Hold firm pressure for 30 seconds, focusing on the center and the sides to remove pockets of air.</li>
+      </ol>
+
+      <h2>Aftercare for Long-Lasting Shine</h2>
+      <p>A few mindful habits help your gel manicure last up to two weeks:</p>
+      <ul>
+        <li>Keep nails dry for the first hour so the gel tab fully cures.</li>
+        <li>Wear gloves when cleaning or gardening to avoid lifted edges.</li>
+        <li>Apply cuticle oil nightly to keep the surrounding skin supple.</li>
+        <li>Store removed sets in their tray and wipe with alcohol before the next wear.</li>
+      </ul>
+
+      <h2>Frequently Asked Questions</h2>
+      <p><strong>Can I remove the nails without damaging my natural nails?</strong><br />Yes. Soak fingertips in warm water with a drop of nourishing oil for 5–7 minutes, then gently slide off the tip—no harsh acetone required.</p>
+      <p><strong>How often can I reuse one set?</strong><br />With proper cleansing, gelmanicure tips can be worn up to five times. Replace gel tabs with fresh ones whenever you reapply.</p>
+      <p><strong>Do I need a UV lamp?</strong><br />No. Our eco gel tabs cure with light finger pressure, making them ideal for travel or quick changes.</p>
+
+      <h2>Ready to Create Your Own Gel Manicure?</h2>
+      <p>Explore our <a href="/products">curated gel press-on collections</a> and choose a finish that matches your next mood. With the right prep and a little solo time, you can master a studio-worthy manicure that is kind to your nails and the planet.</p>
+    `,
+    coverImage: "/blog-gel-manicure-steps.svg",
+    author: {
+      name: "Sophia Chen",
+      avatar: "/placeholder.svg?height=100&width=100",
+    },
+    category: "tutorial",
+    tags: ["home-manicure", "gel", "sustainable", "how-to"],
+    published: true,
+    publishedAt: "2025-02-18T10:00:00Z",
+    createdAt: "2025-02-16T08:00:00Z",
+    updatedAt: "2025-02-18T10:00:00Z",
+    readTime: 9,
   },
 ]
