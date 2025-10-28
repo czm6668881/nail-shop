@@ -125,6 +125,7 @@ type CartItemRow = {
 type OrderRow = {
   id: string
   user_id: string | null
+  user_email: string | null
   order_number: string
   items: string
   subtotal: number
@@ -722,15 +723,26 @@ export const toggleBlogPublish = (id: string, published: boolean) => {
 }
 
 export const listOrders = (): Order[] => {
-  const stmt = db.prepare("SELECT * FROM orders ORDER BY created_at DESC")
+  const stmt = db.prepare(`
+    SELECT o.*, u.email AS user_email
+    FROM orders o
+    LEFT JOIN users u ON u.id = o.user_id
+    ORDER BY datetime(o.created_at) DESC
+  `)
   const rows = stmt.all() as OrderRow[]
-  return rows.map(mapOrder)
+  return rows.map((row) => mapOrder(row, row.user_email ?? undefined))
 }
 
 export const listOrdersByUser = (userId: string): Order[] => {
-  const stmt = db.prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC")
+  const stmt = db.prepare(`
+    SELECT o.*, u.email AS user_email
+    FROM orders o
+    LEFT JOIN users u ON u.id = o.user_id
+    WHERE o.user_id = ?
+    ORDER BY datetime(o.created_at) DESC
+  `)
   const rows = stmt.all(userId) as OrderRow[]
-  return rows.map(mapOrder)
+  return rows.map((row) => mapOrder(row, row.user_email ?? undefined))
 }
 
 export const insertOrder = (order: Order) => {
@@ -906,17 +918,25 @@ export const updateOrderTrackingNumber = (orderId: string, trackingNumber: strin
     throw new Error("ORDER_NOT_FOUND")
   }
 
-  const row = db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId) as OrderRow | undefined
+  const row = db
+    .prepare(`
+      SELECT o.*, u.email AS user_email
+      FROM orders o
+      LEFT JOIN users u ON u.id = o.user_id
+      WHERE o.id = ?
+    `)
+    .get(orderId) as OrderRow | undefined
   if (!row) {
     throw new Error("ORDER_NOT_FOUND")
   }
 
-  return mapOrder(row)
+  return mapOrder(row, row.user_email ?? undefined)
 }
 
-const mapOrder = (row: OrderRow): Order => ({
+const mapOrder = (row: OrderRow, email?: string): Order => ({
   id: row.id,
   userId: row.user_id ?? "",
+  email,
   orderNumber: row.order_number,
   items: JSON.parse(row.items),
   subtotal: row.subtotal,

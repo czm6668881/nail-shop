@@ -83,6 +83,7 @@ export interface Address {
 export interface Order {
   id: string
   userId: string
+  email?: string
   orderNumber: string
   items: CartItem[]
   subtotal: number

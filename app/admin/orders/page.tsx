@@ -127,6 +127,7 @@ export default function AdminOrdersPage() {
               <tr>
                 <th className="text-left p-4 font-semibold">Order Number</th>
                 <th className="text-left p-4 font-semibold">Customer</th>
+                <th className="text-left p-4 font-semibold">Email</th>
                 <th className="text-left p-4 font-semibold">Date</th>
                 <th className="text-left p-4 font-semibold">Total</th>
                 <th className="text-left p-4 font-semibold">Status</th>
@@ -155,6 +156,9 @@ export default function AdminOrdersPage() {
                       </p>
                       <p className="text-sm text-muted-foreground">{order.shippingAddress.city}</p>
                     </div>
+                  </td>
+                  <td className="p-4">
+                    <p className="text-sm text-muted-foreground">{order.email ?? "—"}</p>
                   </td>
                   <td className="p-4">
                     <p className="text-sm">
@@ -188,14 +192,14 @@ export default function AdminOrdersPage() {
               ))}
               {loading && (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
                     Loading orders...
                   </td>
                 </tr>
               )}
               {!loading && orders.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={7} className="p-6 text-center text-muted-foreground">
                     No orders yet.
                   </td>
                 </tr>

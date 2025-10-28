@@ -233,9 +233,10 @@ const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
   }
 }
 
-const mapOrder = (row: OrderRow): Order => ({
+const mapOrder = (row: OrderRow, email?: string): Order => ({
   id: row.id,
   userId: row.user_id ?? "guest",
+  email,
   orderNumber: row.order_number,
   items: jsonArray<Order["items"]>(row.items, []),
   subtotal: row.subtotal,
@@ -274,6 +275,33 @@ const mapOrder = (row: OrderRow): Order => ({
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 })
+
+const fetchUserEmails = async (userIds: string[]): Promise<Map<string, string>> => {
+  const uniqueIds = Array.from(
+    new Set(
+      userIds.filter((id): id is string => typeof id === "string" && id.length > 0),
+    ),
+  )
+  if (uniqueIds.length === 0) {
+    return new Map()
+  }
+
+  const { data, error } = await supabase()
+    .from("users")
+    .select("id, email")
+    .in("id", uniqueIds)
+  if (error) {
+    throw error
+  }
+
+  const map = new Map<string, string>()
+  for (const row of data ?? []) {
+    if (row && typeof row.id === "string" && typeof row.email === "string") {
+      map.set(row.id, row.email)
+    }
+  }
+  return map
+}
 
 const mapAddress = (row: AddressRow): Address => ({
   id: row.id,
@@ -797,7 +825,9 @@ export const listOrders = async (): Promise<Order[]> => {
   if (error) {
     throw error
   }
-  return (data ?? []).map(mapOrder)
+  const rows = data ?? []
+  const emailMap = await fetchUserEmails(rows.map((row) => row.user_id ?? ""))
+  return rows.map((row) => mapOrder(row, row.user_id ? emailMap.get(row.user_id) : undefined))
 }
 
 export const listOrdersByUser = async (userId: string): Promise<Order[]> => {
@@ -809,7 +839,9 @@ export const listOrdersByUser = async (userId: string): Promise<Order[]> => {
   if (error) {
     throw error
   }
-  return (data ?? []).map(mapOrder)
+  const rows = data ?? []
+  const emailMap = await fetchUserEmails(rows.map((row) => row.user_id ?? ""))
+  return rows.map((row) => mapOrder(row, row.user_id ? emailMap.get(row.user_id) : undefined))
 }
 
 export const insertOrder = async (order: Order) => {
@@ -859,7 +891,9 @@ export const updateOrderTrackingNumber = async (orderId: string, trackingNumber:
     throw new Error("ORDER_NOT_FOUND")
   }
 
-  return mapOrder(data)
+  const emailMap = await fetchUserEmails(data.user_id ? [data.user_id] : [])
+  const email = data.user_id ? emailMap.get(data.user_id) : undefined
+  return mapOrder(data, email)
 }
 
 export const ensureCart = async (
