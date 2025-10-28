@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="container mx-auto px-4 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       {/* Product Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
         {/* Images */}
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">

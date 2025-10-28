@@ -168,6 +168,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     label: category.name,
   }))
 
+  const renderFilters = () => (
+    <ProductFilters
+      selectedCategories={selectedCategories}
+      selectedPrices={selectedPrices}
+      selectedAvailability={selectedAvailability}
+      categories={categoryOptions}
+    />
+  )
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-8">
@@ -175,17 +184,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <p className="text-lg text-muted-foreground">{pageDescription}</p>
       </div>
 
+      <div className="lg:hidden">
+        <details className="mb-6 overflow-hidden rounded-lg border border-border/80 bg-card/90 shadow-sm">
+          <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground">
+            Filters &amp; Sorting
+            <span className="text-xs text-muted-foreground">Tap to toggle</span>
+          </summary>
+          <div className="border-t border-border/60 px-4 py-4">
+            <Suspense fallback={<div>Loading filters...</div>}>{renderFilters()}</Suspense>
+          </div>
+        </details>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar */}
-        <aside className="lg:w-64 flex-shrink-0">
-          <Suspense fallback={<div>Loading filters...</div>}>
-            <ProductFilters
-              selectedCategories={selectedCategories}
-              selectedPrices={selectedPrices}
-              selectedAvailability={selectedAvailability}
-              categories={categoryOptions}
-            />
-          </Suspense>
+        <aside className="hidden lg:block lg:w-64 flex-shrink-0">
+          <Suspense fallback={<div>Loading filters...</div>}>{renderFilters()}</Suspense>
         </aside>
 
         {/* Products Grid */}

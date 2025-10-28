@@ -181,7 +181,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
 
-        <div className="relative h-[400px] mb-8 rounded-lg overflow-hidden">
+        <div className="relative h-60 sm:h-72 md:h-96 lg:h-[400px] mb-8 rounded-lg overflow-hidden">
           <Image src={post.coverImage || "/placeholder.svg"} alt={post.title} fill className="object-cover" />
         </div>
 

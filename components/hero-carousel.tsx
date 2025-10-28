@@ -41,10 +41,10 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
 
   if (slides.length === 0) {
     return (
-      <section className="relative h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent">
+      <section className="relative h-[480px] md:h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent">
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance">Gel nails</h1>
-          <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-balance">Gel nails</h1>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
             Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for
             multiple wears.
           </p>
@@ -55,7 +55,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
 
   return (
     <section
-      className="relative h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent"
+      className="relative h-[480px] md:h-[600px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-accent"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -78,10 +78,10 @@ export function HeroCarousel({ slides, autoPlayInterval = 5000 }: HeroCarouselPr
       ))}
 
       <div className="relative z-10 container mx-auto px-4 text-center">
-        <h1 className="text-5xl lg:text-7xl font-bold mb-6 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
           Gel nails
         </h1>
-        <p className="text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-75">
+        <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty animate-in fade-in slide-in-from-bottom-4 duration-700 delay-75">
           Discover our collection of premium press-on nails. Easy to apply, stunning results, and reusable for
           multiple wears.
         </p>

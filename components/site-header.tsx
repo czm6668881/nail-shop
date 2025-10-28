@@ -128,7 +128,7 @@ export function SiteHeader() {
         <div className="flex h-16 items-center justify-between">
           {/* Mobile Menu */}
           <Sheet>
-            <SheetTrigger asChild className="lg:hidden">
+            <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
@@ -195,13 +195,13 @@ export function SiteHeader() {
               width={160}
               height={64}
               priority
-              className="h-12 w-auto"
+              className="h-10 w-auto md:h-12"
             />
             <span className="sr-only">gelmanicure-nail home</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-6 lg:flex">
+  <nav className="hidden items-center gap-5 md:flex">
             {navigation.map((item) => {
               if (!item.dropdownItems) {
                 return (
@@ -295,7 +295,7 @@ export function SiteHeader() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/search">
                 <Search className="h-5 w-5" />
