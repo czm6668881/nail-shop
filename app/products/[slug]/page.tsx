@@ -11,10 +11,10 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Metadata } from "next"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gelmanicure-nail.com"
-const DEFAULT_PRODUCT_IMAGE = `${SITE_URL}/luxury-press-on-nails-hero-image-elegant-hands.jpg`
-const ORG_NAME = "gelmanicure"
+const DEFAULT_PRODUCT_IMAGE = toAbsoluteUrl(siteConfig.defaultOgImagePath)
+const ORG_NAME = siteConfig.name
 
 interface ProductPageProps {
   params: Promise<{
@@ -39,13 +39,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     }
   }
 
-  const canonicalUrl = `${SITE_URL}/products/${product.slug}`
+  const canonicalUrl = toAbsoluteUrl(`/products/${product.slug}`)
   const images = (product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]).map((image) =>
-    image.startsWith("http") ? image : `${SITE_URL}${image}`,
+    toAbsoluteUrl(image),
   )
 
   return {
-    title: `${product.name} | gelmanicure`,
+    title: `${product.name} | ${siteConfig.name}`,
     description: product.description,
     alternates: {
       canonical: canonicalUrl,
@@ -81,9 +81,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0
 
-  const canonicalUrl = `${SITE_URL}/products/${product.slug}`
+  const canonicalUrl = toAbsoluteUrl(`/products/${product.slug}`)
   const productImageUrls = (product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]).map((image) =>
-    image.startsWith("http") ? image : `${SITE_URL}${image}`,
+    toAbsoluteUrl(image),
   )
 
   const productJsonLd = {

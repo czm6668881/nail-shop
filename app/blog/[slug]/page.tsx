@@ -6,6 +6,7 @@ import { Calendar, Clock, ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Metadata } from "next"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -23,9 +24,40 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     }
   }
 
+  const canonicalUrl = toAbsoluteUrl(`/blog/${post.slug}`)
+  const coverImageUrl = toAbsoluteUrl(post.coverImage || siteConfig.defaultOgImagePath)
+  const pageTitle = `${post.title} | ${siteConfig.name} Blog`
+  const description = post.excerpt
+  const publishedAtIso = new Date(post.publishedAt).toISOString()
+  const updatedAtIso = new Date(post.updatedAt ?? post.publishedAt).toISOString()
+
   return {
-    title: `${post.title} - gelmanicure Blog`,
-    description: post.excerpt,
+    title: pageTitle,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: "article",
+      title: pageTitle,
+      description,
+      url: canonicalUrl,
+      publishedTime: publishedAtIso,
+      modifiedTime: updatedAtIso,
+      authors: [post.author.name],
+      images: [
+        {
+          url: coverImageUrl,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: pageTitle,
+      description,
+      images: [coverImageUrl],
+    },
   }
 }
 
@@ -38,6 +70,58 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const relatedPosts = await getRelatedPosts(post.id)
+  const canonicalUrl = toAbsoluteUrl(`/blog/${post.slug}`)
+  const coverImageUrl = toAbsoluteUrl(post.coverImage || siteConfig.defaultOgImagePath)
+  const publishedAtIso = new Date(post.publishedAt).toISOString()
+  const updatedAtIso = new Date(post.updatedAt ?? post.publishedAt).toISOString()
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: toAbsoluteUrl("/"),
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blog",
+          item: toAbsoluteUrl("/blog"),
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: post.title,
+          item: canonicalUrl,
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: post.excerpt,
+      image: [coverImageUrl],
+      author: {
+        "@type": "Person",
+        name: post.author.name,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: siteConfig.name,
+        logo: {
+          "@type": "ImageObject",
+          url: toAbsoluteUrl(siteConfig.defaultLogoPath),
+        },
+      },
+      mainEntityOfPage: canonicalUrl,
+      datePublished: publishedAtIso,
+      dateModified: updatedAtIso,
+    },
+  ]
 
   const categoryLabels = {
     tutorial: "Tutorial",
@@ -57,6 +141,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </Button>
 
       <article className="max-w-4xl mx-auto">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Badge variant="secondary">{categoryLabels[post.category]}</Badge>

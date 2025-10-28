@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next"
 import { getProducts } from "@/lib/api/products"
 import { getBlogPosts } from "@/lib/api/blog"
-
-const HOST = "https://gelmanicure-nail.com"
+import { toAbsoluteUrl } from "@/lib/config/site"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -19,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/sustainability",
     "/help",
   ].map((path) => ({
-    url: `${HOST}${path}`,
+    url: toAbsoluteUrl(path),
     changefreq: "weekly",
     priority: path === "" ? 1 : 0.7,
   }))
@@ -27,14 +26,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, blogPosts] = await Promise.all([getProducts(), getBlogPosts()])
 
   const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `${HOST}/products/${product.slug}`,
+    url: toAbsoluteUrl(`/products/${product.slug}`),
     lastModified: product.updatedAt ? new Date(product.updatedAt) : new Date(),
     changefreq: "weekly",
     priority: 0.8,
   }))
 
   const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-    url: `${HOST}/blog/${post.slug}`,
+    url: toAbsoluteUrl(`/blog/${post.slug}`),
     lastModified: post.updatedAt ? new Date(post.updatedAt) : undefined,
     changefreq: "monthly",
     priority: 0.6,

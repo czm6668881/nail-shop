@@ -1,10 +1,27 @@
 import { getBlogPosts } from "@/lib/api/blog"
 import { BlogCard } from "@/components/blog-card"
 import type { Metadata } from "next"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
+
+const blogTitle = `Blog | ${siteConfig.name}`
 
 export const metadata: Metadata = {
-  title: "Blog - gelmanicure",
+  title: blogTitle,
   description: "Tips, tutorials, and inspiration for beautiful nails. Learn from our experts.",
+  alternates: {
+    canonical: toAbsoluteUrl("/blog"),
+  },
+  openGraph: {
+    title: blogTitle,
+    description: "Tips, tutorials, and inspiration for beautiful nails. Learn from our experts.",
+    type: "website",
+    url: toAbsoluteUrl("/blog"),
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: blogTitle,
+    description: "Tips, tutorials, and inspiration for beautiful nails. Learn from our experts.",
+  },
 }
 
 export default async function BlogPage() {

@@ -2,10 +2,18 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, Lock } from "lucide-react"
 import { ResetRequestForm } from "./reset-request-form"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 export const metadata: Metadata = {
-  title: "Reset Your Password - gelmanicure",
-  description: "Request a password reset link for your gelmanicure account.",
+  title: `Reset Your Password | ${siteConfig.name}`,
+  description: `Request a password reset link for your ${siteConfig.name} account.`,
+  robots: {
+    index: false,
+    follow: false,
+  },
+  alternates: {
+    canonical: toAbsoluteUrl("/forgot-password"),
+  },
 }
 
 export default function ForgotPasswordPage() {

@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next"
-
-const HOST = "https://gelmanicure-nail.com"
+import { siteConfig } from "@/lib/config/site"
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,9 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        disallow: ["/admin", "/account", "/cart", "/checkout", "/order-confirmation", "/login", "/register"],
       },
     ],
-    sitemap: `${HOST}/sitemap.xml`,
-    host: HOST,
+    sitemap: `${siteConfig.url}/sitemap.xml`,
+    host: siteConfig.url,
   }
 }

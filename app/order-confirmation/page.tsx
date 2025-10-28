@@ -1,11 +1,24 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { CheckCircle, Package, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 interface OrderConfirmationPageProps {
   searchParams: Promise<{
     orderNumber?: string
   }>
+}
+
+export const metadata: Metadata = {
+  title: `Order Confirmation | ${siteConfig.name}`,
+  robots: {
+    index: false,
+    follow: false,
+  },
+  alternates: {
+    canonical: toAbsoluteUrl("/order-confirmation"),
+  },
 }
 
 export default async function OrderConfirmationPage({ searchParams }: OrderConfirmationPageProps) {

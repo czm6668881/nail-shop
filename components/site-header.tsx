@@ -21,6 +21,15 @@ type NavigationItem = {
   dropdownItems?: NavigationDropdownItem[]
 }
 
+const FALLBACK_CATEGORIES: NavigationDropdownItem[] = [
+  { name: "Classic", href: "/products?category=classic" },
+  { name: "French", href: "/products?category=french" },
+  { name: "Glitter", href: "/products?category=glitter" },
+  { name: "Ombre", href: "/products?category=ombre" },
+  { name: "Chrome", href: "/products?category=chrome" },
+  { name: "Matte", href: "/products?category=matte" },
+]
+
 export function SiteHeader() {
   const itemCount = useCartStore((state) => state.getItemCount())
   const initializeCart = useCartStore((state) => state.init)
@@ -82,18 +91,21 @@ export function SiteHeader() {
     }
   }, [])
 
+  const effectiveCatalogCategories =
+    catalogCategories.length > 0 ? catalogCategories : FALLBACK_CATEGORIES
+
   const catalogColumns = useMemo(() => {
-    if (catalogCategories.length === 0) {
+    if (effectiveCatalogCategories.length === 0) {
       return []
     }
 
-    const columnCount = Math.min(3, Math.max(1, Math.ceil(catalogCategories.length / 4)))
-    const chunkSize = Math.ceil(catalogCategories.length / columnCount)
+    const columnCount = Math.min(3, Math.max(1, Math.ceil(effectiveCatalogCategories.length / 4)))
+    const chunkSize = Math.ceil(effectiveCatalogCategories.length / columnCount)
 
     return Array.from({ length: columnCount }, (_, columnIndex) =>
-      catalogCategories.slice(columnIndex * chunkSize, (columnIndex + 1) * chunkSize),
+      effectiveCatalogCategories.slice(columnIndex * chunkSize, (columnIndex + 1) * chunkSize),
     )
-  }, [catalogCategories])
+  }, [effectiveCatalogCategories])
 
   const catalogGridClass =
     catalogColumns.length === 3
@@ -104,7 +116,7 @@ export function SiteHeader() {
 
   const navigation: NavigationItem[] = [
     { name: "HOME", href: "/" },
-    { name: "CATALOG", href: "/products", dropdownItems: catalogCategories },
+    { name: "CATALOG", href: "/products", dropdownItems: effectiveCatalogCategories },
     { name: "REVIEWS", href: "/reviews" },
     { name: "BLOG", href: "/blog" },
   ]
@@ -136,10 +148,10 @@ export function SiteHeader() {
                         {catalogLoading && (
                           <span className="text-sm text-muted-foreground">Loading categories…</span>
                         )}
-                        {!catalogLoading && catalogError && (
+                        {catalogError && (
                           <span className="text-sm font-medium text-destructive">{catalogError}</span>
                         )}
-                        {!catalogLoading && !catalogError && item.dropdownItems && item.dropdownItems.length > 0 && (
+                        {item.dropdownItems && item.dropdownItems.length > 0 ? (
                           item.dropdownItems.map((dropdown) => (
                             <Link
                               key={dropdown.name}
@@ -149,8 +161,7 @@ export function SiteHeader() {
                               {dropdown.name}
                             </Link>
                           ))
-                        )}
-                        {!catalogLoading && !catalogError && item.dropdownItems && item.dropdownItems.length === 0 && (
+                        ) : (
                           <span className="text-sm text-muted-foreground">Categories coming soon.</span>
                         )}
                       </div>
@@ -231,10 +242,10 @@ export function SiteHeader() {
                           {catalogLoading && (
                             <p className="text-sm text-muted-foreground">Loading categories…</p>
                           )}
-                          {!catalogLoading && catalogError && (
+                          {catalogError && (
                             <p className="text-sm font-semibold text-destructive">{catalogError}</p>
                           )}
-                          {!catalogLoading && !catalogError && catalogColumns.length > 0 && (
+                          {catalogColumns.length > 0 ? (
                             <div className={`grid gap-y-1 gap-x-4 ${catalogGridClass}`}>
                               {catalogColumns.map((column, columnIndex) => (
                                 <div key={`catalog-column-${columnIndex}`} className="flex flex-col gap-1">
@@ -250,8 +261,7 @@ export function SiteHeader() {
                                 </div>
                               ))}
                             </div>
-                          )}
-                          {!catalogLoading && !catalogError && catalogColumns.length === 0 && (
+                          ) : (
                             <p className="text-sm text-muted-foreground">Categories coming soon.</p>
                           )}
                         </div>

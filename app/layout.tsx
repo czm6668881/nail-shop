@@ -4,27 +4,27 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 const inter = Inter({ subsets: ["latin"] })
 
-const SITE_URL = "https://gelmanicure-nail.com"
-const DEFAULT_OG_IMAGE = `${SITE_URL}/luxury-press-on-nails-hero-image-elegant-hands.jpg`
+const DEFAULT_OG_IMAGE = toAbsoluteUrl(siteConfig.defaultOgImagePath)
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Gel Nails & Premium Press-On Nails | gelmanicure",
-    template: "%s | gelmanicure",
+    default: `Gel Nails & Premium Press-On Nails | ${siteConfig.name}`,
+    template: `%s | ${siteConfig.name}`,
   },
   description:
     "Discover gelmanicure's salon-quality gel press-on nails and wearable nail art. Shop reusable gel tips, chic designs, and custom sets with fast worldwide shipping.",
   openGraph: {
-    title: "Gel Nails & Premium Press-On Nails | gelmanicure",
+    title: `Gel Nails & Premium Press-On Nails | ${siteConfig.name}`,
     description:
       "Salon-quality gel press-on nails by gelmanicure. Explore reusable styles, fast application tips, and worldwide delivery.",
     type: "website",
-    url: SITE_URL,
-    siteName: "gelmanicure",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     images: [
       {
         url: DEFAULT_OG_IMAGE,
@@ -36,13 +36,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gel Nails & Premium Press-On Nails | gelmanicure",
+    title: `Gel Nails & Premium Press-On Nails | ${siteConfig.name}`,
     description:
       "Shop reusable gel press-on nails, custom sets, and pro nail care essentials from gelmanicure.",
     images: [DEFAULT_OG_IMAGE],
   },
   alternates: {
-    canonical: SITE_URL,
+    canonical: siteConfig.url,
   },
   generator: "v0.app",
 }

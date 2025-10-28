@@ -8,12 +8,7 @@ import {
   PRICE_FILTERS,
 } from "@/lib/config/product-filters"
 import type { Product } from "@/types"
-
-export const metadata: Metadata = {
-  title: "Shop All Products - Luxe Nails",
-  description:
-    "Browse our complete collection of premium press-on nails. Find the perfect style for any occasion with free worldwide shipping on all orders.",
-}
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 interface ProductsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -70,6 +65,71 @@ const applySort = (products: Product[], sortKey?: string): Product[] => {
   }
 }
 
+const truncateQuery = (value: string): string =>
+  value.length > 60 ? `${value.slice(0, 57)}...` : value
+
+const derivePageCopy = (sortKey?: string, query?: string) => {
+  const trimmedQuery = query?.trim()
+  if (trimmedQuery && trimmedQuery.length > 0) {
+    const truncatedQuery = truncateQuery(trimmedQuery)
+    return {
+      pageTitle: `Search Results for "${truncatedQuery}"`,
+      pageDescription:
+        "Explore premium press-on nails that match your search. Refine the filters to narrow down finish, length, and availability.",
+    }
+  }
+
+  if (sortKey === "new") {
+    return {
+      pageTitle: "New Arrivals",
+      pageDescription:
+        "See the latest designs added to our collection of premium press-on nails. Fresh styles drop weekly.",
+    }
+  }
+
+  if (sortKey === "bestsellers") {
+    return {
+      pageTitle: "Best Sellers Gel nails",
+      pageDescription:
+        "Shop the gel nail sets customers love most—from everyday neutrals to statement finishes that sell out fast.",
+    }
+  }
+
+  return {
+    pageTitle: "All Products",
+    pageDescription: "Discover our complete collection of premium press-on nails.",
+  }
+}
+
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams
+  const sortKey =
+    typeof resolvedSearchParams.filter === "string" ? resolvedSearchParams.filter : undefined
+  const rawQuery = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : ""
+  const { pageTitle, pageDescription } = derivePageCopy(sortKey, rawQuery)
+  const canonicalUrl = toAbsoluteUrl("/products")
+  const fullTitle = `${pageTitle} | ${siteConfig.name}`
+
+  return {
+    title: fullTitle,
+    description: pageDescription,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: fullTitle,
+      description: pageDescription,
+      url: canonicalUrl,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fullTitle,
+      description: pageDescription,
+    },
+  }
+}
+
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = await searchParams
   const [allProducts, productCategories] = await Promise.all([
@@ -80,28 +140,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const selectedCategories = toArray(resolvedSearchParams.category)
   const selectedPrices = toArray(resolvedSearchParams.price)
   const selectedAvailability = toArray(resolvedSearchParams.availability)
-  const query =
-    typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim().toLowerCase() : ""
+  const rawQuery =
+    typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : ""
+  const normalizedQuery = rawQuery.toLowerCase()
   const sortKey =
     typeof resolvedSearchParams.filter === "string" ? resolvedSearchParams.filter : undefined
 
-  const { pageTitle, pageDescription } =
-    sortKey === "new"
-      ? {
-          pageTitle: "New Arrivals",
-          pageDescription:
-            "See the latest designs added to our collection of premium press-on nails. Fresh styles drop weekly.",
-        }
-      : sortKey === "bestsellers"
-        ? {
-            pageTitle: "Best Sellers Gel nails",
-            pageDescription:
-              "Shop the gel nail sets customers love most—from everyday neutrals to statement finishes that sell out fast.",
-          }
-        : {
-            pageTitle: "All Products",
-            pageDescription: "Discover our complete collection of premium press-on nails.",
-          }
+  const { pageTitle, pageDescription } = derivePageCopy(sortKey, rawQuery)
 
   const filteredProducts = applySort(
     allProducts.filter((product) => {
@@ -110,9 +155,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       const matchesPrice = matchesPriceRange(product, selectedPrices)
       const matchesAvailabilityFilters = matchesAvailability(product, selectedAvailability)
       const matchesQuery =
-        query.length === 0 ||
-        product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query)
+        normalizedQuery.length === 0 ||
+        product.name.toLowerCase().includes(normalizedQuery) ||
+        product.description.toLowerCase().includes(normalizedQuery)
 
       return matchesCategory && matchesPrice && matchesAvailabilityFilters && matchesQuery
     }),

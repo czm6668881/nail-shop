@@ -10,9 +10,9 @@ import { getProducts, getBestSellingProducts } from "@/lib/api/products"
 import { getFeaturedReviews } from "@/lib/api/reviews"
 import { getBlogPosts } from "@/lib/api/blog"
 import { getActiveHeroSlides } from "@/lib/api/hero-slides"
+import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gelmanicure-nail.com"
-const ORG_NAME = "gelmanicure"
+const ORG_NAME = siteConfig.name
 
 export default async function HomePage() {
   const [allProducts, featuredReviews, blogPosts, heroSlides] = await Promise.all([
@@ -52,18 +52,18 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: ORG_NAME,
-    url: SITE_URL,
-    logo: `${SITE_URL}/placeholder-logo.png`,
+    url: siteConfig.url,
+    logo: toAbsoluteUrl(siteConfig.defaultLogoPath),
   }
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: ORG_NAME,
-    url: SITE_URL,
+    url: siteConfig.url,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${SITE_URL}/search?q={search_term_string}`,
+      target: toAbsoluteUrl(`/search?q={search_term_string}`),
       "query-input": "required name=search_term_string",
     },
   }
