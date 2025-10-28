@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf5f8" />
+      <stop offset="100%" stop-color="#f8e8f0" />
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#fef6fb" />
+    </linearGradient>
+    <style>
+      .title { font-family: 'Playfair Display', 'Times New Roman', serif; font-size: 48px; fill: #1d1617; }
+      .subtitle { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 20px; fill: #5f4b55; }
+      .step-title { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 600; fill: #1d1617; }
+      .step-text { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 16px; fill: #5f4b55; line-height: 1.4; }
+      .badge { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 18px; font-weight: 700; fill: #ffffff; }
+    </style>
+  </defs>
+  <rect width="960" height="540" fill="url(#bg-gradient)" rx="32" />
+  <text x="80" y="100" class="title">DIY Gel Manicure: Solo Application Guide</text>
+  <text x="80" y="138" class="subtitle">Follow these six quick steps to create a salon-level finish with reusable gel press-ons.</text>
+
+  <g transform="translate(80 170)">
+    <g transform="translate(0 0)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">1</text>
+      <text x="80" y="52" class="step-title">Fit &amp; layout</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Match each gel tip to your nails before you begin. The sides should hug the nail walls without touching skin.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(300 0)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">2</text>
+      <text x="80" y="52" class="step-title">Buff lightly</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Use a soft file or glass buffer to remove shine. One gentle pass keeps the surface healthy.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(600 0)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">3</text>
+      <text x="80" y="52" class="step-title">Cleanse</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Swipe nails with alcohol or cleanser to remove oils. Let them dry fully before moving on.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(0 180)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">4</text>
+      <text x="80" y="52" class="step-title">Place gel tab</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Apply the adhesive gel slightly away from the cuticle, smoothing forward to remove air pockets.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(300 180)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">5</text>
+      <text x="80" y="52" class="step-title">Tilt &amp; align</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Angle the tip at 45°, seat the cuticle edge, then roll the nail forward to lock the sides.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(600 180)">
+      <rect width="260" height="150" rx="24" fill="url(#panel)" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="44" cy="40" r="26" fill="#f08bbd" />
+      <text x="44" y="48" text-anchor="middle" class="badge">6</text>
+      <text x="80" y="52" class="step-title">Press &amp; seal</text>
+      <foreignObject x="80" y="70" width="160" height="70">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Hold firm pressure for 30 seconds, focusing on the center and edges to eliminate air gaps.</p>
+        </body>
+      </foreignObject>
+    </g>
+  </g>
+</svg>
