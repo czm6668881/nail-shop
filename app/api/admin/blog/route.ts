@@ -24,6 +24,7 @@ export async function GET() {
 }
 
 const CATEGORY_VALUES: BlogCategory[] = ["tutorial", "tips", "trends", "care", "inspiration"]
+const EXCERPT_LIMIT = 160
 
 const sanitiseTags = (input: unknown): string[] => {
   if (Array.isArray(input)) {
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     const rawSlugSource =
       typeof body.slug === "string" && body.slug.trim().length > 0 ? body.slug.trim() : rawTitle
     const slug = slugify(rawSlugSource)
-    const excerpt = typeof body.excerpt === "string" ? body.excerpt.trim() : ""
+    const excerptRaw = typeof body.excerpt === "string" ? body.excerpt.trim() : ""
     const content = typeof body.content === "string" ? body.content.trim() : ""
     const category = typeof body.category === "string" ? body.category : ""
     const coverImage = typeof body.coverImage === "string" ? body.coverImage.trim() : ""
@@ -75,9 +76,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Slug is required." }, { status: 400 })
     }
 
-    if (!excerpt) {
+    if (!excerptRaw) {
       return NextResponse.json({ message: "Excerpt is required." }, { status: 400 })
     }
+
+    const excerpt = excerptRaw.slice(0, EXCERPT_LIMIT)
 
     if (!content) {
       return NextResponse.json({ message: "Content is required." }, { status: 400 })

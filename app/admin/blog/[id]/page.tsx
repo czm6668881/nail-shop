@@ -28,6 +28,8 @@ const CATEGORY_OPTIONS: { value: BlogCategory; label: string }[] = [
   { value: "inspiration", label: "Inspiration" },
 ]
 
+const EXCERPT_LIMIT = 160
+
 const isValidCategory = (value: string): value is BlogCategory =>
   CATEGORY_OPTIONS.some((option) => option.value === value)
 
@@ -124,6 +126,27 @@ export default function AdminBlogEditorPage() {
     }))
   }
 
+  const excerptCharactersRemaining = EXCERPT_LIMIT - formState.excerpt.length
+
+  const handleExcerptChange = (value: string) => {
+    setFormState((prev) => ({ ...prev, excerpt: value.slice(0, EXCERPT_LIMIT) }))
+  }
+
+  const generateExcerptFromContent = () => {
+    if (!formState.content) {
+      toast.error("Please add article content first")
+      return
+    }
+    const plainText = stripHtml(formState.content).replace(/\s+/g, " ").trim()
+    if (!plainText) {
+      toast.error("Content is empty after removing formatting")
+      return
+    }
+    const truncated = plainText.slice(0, EXCERPT_LIMIT)
+    setFormState((prev) => ({ ...prev, excerpt: truncated }))
+    toast.success("Excerpt generated from content")
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -132,7 +155,7 @@ export default function AdminBlogEditorPage() {
     const payload = {
       title: formState.title.trim(),
       slug: formState.slug.trim(),
-      excerpt: formState.excerpt.trim(),
+      excerpt: formState.excerpt.trim().slice(0, EXCERPT_LIMIT),
       coverImage: formState.coverImage.trim(),
       category: formState.category,
       authorName: formState.authorName.trim(),
@@ -323,11 +346,17 @@ export default function AdminBlogEditorPage() {
             <Textarea
               id="excerpt"
               value={formState.excerpt}
-              onChange={(event) => setFormState((prev) => ({ ...prev, excerpt: event.target.value }))}
+              onChange={(event) => handleExcerptChange(event.target.value)}
               placeholder="A quick summary that appears on listing pages and search results."
               rows={3}
               required
             />
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span>{excerptCharactersRemaining >= 0 ? `${excerptCharactersRemaining} characters remaining` : ""}</span>
+              <Button type="button" variant="ghost" size="sm" onClick={generateExcerptFromContent}>
+                Generate from content
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cover-image">Cover image URL</Label>
