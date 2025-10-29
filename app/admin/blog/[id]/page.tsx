@@ -64,7 +64,7 @@ export default function AdminBlogEditorPage() {
     authorAvatar: "",
     content: "",
     tags: "",
-    published: false,
+    published: true,
     readTime: "",
   })
 
