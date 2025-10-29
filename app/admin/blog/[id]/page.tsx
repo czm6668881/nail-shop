@@ -1,9 +1,9 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, Save, Upload, ImageIcon, X } from "lucide-react"
 import { toast } from "sonner"
 import { slugify } from "@/lib/utils/slug"
 import { Button } from "@/components/ui/button"
@@ -50,6 +50,8 @@ export default function AdminBlogEditorPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [slugDirty, setSlugDirty] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formState, setFormState] = useState({
     title: "",
     slug: "",
@@ -206,6 +208,64 @@ export default function AdminBlogEditorPage() {
     }
   }
 
+  const handleFileSelect = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Unsupported file type. Please upload JPG, PNG, GIF, or WebP images.")
+      event.target.value = ""
+      return
+    }
+
+    const maxSizeMb = 5
+    if (file.size > maxSizeMb * 1024 * 1024) {
+      toast.error(`Image is too large. Maximum size is ${maxSizeMb}MB.`)
+      event.target.value = ""
+      return
+    }
+
+    setUploading(true)
+    const toastId = toast.loading("Uploading cover image...")
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}))
+        throw new Error(typeof errorBody.error === "string" ? errorBody.error : "Image upload failed")
+      }
+
+      const data = await response.json()
+      setFormState((prev) => ({ ...prev, coverImage: data.url }))
+      toast.success("Cover image uploaded")
+    } catch (err) {
+      console.error(err)
+      toast.error(err instanceof Error ? err.message : "Unable to upload image.")
+    } finally {
+      toast.dismiss(toastId)
+      setUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
+  }
+
+  const handleRemoveCover = () => {
+    setFormState((prev) => ({ ...prev, coverImage: "" }))
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -277,7 +337,36 @@ export default function AdminBlogEditorPage() {
               onChange={(event) => setFormState((prev) => ({ ...prev, coverImage: event.target.value }))}
               placeholder="/blog-gel-manicure-steps.svg"
             />
-            <p className="text-xs text-muted-foreground">Use a relative path for an asset in <code>/public</code> or a full URL.</p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleCoverUpload}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={handleFileSelect} disabled={uploading}>
+                <Upload className="mr-2 h-4 w-4" />
+                {uploading ? "Uploading…" : "Upload from device"}
+              </Button>
+              {formState.coverImage && (
+                <Button type="button" variant="ghost" size="sm" onClick={handleRemoveCover}>
+                  <X className="mr-1 h-4 w-4" />
+                  Remove
+                </Button>
+              )}
+            </div>
+            {formState.coverImage ? (
+              <div className="relative mt-3 h-40 w-64 overflow-hidden rounded-md border bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={formState.coverImage} alt="Cover preview" className="h-full w-full object-cover" />
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Upload or paste an image URL to feature at the top of the article.
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
