@@ -3,6 +3,8 @@ import { BlogCard } from "@/components/blog-card"
 import type { Metadata } from "next"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
+export const dynamic = "force-dynamic"
+
 const blogTitle = `Blog | ${siteConfig.name}`
 
 export const metadata: Metadata = {
