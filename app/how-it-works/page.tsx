@@ -32,7 +32,7 @@ const STEPS = [
     icon: Sparkle,
     title: "Pick your gel set",
     description:
-      "Choose from breathable, salon-inspired designs sized for every nail bed. Each capsule includes 24 reusable tips across inclusive sizing.",
+      "Choose from breathable, salon-inspired designs sized for every nail bed. Every capsule ships with an inclusive size run so you can find your perfect fit.",
   },
   {
     icon: Leaf,
@@ -44,12 +44,12 @@ const STEPS = [
     icon: ShieldCheck,
     title: "Wear, care, and reuse",
     description:
-      "Press for 30 seconds for mirror shine that lasts up to 10 days. Remove with warm water and reapply with fresh gel tabs whenever you like.",
+      "Seal each nail and your manicure is ready in about five minutes. Remove with warm water and reapply with fresh gel tabs whenever you like.",
   },
 ]
 
 const KIT_CONTENTS = [
-  "24 reusable gel tips spanning XS–XL",
+  "Reusable gel tips spanning XS–XL",
   "Medical-grade gel tabs and residue-free removal tool",
   "Cuticle pusher, prep file, and lint-free wipes",
   "Reusable magnetic storage tray with design protectors",

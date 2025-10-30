@@ -21,7 +21,7 @@ export const products: Product[] = [
       "Reusable with proper care",
       "Includes gel application kit",
     ],
-    application: "Clean nails, select size, apply with gel system, press firmly for 30 seconds",
+    application: "Clean nails, select size, apply with gel system, and enjoy salon results in about five minutes",
     materials: ["Premium ABS plastic", "Medical-grade gel"],
     slug: "elegant-french-tips",
     createdAt: "2025-01-15T10:00:00Z",

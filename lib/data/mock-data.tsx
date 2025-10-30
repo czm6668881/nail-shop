@@ -334,7 +334,7 @@ export const mockBlogPosts: BlogPost[] = [
         <li><strong>Cleanse:</strong> Swipe every nail with alcohol. A squeaky-clean surface ensures the gel tab bonds instantly.</li>
         <li><strong>Apply gel tab:</strong> Peel a gel tab, place it slightly away from the cuticle, and press toward the free edge to smooth out bubbles.</li>
         <li><strong>Press &amp; tilt:</strong> Angle the gel nail at roughly 45 degrees, align the cuticle edge first, then roll it down to seal the sides.</li>
-        <li><strong>Lock the bond:</strong> Hold firm pressure for 30 seconds, focusing on the center and the sides to remove pockets of air.</li>
+        <li><strong>Lock the bond:</strong> Smooth from cuticle to tip so the set settles evenly—your gel manicure is ready in about five minutes.</li>
       </ol>
 
       <h2>Aftercare for Long-Lasting Shine</h2>
