@@ -24,18 +24,31 @@ const normalizeSizes = (input: unknown): string[] => {
   return Array.from(deduped)
 }
 
-const normalizeSizeLengths = (input: unknown, activeSizes: string[]): Record<string, number> => {
+const normalizeSizeLengths = (input: unknown, activeSizes: string[]): Record<string, number[]> => {
   if (!input || typeof input !== "object") {
     return {}
   }
   const sizeSet = new Set(activeSizes)
-  return Object.entries(input as Record<string, unknown>).reduce<Record<string, number>>((acc, [size, value]) => {
+  return Object.entries(input as Record<string, unknown>).reduce<Record<string, number[]>>((acc, [size, value]) => {
     if (!sizeSet.has(size)) {
       return acc
     }
-    const numeric = typeof value === "number" ? value : Number(value)
-    if (Number.isFinite(numeric) && numeric > 0) {
-      acc[size] = Number(numeric)
+    const candidates = Array.isArray(value)
+      ? value
+      : typeof value === "string"
+        ? value.split(/[,，/+\s]+/)
+        : [value]
+
+    const normalized = candidates
+      .map((entry) => {
+        const numeric = typeof entry === "number" ? entry : Number(entry)
+        return Number.isFinite(numeric) && numeric > 0 ? Number(numeric) : null
+      })
+      .filter((entry): entry is number => entry !== null)
+
+    if (normalized.length > 0) {
+      const unique = Array.from(new Set(normalized)).sort((a, b) => a - b)
+      acc[size] = unique
     }
     return acc
   }, {})
@@ -110,4 +123,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Unable to create product." }, { status: 500 })
   }
 }
-

@@ -1,7 +1,7 @@
 "use client"
 
 import { create } from "zustand"
-import type { Cart, CartItem, NailSize, Product } from "@/types"
+import type { Cart, CartItem, NailSize, Product, SizeLengthMap } from "@/types"
 
 const emptyCart: Cart = {
   id: "cart-placeholder",
@@ -29,19 +29,47 @@ interface CartStore {
 
 const parseCart = (cart: Cart | null | undefined): Cart => {
   if (!cart) return { ...emptyCart, updatedAt: new Date().toISOString() }
+
+  const normalizeSizeLengths = (input: Product["sizeLengths"], sizes: NailSize[]): SizeLengthMap | undefined => {
+    if (!input || typeof input !== "object") {
+      return undefined
+    }
+
+    const sizeSet = new Set(sizes)
+    const normalized = Object.entries(input).reduce<SizeLengthMap>((acc, [size, values]) => {
+      if (!sizeSet.has(size as NailSize)) {
+        return acc
+      }
+      const list = Array.isArray(values) ? values : [values]
+      const sanitized = list
+        .map((value) => (typeof value === "number" ? value : Number(value)))
+        .filter((value) => Number.isFinite(value) && value > 0)
+
+      if (sanitized.length > 0) {
+        acc[size as NailSize] = Array.from(new Set(sanitized)).sort((a, b) => a - b)
+      }
+      return acc
+    }, {})
+
+    return Object.keys(normalized).length > 0 ? normalized : undefined
+  }
+
   return {
     ...cart,
-    items: (cart.items ?? []).map((item) => ({
-      ...item,
-      product: {
-        ...item.product,
-        images: item.product.images ?? [],
-        sizes: item.product.sizes ?? [],
-        features: item.product.features ?? [],
-        materials: item.product.materials ?? [],
-        sizeLengths: item.product.sizeLengths ?? undefined,
-      },
-    })) as CartItem[],
+    items: (cart.items ?? []).map((item) => {
+      const sizes = (item.product.sizes ?? []) as NailSize[]
+      return {
+        ...item,
+        product: {
+          ...item.product,
+          images: item.product.images ?? [],
+          sizes,
+          features: item.product.features ?? [],
+          materials: item.product.materials ?? [],
+          sizeLengths: normalizeSizeLengths(item.product.sizeLengths, sizes),
+        },
+      }
+    }) as CartItem[],
   }
 }
 

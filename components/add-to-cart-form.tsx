@@ -21,7 +21,12 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
   const addItem = useCartStore((state) => state.addItem)
   const loading = useCartStore((state) => state.loading)
 
-  const selectedLength = product.sizeLengths?.[selectedSize]
+  const rawLengths = product.sizeLengths?.[selectedSize]
+  const selectedLengths = Array.isArray(rawLengths)
+    ? rawLengths
+    : typeof rawLengths === "number"
+      ? [rawLengths]
+      : []
 
   const handleAddToCart = async () => {
     setError(null)
@@ -54,9 +59,9 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
             ))}
           </div>
         </RadioGroup>
-        {typeof selectedLength === "number" && Number.isFinite(selectedLength) && (
+        {selectedLengths.length > 0 && (
           <p className="mt-2 text-sm text-muted-foreground">
-            Length: {selectedLength} mm
+            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths.join(" / ")} mm
           </p>
         )}
       </div>

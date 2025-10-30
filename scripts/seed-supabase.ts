@@ -67,9 +67,16 @@ async function seedProducts() {
     in_stock: product.inStock,
     stock_quantity: product.stockQuantity,
     sizes: product.sizes,
-    size_lengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, number>>((acc, [size, value]) => {
-      if (product.sizes.includes(size as typeof product.sizes[number]) && typeof value === "number" && Number.isFinite(value)) {
-        acc[size] = value
+    size_lengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, number[]>>((acc, [size, rawValues]) => {
+      if (!product.sizes.includes(size as typeof product.sizes[number])) {
+        return acc
+      }
+      const values = Array.isArray(rawValues) ? rawValues : [rawValues]
+      const normalized = values
+        .map((entry) => (typeof entry === "number" ? entry : Number(entry)))
+        .filter((entry) => Number.isFinite(entry) && entry > 0)
+      if (normalized.length > 0) {
+        acc[size] = Array.from(new Set(normalized)).sort((a, b) => a - b)
       }
       return acc
     }, {}),

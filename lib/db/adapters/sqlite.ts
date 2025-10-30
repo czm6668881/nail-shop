@@ -70,11 +70,20 @@ const parseSizeLengths = (raw: string | null): SizeLengthMap => {
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>
     return Object.entries(parsed).reduce<SizeLengthMap>((acc, [size, value]) => {
-      if (VALID_SIZES.includes(size as NailSize)) {
-        const numeric = typeof value === "number" ? value : Number(value)
-        if (Number.isFinite(numeric)) {
-          acc[size as NailSize] = numeric
-        }
+      if (!VALID_SIZES.includes(size as NailSize)) {
+        return acc
+      }
+
+      const valuesArray = Array.isArray(value) ? value : [value]
+      const normalized = valuesArray
+        .map((entry) => {
+          const numeric = typeof entry === "number" ? entry : Number(entry)
+          return Number.isFinite(numeric) && numeric > 0 ? Number(numeric) : null
+        })
+        .filter((entry): entry is number => entry !== null)
+
+      if (normalized.length > 0) {
+        acc[size as NailSize] = normalized
       }
       return acc
     }, {})
@@ -88,10 +97,17 @@ const serializeSizeLengths = (sizes: NailSize[], lengths?: SizeLengthMap): strin
     return JSON.stringify({})
   }
 
-  const normalized = sizes.reduce<Record<string, number>>((acc, size) => {
-    const value = lengths[size]
-    if (typeof value === "number" && Number.isFinite(value)) {
-      acc[size] = Number(value)
+  const normalized = sizes.reduce<Record<string, number[]>>((acc, size) => {
+    const values = lengths[size]
+    if (!values) {
+      return acc
+    }
+    const normalizedValues = (Array.isArray(values) ? values : [values])
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value) && value > 0)
+
+    if (normalizedValues.length > 0) {
+      acc[size] = normalizedValues
     }
     return acc
   }, {})

@@ -117,9 +117,13 @@ export default function EditProductPage() {
         featured: product.featured,
         images: product.images,
         sizes: product.sizes,
-        sizeLengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, string>>((acc, [size, value]) => {
-          if (typeof value === "number" && Number.isFinite(value)) {
-            acc[size] = value.toString()
+        sizeLengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, string>>((acc, [size, values]) => {
+          const list = Array.isArray(values) ? values : [values]
+          const normalized = list
+            .map((value) => (typeof value === "number" ? value : Number(value)))
+            .filter((value) => Number.isFinite(value) && value > 0)
+          if (normalized.length > 0) {
+            acc[size] = normalized.join(', ')
           }
           return acc
         }, {}),
@@ -156,14 +160,19 @@ export default function EditProductPage() {
     }
 
     try {
-      const sizeLengths = formData.sizes.reduce<Record<string, number>>((acc, size) => {
+      const sizeLengths = formData.sizes.reduce<Record<string, number[]>>((acc, size) => {
         const raw = formData.sizeLengths[size]
         if (!raw) {
           return acc
         }
-        const numeric = Number(raw)
-        if (Number.isFinite(numeric) && numeric > 0) {
-          acc[size] = Number(numeric)
+        const parts = raw
+          .split(/[,，/+\s]+/)
+          .map((part) => Number(part))
+          .filter((value) => Number.isFinite(value) && value > 0)
+
+        if (parts.length > 0) {
+          const unique = Array.from(new Set(parts)).sort((a, b) => a - b)
+          acc[size] = unique
         }
         return acc
       }, {})
@@ -499,13 +508,11 @@ export default function EditProductPage() {
                     </Label>
                     <Input
                       id={`length-${size}`}
-                      type="number"
+                      type="text"
                       inputMode="decimal"
-                      step="0.1"
-                      min="0"
                       value={formData.sizeLengths[size] ?? ""}
                       onChange={(event) => handleLengthChange(size, event.target.value)}
-                      placeholder="e.g. 16"
+                      placeholder="e.g. 16, 17.5"
                       disabled={!isActive}
                     />
                   </div>
@@ -513,7 +520,7 @@ export default function EditProductPage() {
               })}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Provide the nail length for each available size in millimetres.
+              Separate multiple lengths with commas. Values should be in millimetres.
             </p>
           </div>
 

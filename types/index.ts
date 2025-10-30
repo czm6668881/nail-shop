@@ -1,6 +1,6 @@
 // Core data types for the press-on nails e-commerce platform
 
-export type SizeLengthMap = Partial<Record<NailSize, number>>
+export type SizeLengthMap = Partial<Record<NailSize, number[]>>
 
 export interface Product {
   id: string
