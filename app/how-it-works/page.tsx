@@ -4,7 +4,6 @@ import Image from "next/image"
 import { Sparkles, Leaf, ShieldCheck, Clock, Sparkle, HandHeart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
-import { getHowItWorksImages } from "@/lib/api/settings"
 
 export const metadata: Metadata = {
   title: `How It Works | ${siteConfig.name}`,
@@ -87,8 +86,7 @@ const FAQS = [
   },
 ]
 
-export default async function HowItWorksPage() {
-  const { wearImage, removalImage } = await getHowItWorksImages()
+export default function HowItWorksPage() {
   return (
     <div className="flex flex-col">
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-background via-background to-muted/40">
@@ -162,7 +160,7 @@ export default async function HowItWorksPage() {
               </p>
               <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
                 <Image
-                  src={wearImage}
+                  src="/how-it-works-wear.svg"
                   alt="Six illustrated steps showing how to prepare, align, and smooth gel press-on nails at home."
                   width={960}
                   height={640}
@@ -178,7 +176,7 @@ export default async function HowItWorksPage() {
               </p>
               <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
                 <Image
-                  src={removalImage}
+                  src="/how-it-works-removal.svg"
                   alt="Three illustrated steps showing how to soak, lift, and reuse gel press-on nails."
                   width={960}
                   height={540}

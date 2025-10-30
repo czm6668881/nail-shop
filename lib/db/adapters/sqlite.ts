@@ -13,7 +13,6 @@ import type {
   ReturnRequest,
   NotificationPreferences,
   ProductCategory,
-  SiteSetting,
 } from "@/types"
 import { db } from "../client"
 import { migrate } from "../schema"
@@ -174,11 +173,6 @@ type NotificationPreferenceRow = {
   updated_at: string
 }
 
-type SiteSettingRow = {
-  key: string
-  value: string
-  updated_at: string
-}
 
 type PasswordResetTokenRow = {
   id: string
@@ -255,11 +249,6 @@ const mapBlogPost = (row: BlogPostRow): BlogPost => ({
   readTime: row.read_time,
 })
 
-const mapSiteSetting = (row: SiteSettingRow): SiteSetting => ({
-  key: row.key,
-  value: row.value,
-  updatedAt: row.updated_at,
-})
 
 const mapCart = (cart: CartRow, items: CartItem[]): Cart => {
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
@@ -1605,21 +1594,4 @@ export const deleteUser = (userId: string) => {
   if (result.changes === 0) {
     throw new Error("USER_NOT_FOUND")
   }
-}
-
-export const getSiteSetting = (key: string): SiteSetting | null => {
-  const row = db.prepare("SELECT * FROM site_settings WHERE key = ?").get(key) as SiteSettingRow | undefined
-  return row ? mapSiteSetting(row) : null
-}
-
-export const upsertSiteSetting = (key: string, value: string) => {
-  db.prepare(`
-    INSERT INTO site_settings (key, value, updated_at)
-    VALUES (@key, @value, @updated_at)
-    ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
-  `).run({ key, value, updated_at: new Date().toISOString() })
-}
-
-export const deleteSiteSetting = (key: string) => {
-  db.prepare("DELETE FROM site_settings WHERE key = ?").run(key)
 }

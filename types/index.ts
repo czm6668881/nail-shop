@@ -198,9 +198,3 @@ export interface HeroSlide {
   createdAt: string
   updatedAt: string
 }
-
-export interface SiteSetting {
-  key: string
-  value: string
-  updatedAt: string
-}
