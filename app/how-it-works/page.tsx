@@ -144,6 +144,51 @@ export default function HowItWorksPage() {
       </section>
 
       <section className="py-20 border-b border-border bg-background">
+        <div className="container mx-auto px-4 space-y-12">
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <p className="text-sm uppercase tracking-[0.35em] text-primary">Step-by-step visuals</p>
+            <h2 className="text-3xl lg:text-4xl font-semibold">See the full five-minute ritual</h2>
+            <p className="text-muted-foreground text-lg">
+              Follow the illustrated guides below to master both application and gentle removal. Save them to your phone for quick reference any time.
+            </p>
+          </div>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className="rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm space-y-4">
+              <h3 className="text-xl font-semibold">Wear method</h3>
+              <p className="text-sm text-muted-foreground">
+                Prep, align, and smooth the gel tab for a breathable seal—your mani is ready in about five minutes.
+              </p>
+              <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
+                <Image
+                  src="/blog-gel-manicure-steps.svg"
+                  alt="Six illustrated steps showing how to prep, align, and apply gel press-on nails."
+                  width={960}
+                  height={540}
+                  className="w-full h-auto"
+                  priority
+                />
+              </div>
+            </div>
+            <div className="rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm space-y-4">
+              <h3 className="text-xl font-semibold">Removal method</h3>
+              <p className="text-sm text-muted-foreground">
+                Loosen with warm water, lift from the side, and store tips for the next wear—no acetone or drilling required.
+              </p>
+              <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
+                <Image
+                  src="/how-it-works-removal.svg"
+                  alt="Three illustrated steps showing how to soak, lift, and reuse gel press-on nails."
+                  width={960}
+                  height={540}
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 border-b border-border bg-background">
         <div className="container mx-auto px-4 grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
           <div className="space-y-5">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Inside the capsule</p>

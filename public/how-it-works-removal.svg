@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf5f8" />
+      <stop offset="100%" stop-color="#f5e7ef" />
+    </linearGradient>
+    <style>
+      .title { font-family: 'Playfair Display', 'Times New Roman', serif; font-size: 48px; fill: #1f1b1d; }
+      .subtitle { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 18px; fill: #675a61; }
+      .badge { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 20px; font-weight: 700; fill: #fff; }
+      .step-title { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 600; fill: #1f1b1d; }
+      .step-text { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 16px; fill: #675a61; line-height: 1.35; }
+    </style>
+  </defs>
+  <rect width="960" height="540" rx="32" fill="url(#bg)" />
+  <text x="80" y="110" class="title">Removal ritual</text>
+  <text x="80" y="148" class="subtitle">Gentle steps to loosen, clean, and store your reusable gel press-ons.</text>
+
+  <g transform="translate(80 190)">
+    <g transform="translate(0 0)">
+      <rect width="260" height="180" rx="28" fill="#fff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">1</text>
+      <text x="90" y="56" class="step-title">Soak &amp; loosen</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Dip fingertips in warm water with a drop of oil, then gently pry from one side.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(300 0)">
+      <rect width="260" height="180" rx="28" fill="#fff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">2</text>
+      <text x="90" y="56" class="step-title">Clean tabs</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Peel away softened gel tabs and wipe the nail bed with an alcohol pad.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(600 0)">
+      <rect width="260" height="180" rx="28" fill="#fff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">3</text>
+      <text x="90" y="56" class="step-title">Store &amp; reuse</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Return each tip to its tray, let them air-dry, and they’re ready for the next look.</p>
+        </body>
+      </foreignObject>
+    </g>
+  </g>
+</svg>
