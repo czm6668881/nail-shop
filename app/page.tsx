@@ -23,7 +23,7 @@ export default async function HomePage() {
   ])
   const bestSellers = await getBestSellingProducts(4, { seedProducts: allProducts })
   const latestPosts = blogPosts.slice(0, 3)
-  const leopardSpotlight = allProducts
+  const diamondSpotlight = allProducts
     .filter((product) => {
       const featureValues = Array.isArray(product.features) ? product.features : []
       const searchPool = [
@@ -38,15 +38,15 @@ export default async function HomePage() {
         .filter((value): value is string => typeof value === "string" && value.length > 0)
         .map((value) => value.toLowerCase())
 
-      return searchPool.some((value) => value.includes("leopard"))
+      return searchPool.some((value) => value.includes("diamond"))
     })
     .slice(0, 4)
-  const leopardCategorySlug =
-    leopardSpotlight.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
+  const diamondCategorySlug =
+    diamondSpotlight.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
     undefined
-  const leopardLink = leopardCategorySlug
-    ? `/products?category=${encodeURIComponent(leopardCategorySlug)}`
-    : "/products?q=leopard"
+  const diamondLink = diamondCategorySlug
+    ? `/products?category=${encodeURIComponent(diamondCategorySlug)}`
+    : "/products?q=diamond"
 
 
   const organizationJsonLd = {
@@ -141,29 +141,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Leopard Gel Nails */}
+      {/* Diamond Gel Nails */}
       <section className="py-20 bg-muted/20 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Leopard Gel Nails</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Diamond Gel Nails</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Fierce, fashion-forward sets with animal-inspired detailing and long-wear gel shine.
+              Radiant gemstone-inspired sets with brilliant facets and high-shine gel finishes.
             </p>
           </div>
-          {leopardSpotlight.length > 0 ? (
+          {diamondSpotlight.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {leopardSpotlight.map((product) => (
+              {diamondSpotlight.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
             <div className="mb-8 rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
-              Our leopard capsule is almost here. Subscribe below to be first in line when it drops.
+              Our diamond capsule is almost here. Subscribe below to be first in line when it drops.
             </div>
           )}
           <div className="text-center">
             <Button size="lg" asChild>
-              <Link href={leopardLink}>Shop Leopard Styles</Link>
+              <Link href={diamondLink}>Shop Diamond Styles</Link>
             </Button>
           </div>
         </div>
