@@ -88,6 +88,7 @@ export const migrate = () => {
       in_stock INTEGER NOT NULL DEFAULT 1,
       stock_quantity INTEGER NOT NULL DEFAULT 0,
       sizes TEXT,
+      size_lengths TEXT,
       features TEXT,
       application TEXT,
       materials TEXT,
@@ -100,6 +101,8 @@ export const migrate = () => {
       FOREIGN KEY (collection_slug) REFERENCES collections(slug) ON DELETE SET NULL
     )
   `)
+
+  addColumnIfMissing("products", "size_lengths", "size_lengths TEXT")
 
   run(`
     CREATE TABLE IF NOT EXISTS reviews (

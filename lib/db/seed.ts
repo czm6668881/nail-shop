@@ -268,6 +268,7 @@ export const seed = () => {
         @in_stock,
         @stock_quantity,
         @sizes,
+        @size_lengths,
         @features,
         @application,
         @materials,
@@ -293,6 +294,12 @@ export const seed = () => {
         in_stock: product.inStock ? 1 : 0,
         stock_quantity: product.stockQuantity,
         sizes: JSON.stringify(product.sizes),
+        size_lengths: JSON.stringify(Object.entries(product.sizeLengths ?? {}).reduce<Record<string, number>>((acc, [size, value]) => {
+          if (product.sizes.includes(size as typeof product.sizes[number]) && typeof value === "number" && Number.isFinite(value)) {
+            acc[size] = value
+          }
+          return acc
+        }, {})),
         features: JSON.stringify(product.features),
         application: product.application,
         materials: JSON.stringify(product.materials),

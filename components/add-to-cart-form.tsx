@@ -13,12 +13,15 @@ interface AddToCartFormProps {
 }
 
 export function AddToCartForm({ product }: AddToCartFormProps) {
-  const [selectedSize, setSelectedSize] = useState<NailSize>(product.sizes[0])
+  const initialSize = (product.sizes && product.sizes.length > 0 ? product.sizes[0] : "M") as NailSize
+  const [selectedSize, setSelectedSize] = useState<NailSize>(initialSize)
   const [quantity, setQuantity] = useState(1)
   const [isAdded, setIsAdded] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const addItem = useCartStore((state) => state.addItem)
   const loading = useCartStore((state) => state.loading)
+
+  const selectedLength = product.sizeLengths?.[selectedSize]
 
   const handleAddToCart = async () => {
     setError(null)
@@ -51,6 +54,11 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
             ))}
           </div>
         </RadioGroup>
+        {typeof selectedLength === "number" && Number.isFinite(selectedLength) && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Length: {selectedLength} mm
+          </p>
+        )}
       </div>
 
       {/* Quantity */}

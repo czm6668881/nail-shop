@@ -13,6 +13,7 @@ import type {
   ReturnRequest,
   NotificationPreferences,
   ProductCategory,
+  SizeLengthMap,
 } from "@/types"
 import { db } from "../client"
 import { migrate } from "../schema"
@@ -46,6 +47,7 @@ type ProductRow = {
   in_stock: number
   stock_quantity: number
   sizes: string
+  size_lengths: string | null
   features: string
   application: string
   materials: string
@@ -58,6 +60,44 @@ type ProductRow = {
 }
 
 const DEFAULT_ADMIN_EMAIL = "admin@luxenails.com"
+const VALID_SIZES: NailSize[] = ["XS", "S", "M", "L", "XL"]
+
+const parseSizeLengths = (raw: string | null): SizeLengthMap => {
+  if (!raw) {
+    return {}
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    return Object.entries(parsed).reduce<SizeLengthMap>((acc, [size, value]) => {
+      if (VALID_SIZES.includes(size as NailSize)) {
+        const numeric = typeof value === "number" ? value : Number(value)
+        if (Number.isFinite(numeric)) {
+          acc[size as NailSize] = numeric
+        }
+      }
+      return acc
+    }, {})
+  } catch {
+    return {}
+  }
+}
+
+const serializeSizeLengths = (sizes: NailSize[], lengths?: SizeLengthMap): string => {
+  if (!lengths) {
+    return JSON.stringify({})
+  }
+
+  const normalized = sizes.reduce<Record<string, number>>((acc, size) => {
+    const value = lengths[size]
+    if (typeof value === "number" && Number.isFinite(value)) {
+      acc[size] = Number(value)
+    }
+    return acc
+  }, {})
+
+  return JSON.stringify(normalized)
+}
 
 type ProductCategoryRow = {
   id: string
@@ -195,6 +235,10 @@ const mapProduct = (row: ProductRow): Product => ({
   inStock: Boolean(row.in_stock),
   stockQuantity: row.stock_quantity,
   sizes: JSON.parse(row.sizes),
+  sizeLengths: (() => {
+    const parsed = parseSizeLengths(row.size_lengths)
+    return Object.keys(parsed).length > 0 ? parsed : undefined
+  })(),
   features: JSON.parse(row.features),
   application: row.application,
   materials: JSON.parse(row.materials),
@@ -493,6 +537,7 @@ export const upsertProduct = (product: Product) => {
       in_stock,
       stock_quantity,
       sizes,
+      size_lengths,
       features,
       application,
       materials,
@@ -514,6 +559,7 @@ export const upsertProduct = (product: Product) => {
       @in_stock,
       @stock_quantity,
       @sizes,
+      @size_lengths,
       @features,
       @application,
       @materials,
@@ -535,6 +581,7 @@ export const upsertProduct = (product: Product) => {
       in_stock = excluded.in_stock,
       stock_quantity = excluded.stock_quantity,
       sizes = excluded.sizes,
+      size_lengths = excluded.size_lengths,
       features = excluded.features,
       application = excluded.application,
       materials = excluded.materials,
@@ -557,6 +604,7 @@ export const upsertProduct = (product: Product) => {
     in_stock: product.inStock ? 1 : 0,
     stock_quantity: product.stockQuantity,
     sizes: JSON.stringify(product.sizes),
+    size_lengths: serializeSizeLengths(product.sizes, product.sizeLengths),
     features: JSON.stringify(product.features),
     application: product.application,
     materials: JSON.stringify(product.materials),

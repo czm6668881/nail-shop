@@ -55,6 +55,7 @@ export default function EditProductPage() {
     featured: false,
     images: [] as string[],
     sizes: [] as string[],
+    sizeLengths: {} as Record<string, string>,
     features: [] as string[],
     materials: [] as string[],
     materialInput: "",
@@ -116,6 +117,12 @@ export default function EditProductPage() {
         featured: product.featured,
         images: product.images,
         sizes: product.sizes,
+        sizeLengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, string>>((acc, [size, value]) => {
+          if (typeof value === "number" && Number.isFinite(value)) {
+            acc[size] = value.toString()
+          }
+          return acc
+        }, {}),
         features: product.features,
         materials: product.materials,
         materialInput: "",
@@ -149,6 +156,18 @@ export default function EditProductPage() {
     }
 
     try {
+      const sizeLengths = formData.sizes.reduce<Record<string, number>>((acc, size) => {
+        const raw = formData.sizeLengths[size]
+        if (!raw) {
+          return acc
+        }
+        const numeric = Number(raw)
+        if (Number.isFinite(numeric) && numeric > 0) {
+          acc[size] = Number(numeric)
+        }
+        return acc
+      }, {})
+
       const productData = {
         name: formData.name,
         description: formData.description,
@@ -163,6 +182,7 @@ export default function EditProductPage() {
         featured: formData.featured,
         images: formData.images,
         sizes: formData.sizes,
+        sizeLengths,
         features: formData.features,
         materials: formData.materials,
       }
@@ -258,11 +278,28 @@ export default function EditProductPage() {
   }
 
   const toggleSize = (size: string) => {
-    setFormData({
-      ...formData,
-      sizes: formData.sizes.includes(size)
-        ? formData.sizes.filter((s) => s !== size)
-        : [...formData.sizes, size],
+    setFormData((prev) => {
+      const isSelected = prev.sizes.includes(size)
+      const nextSizes = isSelected
+        ? prev.sizes.filter((s) => s !== size)
+        : [...prev.sizes, size]
+      const nextLengths = { ...prev.sizeLengths }
+      if (isSelected) {
+        delete nextLengths[size]
+      }
+      return { ...prev, sizes: nextSizes, sizeLengths: nextLengths }
+    })
+  }
+
+  const handleLengthChange = (size: string, value: string) => {
+    setFormData((prev) => {
+      const next = { ...prev.sizeLengths }
+      if (value.trim().length === 0) {
+        delete next[size]
+      } else {
+        next[size] = value
+      }
+      return { ...prev, sizeLengths: next }
     })
   }
 
@@ -448,6 +485,36 @@ export default function EditProductPage() {
                 </Button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <Label>Size lengths (mm)</Label>
+            <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {NAIL_SIZES.map((size) => {
+                const isActive = formData.sizes.includes(size)
+                return (
+                  <div key={size} className="space-y-1">
+                    <Label htmlFor={`length-${size}`} className="text-sm font-medium">
+                      {size}
+                    </Label>
+                    <Input
+                      id={`length-${size}`}
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      min="0"
+                      value={formData.sizeLengths[size] ?? ""}
+                      onChange={(event) => handleLengthChange(size, event.target.value)}
+                      placeholder="e.g. 16"
+                      disabled={!isActive}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Provide the nail length for each available size in millimetres.
+            </p>
           </div>
 
           <div>

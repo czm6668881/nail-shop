@@ -138,6 +138,7 @@ export interface Database {
           in_stock: boolean
           stock_quantity: number
           sizes: Json
+          size_lengths: Json
           features: Json
           application: string | null
           materials: Json
@@ -160,6 +161,7 @@ export interface Database {
           in_stock?: boolean
           stock_quantity?: number
           sizes?: Json
+          size_lengths?: Json
           features?: Json
           application?: string | null
           materials?: Json
@@ -182,6 +184,7 @@ export interface Database {
           in_stock?: boolean
           stock_quantity?: number
           sizes?: Json
+          size_lengths?: Json
           features?: Json
           application?: string | null
           materials?: Json

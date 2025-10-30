@@ -67,6 +67,12 @@ async function seedProducts() {
     in_stock: product.inStock,
     stock_quantity: product.stockQuantity,
     sizes: product.sizes,
+    size_lengths: Object.entries(product.sizeLengths ?? {}).reduce<Record<string, number>>((acc, [size, value]) => {
+      if (product.sizes.includes(size as typeof product.sizes[number]) && typeof value === "number" && Number.isFinite(value)) {
+        acc[size] = value
+      }
+      return acc
+    }, {}),
     features: product.features,
     application: product.application,
     materials: product.materials,

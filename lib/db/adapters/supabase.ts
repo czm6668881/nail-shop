@@ -15,6 +15,7 @@ import type {
   ReturnRequest,
   NotificationPreferences,
   ProductCategory,
+  SizeLengthMap,
 } from "@/types"
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import type { Database, Json } from "@/types/database"
@@ -140,6 +141,36 @@ const jsonObject = <T>(value: Json | null | undefined, fallback: T): T => {
   return fallback
 }
 
+const VALID_SIZES: NailSize[] = ["XS", "S", "M", "L", "XL"]
+
+const parseSizeLengths = (value: Json | null | undefined): SizeLengthMap => {
+  const parsed = jsonObject<Record<string, unknown>>(value, {})
+  return Object.entries(parsed).reduce<SizeLengthMap>((acc, [size, length]) => {
+    if (VALID_SIZES.includes(size as NailSize)) {
+      const numeric = typeof length === "number" ? length : Number(length)
+      if (Number.isFinite(numeric)) {
+        acc[size as NailSize] = numeric
+      }
+    }
+    return acc
+  }, {})
+}
+
+const serializeSizeLengths = (sizes: NailSize[], lengths?: SizeLengthMap): Json => {
+  if (!lengths) {
+    return {}
+  }
+  const normalized = sizes.reduce<Record<string, number>>((acc, size) => {
+    const value = lengths[size]
+    if (typeof value === "number" && Number.isFinite(value)) {
+      acc[size] = Number(value)
+    }
+    return acc
+  }, {})
+
+  return normalized
+}
+
 const mapProduct = (row: ProductRow & { category_label?: string | null }): Product => ({
   id: row.id,
   name: row.name,
@@ -153,6 +184,10 @@ const mapProduct = (row: ProductRow & { category_label?: string | null }): Produ
   inStock: row.in_stock,
   stockQuantity: row.stock_quantity,
   sizes: jsonArray<NailSize[]>(row.sizes, []),
+  sizeLengths: (() => {
+    const parsed = parseSizeLengths(row.size_lengths)
+    return Object.keys(parsed).length > 0 ? parsed : undefined
+  })(),
   features: jsonArray<string[]>(row.features, []),
   application: row.application ?? "",
   materials: jsonArray<string[]>(row.materials, []),
@@ -676,6 +711,7 @@ export const upsertProduct = async (product: Product): Promise<void> => {
     in_stock: product.inStock,
     stock_quantity: product.stockQuantity,
     sizes: product.sizes as Json,
+    size_lengths: serializeSizeLengths(product.sizes, product.sizeLengths),
     features: product.features as Json,
     application: product.application ?? null,
     materials: product.materials as Json,

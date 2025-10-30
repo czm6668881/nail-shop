@@ -39,6 +39,7 @@ const parseCart = (cart: Cart | null | undefined): Cart => {
         sizes: item.product.sizes ?? [],
         features: item.product.features ?? [],
         materials: item.product.materials ?? [],
+        sizeLengths: item.product.sizeLengths ?? undefined,
       },
     })) as CartItem[],
   }
