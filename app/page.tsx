@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles, Clock, Package, ShieldCheck, Leaf, Sparkle } from "lucide-react"
+import { Sparkles, Clock, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
 import { ReviewCard } from "@/components/review-card"
@@ -48,23 +48,6 @@ export default async function HomePage() {
     ? `/products?category=${encodeURIComponent(leopardCategorySlug)}`
     : "/products?q=leopard"
 
-  const howItWorks = [
-    {
-      icon: Sparkle,
-      title: "Pick Your Set",
-      description: "Choose from salon-inspired designs and inclusive sizing for every routine.",
-    },
-    {
-      icon: Leaf,
-      title: "Prep in Minutes",
-      description: "Buff, cleanse, and align the gel tab for a breathable, damage-free application.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Wear & Reuse",
-      description: "Enjoy up to 10 days of flawless shine and reapply with fresh gel tabs when ready.",
-    },
-  ]
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -124,52 +107,6 @@ export default async function HomePage() {
               <p className="text-xl font-semibold">Free Worldwide Delivery</p>
               <p className="text-sm text-muted-foreground text-pretty">
                 Complimentary tracked shipping plus eco packaging that cushions every set.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 bg-muted/20 border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
-            <div className="space-y-6">
-              <p className="text-sm uppercase tracking-[0.35em] text-primary">Effortless routine</p>
-              <h2 className="text-3xl lg:text-4xl font-bold text-balance">How your gelmanicure ritual works in three easy steps</h2>
-              <p className="text-muted-foreground text-lg">
-                From choosing your set to the final glossy press, every detail is designed for a healthier, reusable manicure at home.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {howItWorks.map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-border/70 bg-card/90 p-5 space-y-3">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <item.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-base">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button size="lg" asChild>
-                  <Link href="/products">Shop the collection</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/help">View detailed prep guide</Link>
-                </Button>
-              </div>
-            </div>
-            <div className="rounded-3xl border border-dashed border-primary/40 bg-primary/5 p-6 space-y-4">
-              <h3 className="text-xl font-semibold">Included in every kit</h3>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li>• 24 reusable gel tips across inclusive sizes</li>
-                <li>• Medical-grade gel tabs + residue-free removal tool</li>
-                <li>• Prep file, cuticle pusher, and reusable storage tray</li>
-                <li>• Step-by-step wearable guide and sustainability pledge</li>
-              </ul>
-              <p className="text-sm text-muted-foreground">
-                Need help choosing sizing? <Link href="/help" className="text-primary underline-offset-4 hover:underline">Chat with our fit experts</Link> for personalized recommendations.
               </p>
             </div>
           </div>

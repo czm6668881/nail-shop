@@ -97,6 +97,7 @@ export function SiteHeader() {
   const navigation: NavigationItem[] = [
     { name: "HOME", href: "/" },
     { name: "CATALOG", href: "/products", dropdownItems: effectiveCatalogCategories },
+    { name: "HOW IT WORKS", href: "/how-it-works" },
     { name: "REVIEWS", href: "/reviews" },
     { name: "BLOG", href: "/blog" },
   ]
