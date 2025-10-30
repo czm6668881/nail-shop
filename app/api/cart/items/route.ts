@@ -4,17 +4,19 @@ import { cookies } from "next/headers"
 import { CART_COOKIE, getSessionUser } from "@/lib/auth/session"
 import { ensureCart, fetchCart, findProductById, touchCart, upsertCartItem } from "@/lib/db/queries"
 import type { NailSize } from "@/types"
+import { normalizeLengthValues } from "@/lib/utils/lengths"
 
 const addItemSchema = z.object({
   productId: z.string().min(1),
   size: z.string().min(1).optional(),
   quantity: z.coerce.number().int().min(1).max(10),
+  length: z.coerce.number().positive().optional().nullable(),
 })
 
 export async function POST(request: Request) {
   try {
     const payload = await request.json()
-    const { productId, size, quantity } = addItemSchema.parse(payload)
+    const { productId, size, quantity, length } = addItemSchema.parse(payload)
 
     const product = await findProductById(productId)
     if (!product) {
@@ -52,7 +54,30 @@ export async function POST(request: Request) {
       })
     }
 
-    await upsertCartItem({ cartId: cart.id, productId, size: normalizedSize, quantity })
+    const availableLengths = normalizeLengthValues(product.sizeLengths?.[normalizedSize])
+    let normalizedLength: number | null = null
+
+    if (availableLengths.length > 0) {
+      const roundedRequested = typeof length === "number" ? Number(length.toFixed(4)) : undefined
+      const match =
+        roundedRequested !== undefined
+          ? availableLengths.find((value) => Math.abs(value - roundedRequested) < 0.0001)
+          : availableLengths[0]
+
+      if (typeof match !== "number") {
+        return NextResponse.json({ message: "Selected length is not available for this size." }, { status: 400 })
+      }
+
+      normalizedLength = Number(match.toFixed(4))
+    }
+
+    await upsertCartItem({
+      cartId: cart.id,
+      productId,
+      size: normalizedSize,
+      quantity,
+      length: normalizedLength,
+    })
     await touchCart(cart.id)
 
     const updatedCart = await fetchCart(cart.id)

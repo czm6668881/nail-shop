@@ -42,7 +42,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
       return
     }
     try {
-      await addItem(product, selectedSize, quantity)
+      await addItem(product, selectedSize, quantity, selectedLength)
       setIsAdded(true)
       setTimeout(() => setIsAdded(false), 2000)
     } catch (err) {

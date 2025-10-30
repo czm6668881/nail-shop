@@ -19,7 +19,7 @@ interface CartStore {
   initialized: boolean
   error: string | null
   init: () => Promise<void>
-  addItem: (product: Product, size: NailSize, quantity: number) => Promise<void>
+  addItem: (product: Product, size: NailSize, quantity: number, length?: number | null) => Promise<void>
   removeItem: (itemId: string) => Promise<void>
   updateQuantity: (itemId: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
@@ -68,6 +68,7 @@ const parseCart = (cart: Cart | null | undefined): Cart => {
           materials: item.product.materials ?? [],
           sizeLengths: normalizeSizeLengths(item.product.sizeLengths, sizes),
         },
+        length: typeof item.length === "number" && Number.isFinite(item.length) ? item.length : undefined,
       }
     }) as CartItem[],
   }
@@ -111,12 +112,12 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  addItem: async (product, size, quantity) => {
+  addItem: async (product, size, quantity, length) => {
     set({ loading: true })
     try {
       const data = await request("/api/cart/items", {
         method: "POST",
-        body: JSON.stringify({ productId: product.id, size, quantity }),
+        body: JSON.stringify({ productId: product.id, size, quantity, length }),
       })
       set({ cart: parseCart(data.cart), loading: false, error: null, initialized: true })
     } catch (error) {

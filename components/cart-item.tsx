@@ -15,6 +15,7 @@ export function CartItem({ item }: CartItemProps) {
   const updateQuantity = useCartStore((state) => state.updateQuantity)
   const removeItem = useCartStore((state) => state.removeItem)
   const loading = useCartStore((state) => state.loading)
+  const formatLength = (value: number) => Number(value.toFixed(2)).toString()
 
   return (
     <div className="flex gap-4 bg-card rounded-lg p-4 border border-border">
@@ -33,7 +34,12 @@ export function CartItem({ item }: CartItemProps) {
         <Link href={`/products/${item.product.slug}`} className="hover:text-primary transition-colors">
           <h3 className="font-semibold mb-1 text-balance">{item.product.name}</h3>
         </Link>
-        <p className="text-sm text-muted-foreground mb-2">Size: {item.size}</p>
+        <p className="text-sm text-muted-foreground mb-2">
+          Size: {item.size}
+          {typeof item.length === "number" && Number.isFinite(item.length) && (
+            <span className="ml-2">Length: {formatLength(item.length)} cm</span>
+          )}
+        </p>
 
         <div className="flex items-center gap-4">
           {/* Quantity Controls */}

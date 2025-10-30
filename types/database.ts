@@ -315,6 +315,7 @@ export interface Database {
           size: string
           quantity: number
           added_at: string
+          length: number | null
         }
         Insert: {
           id?: string
@@ -323,6 +324,7 @@ export interface Database {
           size: string
           quantity: number
           added_at?: string
+          length?: number | null
         }
         Update: {
           id?: string
@@ -331,6 +333,7 @@ export interface Database {
           size?: string
           quantity?: number
           added_at?: string
+          length?: number | null
         }
       }
       orders: {

@@ -158,10 +158,13 @@ export const migrate = () => {
       size TEXT NOT NULL,
       quantity INTEGER NOT NULL,
       added_at TEXT NOT NULL,
+      length REAL,
       FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     )
   `)
+
+  addColumnIfMissing("cart_items", "length", "length REAL")
 
   run(`
     CREATE TABLE IF NOT EXISTS orders (

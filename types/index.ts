@@ -45,6 +45,7 @@ export interface CartItem {
   product: Product
   quantity: number
   size: NailSize
+  length?: number
   addedAt: string
 }
 

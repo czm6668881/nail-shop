@@ -264,6 +264,7 @@ const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
   product,
   quantity: row.quantity,
   size: row.size as NailSize,
+  length: row.length ?? undefined,
   addedAt: row.added_at,
 })
 
@@ -1059,14 +1060,23 @@ export const upsertCartItem = async (args: {
   productId: string
   size: string
   quantity: number
+  length?: number | null
 }): Promise<string> => {
-  const { data: existing, error: existingError } = await supabase()
+  let query = supabase()
     .from("cart_items")
     .select("*")
     .eq("cart_id", args.cartId)
     .eq("product_id", args.productId)
     .eq("size", args.size)
-    .maybeSingle<CartItemRow>()
+    .limit(1)
+
+  if (args.length === null || typeof args.length === "undefined") {
+    query = query.is("length", null)
+  } else {
+    query = query.eq("length", args.length)
+  }
+
+  const { data: existing, error: existingError } = await query.maybeSingle<CartItemRow>()
 
   if (existingError) {
     throw existingError
@@ -1095,6 +1105,7 @@ export const upsertCartItem = async (args: {
       product_id: args.productId,
       size: args.size,
       quantity: args.quantity,
+      length: args.length ?? null,
       added_at: timestamp,
     } as never)
   if (error) {

@@ -176,6 +176,7 @@ type CartItemRow = {
   size: string
   quantity: number
   added_at: string
+  length: number | null
 }
 
 type OrderRow = {
@@ -333,6 +334,7 @@ const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
   product,
   quantity: row.quantity,
   size: row.size as NailSize,
+  length: row.length ?? undefined,
   addedAt: row.added_at,
 })
 
@@ -1082,12 +1084,30 @@ export const fetchCart = (cartId: string): Cart | null => {
   return mapCart(cartRow, items)
 }
 
-export const upsertCartItem = (args: { cartId: string; productId: string; size: string; quantity: number }) => {
+export const upsertCartItem = (args: {
+  cartId: string
+  productId: string
+  size: string
+  quantity: number
+  length?: number | null
+}) => {
   const existing = db
     .prepare(
-      "SELECT * FROM cart_items WHERE cart_id = @cartId AND product_id = @productId AND size = @size",
+      `SELECT * FROM cart_items
+       WHERE cart_id = @cartId
+         AND product_id = @productId
+         AND size = @size
+         AND (
+           (length IS NULL AND @length IS NULL)
+           OR length = @length
+         )`,
     )
-    .get(args) as CartItemRow | undefined
+    .get({
+      cartId: args.cartId,
+      productId: args.productId,
+      size: args.size,
+      length: args.length ?? null,
+    }) as CartItemRow | undefined
 
   if (existing) {
     const newQuantity = existing.quantity + args.quantity
@@ -1101,7 +1121,7 @@ export const upsertCartItem = (args: { cartId: string; productId: string; size: 
 
   const id = `item-${randomUUID()}`
   db.prepare(
-    "INSERT INTO cart_items (id, cart_id, product_id, size, quantity, added_at) VALUES (@id, @cart_id, @product_id, @size, @quantity, @added_at)",
+    "INSERT INTO cart_items (id, cart_id, product_id, size, quantity, added_at, length) VALUES (@id, @cart_id, @product_id, @size, @quantity, @added_at, @length)",
   ).run({
     id,
     cart_id: args.cartId,
@@ -1109,6 +1129,7 @@ export const upsertCartItem = (args: { cartId: string; productId: string; size: 
     size: args.size,
     quantity: args.quantity,
     added_at: new Date().toISOString(),
+    length: args.length ?? null,
   })
   return id
 }

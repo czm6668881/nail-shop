@@ -263,7 +263,12 @@ function CheckoutContent() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.product.name}</p>
-                      <p className="text-xs text-muted-foreground">Size: {item.size}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Size: {item.size}
+                        {typeof item.length === "number" && Number.isFinite(item.length) && (
+                          <span className="ml-1">· Length: {Number(item.length.toFixed(2)).toString()} cm</span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                       <p className="text-sm font-semibold mt-1">
                         ${(item.product.price * item.quantity).toFixed(2)}
