@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -39,6 +39,21 @@ export function SiteHeader() {
   const [catalogCategories, setCatalogCategories] = useState<NavigationDropdownItem[]>([])
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogError, setCatalogError] = useState<string | null>(null)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const cancelScheduledClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+  }
+
+  const scheduleClose = () => {
+    cancelScheduledClose()
+    closeTimerRef.current = setTimeout(() => {
+      setOpenDropdown(null)
+    }, 150)
+  }
 
   useEffect(() => {
     initializeCart().catch(() => undefined)
@@ -88,6 +103,12 @@ export function SiteHeader() {
 
     return () => {
       active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      cancelScheduledClose()
     }
   }, [])
 
@@ -169,8 +190,11 @@ export function SiteHeader() {
                 <div
                   key={item.name}
                   className="relative"
-                  onMouseEnter={() => setOpenDropdown(item.name)}
-                  onMouseLeave={() => setOpenDropdown(null)}
+                  onMouseEnter={() => {
+                    cancelScheduledClose()
+                    setOpenDropdown(item.name)
+                  }}
+                  onMouseLeave={scheduleClose}
                 >
                   <button
                     type="button"
@@ -187,6 +211,8 @@ export function SiteHeader() {
                     className={`absolute left-1/2 top-full z-40 mt-2 w-60 -translate-x-1/2 overflow-hidden rounded-lg border border-border/60 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/90 ${
                       isOpen ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
+                    onMouseEnter={cancelScheduledClose}
+                    onMouseLeave={scheduleClose}
                   >
                     <div className="flex flex-col py-2">
                       <Link
