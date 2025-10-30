@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcf3f8" />
+      <stop offset="100%" stop-color="#f4e6ef" />
+    </linearGradient>
+    <style>
+      .headline { font-family: 'Playfair Display', 'Times New Roman', serif; font-size: 52px; fill: #1f1b1d; }
+      .caption { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 18px; fill: #675a61; }
+      .badge { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 700; fill: #fff; }
+      .step-title { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 20px; font-weight: 600; fill: #1f1b1d; }
+      .step-text { font-family: 'Inter', 'Helvetica Neue', sans-serif; font-size: 15px; fill: #675a61; line-height: 1.35; }
+    </style>
+  </defs>
+  <rect width="960" height="640" rx="32" fill="url(#bg)" />
+  <text x="80" y="120" class="headline">Wearing method</text>
+  <text x="80" y="158" class="caption">Prep, align, and smooth the gel tab for a breathable finish in about five minutes.</text>
+
+  <g transform="translate(80 200)">
+    <g transform="translate(0 0)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">1</text>
+      <text x="90" y="56" class="step-title">Polish surface</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Gently buff natural nails to remove shine and create a smooth base.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(300 0)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">2</text>
+      <text x="90" y="56" class="step-title">Clean with alcohol</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Remove oils using a lint-free wipe and a splash of alcohol (bring your own).</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(600 0)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">3</text>
+      <text x="90" y="56" class="step-title">Choose the size</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Match each gel tip to your nail bed. File the sides slightly if necessary.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(0 200)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">4</text>
+      <text x="90" y="56" class="step-title">Press from center</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Anchor the strip at the cuticle, smooth toward the tip, and remove the film.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(300 200)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">5</text>
+      <text x="90" y="56" class="step-title">Angle &amp; align</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">Tilt the tip at roughly 45°, roll forward, and seal the sidewalls.</p>
+        </body>
+      </foreignObject>
+    </g>
+
+    <g transform="translate(600 200)">
+      <rect width="260" height="180" rx="28" fill="#ffffff" stroke="#f1d7e4" stroke-width="1.5" />
+      <circle cx="48" cy="42" r="28" fill="#f08bbd" />
+      <text x="48" y="50" text-anchor="middle" class="badge">6</text>
+      <text x="90" y="56" class="step-title">Smooth &amp; finish</text>
+      <foreignObject x="90" y="78" width="150" height="80">
+        <body xmlns="http://www.w3.org/1999/xhtml">
+          <p class="step-text">File downward to remove any excess and polish to a mirror shine.</p>
+        </body>
+      </foreignObject>
+    </g>
+  </g>
+</svg>
