@@ -33,7 +33,7 @@ const STEPS = [
     icon: Sparkle,
     title: "Pick your gel set",
     description:
-      "Choose from breathable, salon-inspired designs sized for every nail bed. Every capsule ships with an inclusive size run so you can find your perfect fit.",
+      "Choose from breathable, salon-inspired designs that flex across diverse nail shapes. Each capsule includes adaptable tips so you can personalize the fit.",
   },
   {
     icon: Leaf,
@@ -50,17 +50,17 @@ const STEPS = [
 ]
 
 const KIT_CONTENTS = [
-  "Reusable gel tips spanning XS–XL",
+  "Reusable gel tips in adaptable sizes for a personalized fit",
   "Medical-grade gel tabs and residue-free removal tool",
   "Cuticle pusher, prep file, and lint-free wipes",
-  "Reusable magnetic storage tray with design protectors",
-  "Eco packaging and printed prep card in English & 中文",
+  "Reusable magnetic storage tray",
+  "Eco packaging crafted from recycled materials",
 ]
 
 const CARE_TIPS = [
   "Avoid water for the first hour so the adhesive sets fully.",
   "Massage cuticle oil nightly to keep the surrounding skin supple.",
-  "Store removed tips in their tray, then cleanse with alcohol before the next wear.",
+  "Place removed press-ons back in the storage tray and sanitize with alcohol before your next wear.",
   "Use a soft buffer to refresh shine and reshape edges between wears.",
 ]
 
@@ -73,7 +73,7 @@ const FAQS = [
   {
     question: "How many times can I reuse a set?",
     answer:
-      "With proper prep and cleaning, each set can be worn up to five times. Replace gel tabs whenever you reapply for the best bond.",
+      "Our press-on nails are designed for repeat wear—clean each tip thoroughly and use fresh gel tabs every time you reapply.",
   },
   {
     question: "Will this damage my natural nails?",
