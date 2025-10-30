@@ -8,9 +8,17 @@ const sanitizeToken = (token: string): string => {
   return withoutSuffix.replace(",", ".")
 }
 
+const convertToCentimetres = (value: number): number => {
+  let result = value
+  while (result >= 10) {
+    result = result / 10
+  }
+  return Number(result.toFixed(4))
+}
+
 const parseNumber = (value: unknown): number | null => {
   if (typeof value === "number") {
-    return Number.isFinite(value) && value > 0 ? value : null
+    return Number.isFinite(value) && value > 0 ? convertToCentimetres(value) : null
   }
 
   if (typeof value === "string") {
@@ -20,7 +28,7 @@ const parseNumber = (value: unknown): number | null => {
     }
 
     const numeric = Number(sanitized)
-    return Number.isFinite(numeric) && numeric > 0 ? numeric : null
+    return Number.isFinite(numeric) && numeric > 0 ? convertToCentimetres(numeric) : null
   }
 
   return null
@@ -57,4 +65,3 @@ export const normalizeLengthValues = (input: unknown): number[] => {
   const unique = Array.from(new Set(values.map((value) => Number(value.toFixed(4)))))
   return unique.sort((a, b) => a - b)
 }
-

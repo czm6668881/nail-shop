@@ -204,7 +204,9 @@ export default function EditProductPage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to save product")
+        const data = await response.json().catch(() => null)
+        const message = data && typeof data.message === "string" && data.message.length > 0 ? data.message : "Failed to save product"
+        throw new Error(message)
       }
 
       toast.success(isNew ? "Product created successfully" : "Product updated successfully")
