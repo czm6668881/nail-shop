@@ -36,7 +36,7 @@ type NotificationPreferenceRow = Tables["notification_preferences"]["Row"]
 type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
 type ProductCategoryRow = Tables["product_categories"]["Row"]
-type SiteSettingRow = Tables["site_settings"]["Row"]
+type SiteSettingRow = Database["public"]["Tables"]["site_settings"]["Row"]
 
 const GOOGLE_ID_COLUMN = "google_id"
 
