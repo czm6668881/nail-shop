@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -19,14 +19,28 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
   const [quantity, setQuantity] = useState(1)
   const [isAdded, setIsAdded] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedLength, setSelectedLength] = useState<number | null>(() => {
+    const initialLengths = normalizeLengthValues(product.sizeLengths?.[initialSize])
+    return initialLengths[0] ?? null
+  })
   const addItem = useCartStore((state) => state.addItem)
   const loading = useCartStore((state) => state.loading)
 
-  const rawLengths = product.sizeLengths?.[selectedSize]
-  const selectedLengths = normalizeLengthValues(rawLengths)
+  const availableLengths = useMemo(() => normalizeLengthValues(product.sizeLengths?.[selectedSize]), [product.sizeLengths, selectedSize])
+
+  const handleSizeChange = (value: string) => {
+    const nextSize = value as NailSize
+    setSelectedSize(nextSize)
+    const nextLengths = normalizeLengthValues(product.sizeLengths?.[nextSize])
+    setSelectedLength(nextLengths[0] ?? null)
+  }
 
   const handleAddToCart = async () => {
     setError(null)
+    if (availableLengths.length > 0 && selectedLength === null) {
+      setError("Please select a length option before adding to cart.")
+      return
+    }
     try {
       await addItem(product, selectedSize, quantity)
       setIsAdded(true)
@@ -43,7 +57,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
       {/* Size Selection */}
       <div>
         <Label className="text-base font-semibold mb-3 block">Select Size</Label>
-        <RadioGroup value={selectedSize} onValueChange={(value) => setSelectedSize(value as NailSize)}>
+        <RadioGroup value={selectedSize} onValueChange={handleSizeChange}>
           <div className="flex gap-3">
             {product.sizes.map((size) => (
               <div key={size}>
@@ -58,12 +72,32 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
             ))}
           </div>
         </RadioGroup>
-        {selectedLengths.length > 0 && (
-          <p className="mt-2 text-sm text-muted-foreground">
-            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths
-              .map((value) => `${formatLength(value)} cm`)
-              .join(" / ")}
-          </p>
+        {availableLengths.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <Label className="text-sm font-semibold block">Select Length</Label>
+            <RadioGroup
+              value={selectedLength !== null ? selectedLength.toString() : ""}
+              onValueChange={(value) => setSelectedLength(Number(value))}
+            >
+              <div className="flex flex-wrap gap-3">
+                {availableLengths.map((length) => {
+                  const value = formatLength(length)
+                  const id = `${selectedSize}-${value}`
+                  return (
+                    <div key={id}>
+                      <RadioGroupItem value={length.toString()} id={id} className="peer sr-only" />
+                      <Label
+                        htmlFor={id}
+                        className="flex h-10 px-4 cursor-pointer items-center justify-center rounded-md border-2 border-muted bg-background hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground transition-colors"
+                      >
+                        {value} cm
+                      </Label>
+                    </div>
+                  )
+                })}
+              </div>
+            </RadioGroup>
+          </div>
         )}
       </div>
 
