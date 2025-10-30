@@ -308,7 +308,21 @@ export const migrate = () => {
   run(`CREATE INDEX IF NOT EXISTS idx_hero_slides_order ON hero_slides(order_index, active)`)
 
   run(`CREATE INDEX IF NOT EXISTS idx_orders_user_created_at ON orders(user_id, created_at DESC)`)
-  run(`CREATE INDEX IF NOT EXISTS idx_cart_items_cart_product ON cart_items(cart_id, product_id, size)`)
+  run(`DROP INDEX IF EXISTS idx_cart_items_cart_product`)
+  run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_cart_items_unique_with_length
+    ON cart_items(cart_id, product_id, size, length)
+    WHERE length IS NOT NULL
+  `)
+  run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_cart_items_unique_without_length
+    ON cart_items(cart_id, product_id, size)
+    WHERE length IS NULL
+  `)
+  run(`
+    CREATE INDEX IF NOT EXISTS idx_cart_items_cart_product_length
+    ON cart_items(cart_id, product_id, size, length)
+  `)
   run(`CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC)`)
   run(`CREATE INDEX IF NOT EXISTS idx_wishlist_user_created_at ON wishlist_items(user_id, added_at DESC)`)
   run(`CREATE INDEX IF NOT EXISTS idx_products_collection_featured ON products(collection_slug, featured, created_at DESC)`)

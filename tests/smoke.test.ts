@@ -49,6 +49,53 @@ describe("data smoke checks", () => {
     expect(updated?.total).toBeGreaterThan(0)
   })
 
+  it("supports multiple length variants for the same size in a cart", async () => {
+    const target = products[0]
+    const { cart, newlyCreated } = await ensureCart()
+    if (newlyCreated) {
+      createdCartIds.push(cart.id)
+    }
+    await clearCartItems(cart.id)
+
+    const size = target.sizes[0]
+    const firstLength = 1.4
+    const secondLength = 1.5
+
+    const firstItemId = await upsertCartItem({
+      cartId: cart.id,
+      productId: target.id,
+      size,
+      quantity: 1,
+      length: firstLength,
+    })
+
+    const repeatedItemId = await upsertCartItem({
+      cartId: cart.id,
+      productId: target.id,
+      size,
+      quantity: 2,
+      length: firstLength,
+    })
+    expect(repeatedItemId).toBe(firstItemId)
+
+    const secondItemId = await upsertCartItem({
+      cartId: cart.id,
+      productId: target.id,
+      size,
+      quantity: 1,
+      length: secondLength,
+    })
+    expect(secondItemId).not.toBe(firstItemId)
+
+    await touchCart(cart.id)
+    const updated = await fetchCart(cart.id)
+    expect(updated?.items.length).toBe(2)
+    const first = updated?.items.find((item) => item.length === firstLength)
+    expect(first?.quantity).toBe(3)
+    const second = updated?.items.find((item) => item.length === secondLength)
+    expect(second?.quantity).toBe(1)
+  })
+
   it("lists seeded orders", async () => {
     const orders = await listOrders()
     expect(orders.length).toBeGreaterThan(0)
