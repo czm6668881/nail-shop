@@ -42,31 +42,12 @@ export default async function HomePage() {
   }
 
   const diamondCandidates = allProducts.filter(isDiamondThemed)
-  const diamondSpotlight: typeof allProducts = []
-
-  for (const candidate of diamondCandidates) {
-    if (diamondSpotlight.length >= 4) {
-      break
-    }
-    diamondSpotlight.push(candidate)
-  }
-
-  if (diamondSpotlight.length < 4) {
-    const fallbackPool = [...bestSellers, ...allProducts]
-    for (const product of fallbackPool) {
-      if (diamondSpotlight.length >= 4) {
-        break
-      }
-      if (diamondSpotlight.some((existing) => existing.id === product.id)) {
-        continue
-      }
-      diamondSpotlight.push(product)
-    }
-  }
-
   const diamondCategorySlug =
-    diamondSpotlight.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
+    diamondCandidates.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
     undefined
+  const diamondSpotlight = diamondCategorySlug
+    ? allProducts.filter((product) => product.category === diamondCategorySlug).slice(0, 4)
+    : diamondCandidates.slice(0, 4)
   const diamondLink = diamondCategorySlug
     ? `/products?category=${encodeURIComponent(diamondCategorySlug)}`
     : "/products?q=diamond"
