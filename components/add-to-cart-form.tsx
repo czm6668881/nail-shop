@@ -60,7 +60,9 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
         </RadioGroup>
         {selectedLengths.length > 0 && (
           <p className="mt-2 text-sm text-muted-foreground">
-            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths.map(formatLength).join(" / ")} cm
+            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths
+              .map((value) => `${formatLength(value)} cm`)
+              .join(" / ")}
           </p>
         )}
       </div>
