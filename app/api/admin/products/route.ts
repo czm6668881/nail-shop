@@ -5,6 +5,7 @@ import { listProducts, upsertProduct, findProductCategoryBySlug } from "@/lib/db
 import { randomUUID } from "crypto"
 import { revalidateProductCache } from "@/lib/cache"
 import type { Product } from "@/types"
+import { normalizeLengthValues } from "@/lib/utils/lengths"
 
 const VALID_SIZES = ["XS", "S", "M", "L", "XL"] as const
 
@@ -33,22 +34,10 @@ const normalizeSizeLengths = (input: unknown, activeSizes: string[]): Record<str
     if (!sizeSet.has(size)) {
       return acc
     }
-    const candidates = Array.isArray(value)
-      ? value
-      : typeof value === "string"
-        ? value.split(/[,，/+\s]+/)
-        : [value]
-
-    const normalized = candidates
-      .map((entry) => {
-        const numeric = typeof entry === "number" ? entry : Number(entry)
-        return Number.isFinite(numeric) && numeric > 0 ? Number(numeric) : null
-      })
-      .filter((entry): entry is number => entry !== null)
+    const normalized = normalizeLengthValues(value)
 
     if (normalized.length > 0) {
-      const unique = Array.from(new Set(normalized)).sort((a, b) => a - b)
-      acc[size] = unique
+      acc[size] = normalized
     }
     return acc
   }, {})

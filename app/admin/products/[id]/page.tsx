@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import type { Product, ProductCategory } from "@/types"
+import { normalizeLengthValues } from "@/lib/utils/lengths"
 import { sortProductCategories } from "@/lib/utils/categories"
 
 const NAIL_SIZES = ["XS", "S", "M", "L", "XL"]
@@ -165,15 +166,12 @@ export default function EditProductPage() {
         if (!raw) {
           return acc
         }
-        const parts = raw
-          .split(/[,，/+\s]+/)
-          .map((part) => Number(part))
-          .filter((value) => Number.isFinite(value) && value > 0)
 
-        if (parts.length > 0) {
-          const unique = Array.from(new Set(parts)).sort((a, b) => a - b)
-          acc[size] = unique
+        const values = normalizeLengthValues(raw)
+        if (values.length > 0) {
+          acc[size] = values
         }
+
         return acc
       }, {})
 
