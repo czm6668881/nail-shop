@@ -37,6 +37,15 @@ type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
 type ProductCategoryRow = Tables["product_categories"]["Row"]
 
+const normalizeCartItemLength = (value: number | null | undefined): number | null => {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null
+  }
+  return Number(value.toFixed(4))
+}
+
+const LENGTH_EPSILON = 0.0001
+
 const GOOGLE_ID_COLUMN = "google_id"
 
 let googleIdColumnAvailable: boolean | undefined
@@ -1062,6 +1071,8 @@ export const upsertCartItem = async (args: {
   quantity: number
   length?: number | null
 }): Promise<string> => {
+  const normalizedLength = normalizeCartItemLength(args.length)
+
   let query = supabase()
     .from("cart_items")
     .select("*")
@@ -1070,10 +1081,10 @@ export const upsertCartItem = async (args: {
     .eq("size", args.size)
     .limit(1)
 
-  if (args.length === null || typeof args.length === "undefined") {
+  if (normalizedLength === null) {
     query = query.is("length", null)
   } else {
-    query = query.eq("length", args.length)
+    query = query.gte("length", normalizedLength - LENGTH_EPSILON).lte("length", normalizedLength + LENGTH_EPSILON)
   }
 
   const { data: existing, error: existingError } = await query.maybeSingle<CartItemRow>()
@@ -1086,9 +1097,10 @@ export const upsertCartItem = async (args: {
 
   if (existing) {
     const newQuantity = existing.quantity + args.quantity
+    const nextLength = normalizedLength ?? (typeof existing.length === "number" ? normalizeCartItemLength(existing.length) : null)
     const { error } = await supabase()
       .from("cart_items")
-      .update({ quantity: newQuantity, added_at: timestamp } as never)
+      .update({ quantity: newQuantity, added_at: timestamp, length: nextLength } as never)
       .eq("id", existing.id)
     if (error) {
       throw error
@@ -1105,7 +1117,7 @@ export const upsertCartItem = async (args: {
       product_id: args.productId,
       size: args.size,
       quantity: args.quantity,
-      length: args.length ?? null,
+      length: normalizedLength,
       added_at: timestamp,
     } as never)
   if (error) {

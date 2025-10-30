@@ -61,6 +61,14 @@ type ProductRow = {
 
 const DEFAULT_ADMIN_EMAIL = "admin@luxenails.com"
 const VALID_SIZES: NailSize[] = ["XS", "S", "M", "L", "XL"]
+const LENGTH_EPSILON = 0.0001
+
+const normalizeCartItemLength = (value: number | null | undefined): number | null => {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    return null
+  }
+  return Number(value.toFixed(4))
+}
 
 const parseSizeLengths = (raw: string | null): SizeLengthMap => {
   if (!raw) {
@@ -1091,6 +1099,7 @@ export const upsertCartItem = (args: {
   quantity: number
   length?: number | null
 }) => {
+  const normalizedLength = normalizeCartItemLength(args.length)
   const existing = db
     .prepare(
       `SELECT * FROM cart_items
@@ -1099,21 +1108,24 @@ export const upsertCartItem = (args: {
          AND size = @size
          AND (
            (length IS NULL AND @length IS NULL)
-           OR length = @length
+           OR (length IS NOT NULL AND @length IS NOT NULL AND ABS(length - @length) < @epsilon)
          )`,
     )
     .get({
       cartId: args.cartId,
       productId: args.productId,
       size: args.size,
-      length: args.length ?? null,
+      length: normalizedLength,
+      epsilon: LENGTH_EPSILON,
     }) as CartItemRow | undefined
 
   if (existing) {
     const newQuantity = existing.quantity + args.quantity
-    db.prepare("UPDATE cart_items SET quantity = ?, added_at = ? WHERE id = ?").run(
+    const nextLength = normalizedLength ?? (typeof existing.length === "number" ? normalizeCartItemLength(existing.length) : null)
+    db.prepare("UPDATE cart_items SET quantity = ?, added_at = ?, length = ? WHERE id = ?").run(
       newQuantity,
       new Date().toISOString(),
+      nextLength,
       existing.id,
     )
     return existing.id
@@ -1129,7 +1141,7 @@ export const upsertCartItem = (args: {
     size: args.size,
     quantity: args.quantity,
     added_at: new Date().toISOString(),
-    length: args.length ?? null,
+    length: normalizedLength,
   })
   return id
 }

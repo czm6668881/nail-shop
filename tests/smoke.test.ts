@@ -87,11 +87,20 @@ describe("data smoke checks", () => {
     })
     expect(secondItemId).not.toBe(firstItemId)
 
+    const epsilonItemId = await upsertCartItem({
+      cartId: cart.id,
+      productId: target.id,
+      size,
+      quantity: 1,
+      length: firstLength + 0.0000003,
+    })
+    expect(epsilonItemId).toBe(firstItemId)
+
     await touchCart(cart.id)
     const updated = await fetchCart(cart.id)
     expect(updated?.items.length).toBe(2)
     const first = updated?.items.find((item) => item.length === firstLength)
-    expect(first?.quantity).toBe(3)
+    expect(first?.quantity).toBe(4)
     const second = updated?.items.find((item) => item.length === secondLength)
     expect(second?.quantity).toBe(1)
   })
