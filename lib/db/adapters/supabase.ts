@@ -45,6 +45,24 @@ const normalizeCartItemLength = (value: number | null | undefined): number | nul
 }
 
 const LENGTH_EPSILON = 0.0001
+const CART_ITEM_SIZE_DELIMITER = "::len::"
+
+const formatLengthToken = (value: number): string => value.toFixed(4).replace(/\.?0+$/, "")
+
+const buildCartItemSizeKey = (size: string, length: number | null): string => {
+  if (length === null) {
+    return size
+  }
+  return `${size}${CART_ITEM_SIZE_DELIMITER}${formatLengthToken(length)}`
+}
+
+const legacyCartItemSizeKey = (size: string, length: number | null): string =>
+  length === null ? size : `${size}${CART_ITEM_SIZE_DELIMITER}${length.toFixed(4)}`
+
+const parseCartItemSizeKey = (value: string): NailSize => {
+  const [base] = value.split(CART_ITEM_SIZE_DELIMITER)
+  return (base as NailSize) ?? (value as NailSize)
+}
 
 const GOOGLE_ID_COLUMN = "google_id"
 
@@ -272,7 +290,7 @@ const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
   productId: row.product_id,
   product,
   quantity: row.quantity,
-  size: row.size as NailSize,
+  size: parseCartItemSizeKey(row.size),
   length: row.length ?? undefined,
   addedAt: row.added_at,
 })
@@ -1072,13 +1090,16 @@ export const upsertCartItem = async (args: {
   length?: number | null
 }): Promise<string> => {
   const normalizedLength = normalizeCartItemLength(args.length)
+  const sizeKey = buildCartItemSizeKey(args.size, normalizedLength)
+  const legacySizeKey = legacyCartItemSizeKey(args.size, normalizedLength)
+  const legacyKeys = Array.from(new Set([sizeKey, legacySizeKey, args.size]))
 
   let query = supabase()
     .from("cart_items")
     .select("*")
     .eq("cart_id", args.cartId)
     .eq("product_id", args.productId)
-    .eq("size", args.size)
+    .in("size", legacyKeys)
     .limit(1)
 
   if (normalizedLength === null) {
@@ -1093,14 +1114,21 @@ export const upsertCartItem = async (args: {
     throw existingError
   }
 
+  const existingLength = existing ? normalizeCartItemLength(existing.length) : null
+  const lengthsMatch =
+    (existingLength === null && normalizedLength === null) ||
+    (typeof existingLength === "number" &&
+      typeof normalizedLength === "number" &&
+      Math.abs(existingLength - normalizedLength) < LENGTH_EPSILON)
   const timestamp = new Date().toISOString()
 
-  if (existing) {
+  if (existing && lengthsMatch) {
     const newQuantity = existing.quantity + args.quantity
-    const nextLength = normalizedLength ?? (typeof existing.length === "number" ? normalizeCartItemLength(existing.length) : null)
+    const nextLength = normalizedLength ?? existingLength
+    const nextSize = buildCartItemSizeKey(args.size, nextLength)
     const { error } = await supabase()
       .from("cart_items")
-      .update({ quantity: newQuantity, added_at: timestamp, length: nextLength } as never)
+      .update({ quantity: newQuantity, added_at: timestamp, length: nextLength, size: nextSize } as never)
       .eq("id", existing.id)
     if (error) {
       throw error
@@ -1115,7 +1143,7 @@ export const upsertCartItem = async (args: {
       id,
       cart_id: args.cartId,
       product_id: args.productId,
-      size: args.size,
+      size: sizeKey,
       quantity: args.quantity,
       length: normalizedLength,
       added_at: timestamp,

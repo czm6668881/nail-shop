@@ -101,8 +101,10 @@ describe("data smoke checks", () => {
     expect(updated?.items.length).toBe(2)
     const first = updated?.items.find((item) => item.length === firstLength)
     expect(first?.quantity).toBe(4)
+    expect(first?.size).toBe(size)
     const second = updated?.items.find((item) => item.length === secondLength)
     expect(second?.quantity).toBe(1)
+    expect(second?.size).toBe(size)
   })
 
   it("lists seeded orders", async () => {

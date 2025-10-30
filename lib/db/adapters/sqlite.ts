@@ -70,6 +70,21 @@ const normalizeCartItemLength = (value: number | null | undefined): number | nul
   return Number(value.toFixed(4))
 }
 
+const CART_ITEM_SIZE_DELIMITER = "::len::"
+const formatLengthToken = (value: number): string => value.toFixed(4).replace(/\.?0+$/, "")
+const buildCartItemSizeKey = (size: string, length: number | null): string => {
+  if (length === null) {
+    return size
+  }
+  return `${size}${CART_ITEM_SIZE_DELIMITER}${formatLengthToken(length)}`
+}
+const legacyCartItemSizeKey = (size: string, length: number | null): string =>
+  length === null ? size : `${size}${CART_ITEM_SIZE_DELIMITER}${length.toFixed(4)}`
+const parseCartItemSizeKey = (value: string): NailSize => {
+  const [base] = value.split(CART_ITEM_SIZE_DELIMITER)
+  return (base as NailSize) ?? (value as NailSize)
+}
+
 const parseSizeLengths = (raw: string | null): SizeLengthMap => {
   if (!raw) {
     return {}
@@ -341,7 +356,7 @@ const mapCartItem = (row: CartItemRow, product: Product): CartItem => ({
   productId: row.product_id,
   product,
   quantity: row.quantity,
-  size: row.size as NailSize,
+  size: parseCartItemSizeKey(row.size),
   length: row.length ?? undefined,
   addedAt: row.added_at,
 })
@@ -1100,12 +1115,14 @@ export const upsertCartItem = (args: {
   length?: number | null
 }) => {
   const normalizedLength = normalizeCartItemLength(args.length)
+  const sizeKey = buildCartItemSizeKey(args.size, normalizedLength)
+  const legacySizeKey = legacyCartItemSizeKey(args.size, normalizedLength)
   const existing = db
     .prepare(
       `SELECT * FROM cart_items
        WHERE cart_id = @cartId
          AND product_id = @productId
-         AND size = @size
+         AND size IN (@sizeKey, @legacySizeKey, @baseSize)
          AND (
            (length IS NULL AND @length IS NULL)
            OR (length IS NOT NULL AND @length IS NOT NULL AND ABS(length - @length) < @epsilon)
@@ -1114,18 +1131,26 @@ export const upsertCartItem = (args: {
     .get({
       cartId: args.cartId,
       productId: args.productId,
-      size: args.size,
+      sizeKey,
+      legacySizeKey,
+      baseSize: args.size,
       length: normalizedLength,
       epsilon: LENGTH_EPSILON,
     }) as CartItemRow | undefined
 
   if (existing) {
     const newQuantity = existing.quantity + args.quantity
-    const nextLength = normalizedLength ?? (typeof existing.length === "number" ? normalizeCartItemLength(existing.length) : null)
-    db.prepare("UPDATE cart_items SET quantity = ?, added_at = ?, length = ? WHERE id = ?").run(
+    const existingLength = normalizeCartItemLength(existing.length)
+    const nextLength =
+      normalizedLength !== null
+        ? normalizedLength
+        : existingLength
+    const nextSize = buildCartItemSizeKey(args.size, nextLength)
+    db.prepare("UPDATE cart_items SET quantity = ?, added_at = ?, length = ?, size = ? WHERE id = ?").run(
       newQuantity,
       new Date().toISOString(),
       nextLength,
+      nextSize,
       existing.id,
     )
     return existing.id
@@ -1138,7 +1163,7 @@ export const upsertCartItem = (args: {
     id,
     cart_id: args.cartId,
     product_id: args.productId,
-    size: args.size,
+    size: sizeKey,
     quantity: args.quantity,
     added_at: new Date().toISOString(),
     length: normalizedLength,
