@@ -161,9 +161,9 @@ export default function HowItWorksPage() {
               <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
                 <Image
                   src="/how-it-works-wear.png"
-                  alt="Six photo steps demonstrating how to polish, clean, size, and press on gel nail tabs."
-                  width={940}
-                  height={689}
+                  alt="Six photo steps guiding polishing, cleaning, sizing, sticking, tilting, and pressing reusable gel nail tabs."
+                  width={790}
+                  height={961}
                   className="w-full h-auto"
                   priority
                 />
