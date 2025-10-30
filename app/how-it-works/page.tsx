@@ -160,10 +160,10 @@ export default function HowItWorksPage() {
               </p>
               <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
                 <Image
-                  src="/how-it-works-wear.svg"
-                  alt="Six illustrated steps showing how to prepare, align, and smooth gel press-on nails at home."
-                  width={960}
-                  height={640}
+                  src="/how-it-works-wear.png"
+                  alt="Six photo steps demonstrating how to polish, clean, size, and press on gel nail tabs."
+                  width={940}
+                  height={689}
                   className="w-full h-auto"
                   priority
                 />
