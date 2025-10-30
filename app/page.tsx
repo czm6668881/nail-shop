@@ -97,7 +97,7 @@ export default async function HomePage() {
               </div>
               <p className="text-xl font-semibold">Long-Lasting Wear</p>
               <p className="text-sm text-muted-foreground text-pretty">
-                Prep once, wear up to 10 days, and reapply with fresh gel tabs for repeat looks.
+                Prep once, wear up to 7 days, and reapply with fresh gel tabs for repeat looks.
               </p>
             </div>
             <div className="flex flex-col items-center text-center gap-4">
