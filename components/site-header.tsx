@@ -81,11 +81,19 @@ export function SiteHeader() {
           : []
 
         const items = sortProductCategories(rawCategories)
-          .filter((category) => category.slug && category.name)
-          .map((category) => ({
-            name: category.name,
-            href: `/products?category=${encodeURIComponent(category.slug)}`,
-          }))
+          .filter((category) => category.name)
+          .map((category) => {
+            const rawSlug = (category.slug ?? "").trim()
+            const hasWhitespace = /\s/.test(rawSlug)
+            const sanitizedSlug = rawSlug.toLowerCase()
+            const href = rawSlug && !hasWhitespace
+              ? `/products?category=${encodeURIComponent(sanitizedSlug)}`
+              : `/products?q=${encodeURIComponent(rawSlug || category.name)}`
+            return {
+              name: category.name,
+              href,
+            }
+          })
 
         setCatalogCategories(items)
         setCatalogLoading(false)
