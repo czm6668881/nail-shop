@@ -15,6 +15,7 @@ import type {
   ReturnRequest,
   NotificationPreferences,
   ProductCategory,
+  SiteSetting,
 } from "@/types"
 import { getSupabaseAdminClient } from "@/lib/supabase/admin"
 import type { Database, Json } from "@/types/database"
@@ -35,6 +36,7 @@ type NotificationPreferenceRow = Tables["notification_preferences"]["Row"]
 type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
 type ProductCategoryRow = Tables["product_categories"]["Row"]
+type SiteSettingRow = Tables["site_settings"]["Row"]
 
 const GOOGLE_ID_COLUMN = "google_id"
 
@@ -172,6 +174,12 @@ const mapProductCategory = (row: ProductCategoryRow): ProductCategory => ({
   sortOrder: row.sort_order ?? 0,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+})
+
+const mapSiteSetting = (row: SiteSettingRow): SiteSetting => ({
+  key: row.key,
+  value: row.value,
+  updatedAt: row.updated_at ?? new Date().toISOString(),
 })
 
 const mapReview = (row: ReviewRow): Review => ({
@@ -1701,5 +1709,36 @@ export const deleteUser = async (userId: string) => {
 
   if (!data) {
     throw new Error("USER_NOT_FOUND")
+  }
+}
+
+export const getSiteSetting = async (key: string): Promise<SiteSetting | null> => {
+  const { data, error } = await supabase()
+    .from("site_settings")
+    .select("*")
+    .eq("key", key)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data ? mapSiteSetting(data) : null
+}
+
+export const upsertSiteSetting = async (key: string, value: string): Promise<void> => {
+  const { error } = await supabase()
+    .from("site_settings")
+    .upsert({ key, value, updated_at: new Date().toISOString() })
+
+  if (error) {
+    throw error
+  }
+}
+
+export const deleteSiteSetting = async (key: string): Promise<void> => {
+  const { error } = await supabase().from("site_settings").delete().eq("key", key)
+  if (error) {
+    throw error
   }
 }

@@ -306,4 +306,12 @@ export const migrate = () => {
   run(`CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC)`)
   run(`CREATE INDEX IF NOT EXISTS idx_wishlist_user_created_at ON wishlist_items(user_id, added_at DESC)`)
   run(`CREATE INDEX IF NOT EXISTS idx_products_collection_featured ON products(collection_slug, featured, created_at DESC)`)
+
+  run(`
+    CREATE TABLE IF NOT EXISTS site_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
 }
