@@ -10,6 +10,14 @@ import { useAuthStore } from "@/lib/store/auth-store"
 import type { ProductCategory } from "@/types"
 import { sortProductCategories } from "@/lib/utils/categories"
 
+const createSlug = (value: string): string => {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
 type NavigationDropdownItem = {
   name: string
   href: string
@@ -83,12 +91,13 @@ export function SiteHeader() {
         const items = sortProductCategories(rawCategories)
           .filter((category) => category.name)
           .map((category) => {
-            const rawSlug = (category.slug ?? "").trim()
-            const hasWhitespace = /\s/.test(rawSlug)
-            const sanitizedSlug = rawSlug.toLowerCase()
-            const href = rawSlug && !hasWhitespace
-              ? `/products?category=${encodeURIComponent(sanitizedSlug)}`
-              : `/products?q=${encodeURIComponent(rawSlug || category.name)}`
+            const baseline = (category.slug && category.slug.trim().length > 0
+              ? category.slug
+              : category.name) ?? ""
+            const normalizedSlug = createSlug(baseline)
+            const href = normalizedSlug.length > 0
+              ? `/products?category=${encodeURIComponent(normalizedSlug)}`
+              : `/products?q=${encodeURIComponent(baseline.trim())}`
             return {
               name: category.name,
               href,
