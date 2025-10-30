@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 import { Sparkles, Leaf, ShieldCheck, Clock, Sparkle, HandHeart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 export const metadata: Metadata = {
@@ -158,31 +159,69 @@ export default function HowItWorksPage() {
               <p className="text-sm text-muted-foreground">
                 Prep, align, and smooth the gel tab for a breathable seal—your mani is ready in about five minutes.
               </p>
-              <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
-                <Image
-                  src="/how-it-works-wear.png"
-                  alt="Six photo steps guiding polishing, cleaning, sizing, sticking, tilting, and pressing reusable gel nail tabs."
-                  width={790}
-                  height={961}
-                  className="w-full h-auto"
-                  priority
-                />
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="group block w-full rounded-2xl border border-border/60 bg-background overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-zoom-in"
+                  >
+                    <Image
+                      src="/how-it-works-wear.png"
+                      alt="Six photo steps guiding polishing, cleaning, sizing, sticking, tilting, and pressing reusable gel nail tabs."
+                      width={790}
+                      height={961}
+                      className="w-full h-auto transition-transform duration-200 group-hover:scale-[1.02]"
+                      priority
+                    />
+                    <span className="sr-only">放大查看 Wear method 步骤图</span>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl border-none bg-transparent p-0 shadow-none">
+                  <div className="rounded-3xl overflow-hidden border border-border/60 bg-background">
+                    <Image
+                      src="/how-it-works-wear.png"
+                      alt="Six photo steps guiding polishing, cleaning, sizing, sticking, tilting, and pressing reusable gel nail tabs."
+                      width={790}
+                      height={961}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
             <div className="rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm space-y-4">
               <h3 className="text-xl font-semibold">Removal method</h3>
               <p className="text-sm text-muted-foreground">
                 Loosen with warm water, lift from the side, and store tips for the next wear—no acetone or drilling required.
               </p>
-              <div className="rounded-2xl overflow-hidden border border-border/60 bg-background">
-                <Image
-                  src="/how-it-works-removal.png"
-                  alt="Three photo steps showing how to pry, clean, and store reusable gel press-on nails."
-                  width={940}
-                  height={689}
-                  className="w-full h-auto"
-                />
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="group block w-full rounded-2xl border border-border/60 bg-background overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-zoom-in"
+                  >
+                    <Image
+                      src="/how-it-works-removal.png"
+                      alt="Three photo steps showing how to pry, clean, and store reusable gel press-on nails."
+                      width={940}
+                      height={689}
+                      className="w-full h-auto transition-transform duration-200 group-hover:scale-[1.02]"
+                    />
+                    <span className="sr-only">放大查看 Removal method 步骤图</span>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl border-none bg-transparent p-0 shadow-none">
+                  <div className="rounded-3xl overflow-hidden border border-border/60 bg-background">
+                    <Image
+                      src="/how-it-works-removal.png"
+                      alt="Three photo steps showing how to pry, clean, and store reusable gel press-on nails."
+                      width={940}
+                      height={689}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
