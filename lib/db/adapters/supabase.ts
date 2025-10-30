@@ -1735,7 +1735,7 @@ export const upsertSiteSetting = async (key: string, value: string): Promise<voi
   }
   const { error } = await supabase()
     .from("site_settings")
-    .upsert([payload], { onConflict: "key" })
+    .upsert([payload] as unknown as SiteSettingInsert[], { onConflict: "key" })
 
   if (error) {
     throw error
