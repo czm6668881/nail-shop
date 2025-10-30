@@ -37,6 +37,7 @@ type SessionRow = Tables["sessions"]["Row"]
 type UserRow = Tables["users"]["Row"]
 type ProductCategoryRow = Tables["product_categories"]["Row"]
 type SiteSettingRow = Tables["site_settings"]["Row"]
+type SiteSettingInsert = Tables["site_settings"]["Insert"]
 
 const GOOGLE_ID_COLUMN = "google_id"
 
@@ -1727,14 +1728,14 @@ export const getSiteSetting = async (key: string): Promise<SiteSetting | null> =
 }
 
 export const upsertSiteSetting = async (key: string, value: string): Promise<void> => {
-  const payload: SiteSettingRow = {
+  const payload: SiteSettingInsert = {
     key,
     value,
     updated_at: new Date().toISOString(),
   }
   const { error } = await supabase()
     .from("site_settings")
-    .upsert(payload)
+    .upsert([payload], { onConflict: "key" })
 
   if (error) {
     throw error
