@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { Toaster } from "@/components/ui/sonner"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -60,6 +61,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </div>
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   )
