@@ -1727,9 +1727,14 @@ export const getSiteSetting = async (key: string): Promise<SiteSetting | null> =
 }
 
 export const upsertSiteSetting = async (key: string, value: string): Promise<void> => {
+  const payload: SiteSettingRow = {
+    key,
+    value,
+    updated_at: new Date().toISOString(),
+  }
   const { error } = await supabase()
     .from("site_settings")
-    .upsert({ key, value, updated_at: new Date().toISOString() })
+    .upsert(payload)
 
   if (error) {
     throw error
