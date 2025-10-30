@@ -14,7 +14,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 150,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Salon-quality finish",
       "Lasts up to 1 week",
@@ -44,7 +44,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 89,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Mirror-like chrome finish",
       "Chip-resistant coating",
@@ -73,7 +73,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 120,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Holographic glitter finish",
       "Dense glitter coverage",
@@ -102,7 +102,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 200,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Natural-looking finish",
       "Versatile nude shade",
@@ -131,7 +131,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 95,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Soft shimmer finish",
       "Romantic lavender shade",
@@ -163,7 +163,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 110,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Velvety matte finish",
       "Rich crimson color",
@@ -195,7 +195,7 @@ export const products: Product[] = [
     inStock: true,
     stockQuantity: 78,
     sizes: ["XS", "S", "M", "L", "XL"],
-    sizeLengths: { XS: [14], S: [15], M: [16], L: [17], XL: [18] },
+    sizeLengths: { XS: [1.4], S: [1.5], M: [1.6], L: [1.7], XL: [1.8] },
     features: [
       "Seamless gradient effect",
       "Ocean-inspired colors",

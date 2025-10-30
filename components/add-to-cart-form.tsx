@@ -39,6 +39,8 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
     }
   }
 
+  const formatLength = (value: number) => Number(value.toFixed(2)).toString()
+
   return (
     <div className="space-y-6">
       {/* Size Selection */}
@@ -61,7 +63,7 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
         </RadioGroup>
         {selectedLengths.length > 0 && (
           <p className="mt-2 text-sm text-muted-foreground">
-            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths.join(" / ")} mm
+            Length{selectedLengths.length > 1 ? "s" : ""}: {selectedLengths.map(formatLength).join(" / ")} cm
           </p>
         )}
       </div>

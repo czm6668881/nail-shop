@@ -497,7 +497,7 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <Label>Size lengths (mm)</Label>
+            <Label>Size lengths (cm)</Label>
             <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {NAIL_SIZES.map((size) => {
                 const isActive = formData.sizes.includes(size)
@@ -512,7 +512,7 @@ export default function EditProductPage() {
                       inputMode="decimal"
                       value={formData.sizeLengths[size] ?? ""}
                       onChange={(event) => handleLengthChange(size, event.target.value)}
-                      placeholder="e.g. 16, 17.5"
+                      placeholder="e.g. 1.6, 1.75"
                       disabled={!isActive}
                     />
                   </div>
@@ -520,7 +520,7 @@ export default function EditProductPage() {
               })}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Separate multiple lengths with commas. Values should be in millimetres.
+              Separate multiple lengths with commas. Values should be in centimetres.
             </p>
           </div>
 
