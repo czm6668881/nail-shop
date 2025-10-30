@@ -659,23 +659,6 @@ export interface Database {
           updated_at?: string | null
         }
       }
-      site_settings: {
-        Row: {
-          key: string
-          value: string
-          updated_at: string | null
-        }
-        Insert: {
-          key: string
-          value: string
-          updated_at?: string | null
-        }
-        Update: {
-          key?: string
-          value?: string
-          updated_at?: string | null
-        }
-      }
     }
     Views: Record<string, never>
     Functions: {
