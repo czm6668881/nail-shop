@@ -13,6 +13,7 @@ import { getActiveHeroSlides } from "@/lib/api/hero-slides"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
 
 const ORG_NAME = siteConfig.name
+const DIAMOND_KEYWORDS = ["diamond", "crystal", "gem", "sparkle", "glitter", "chrome"] as const
 
 export default async function HomePage() {
   const [allProducts, featuredReviews, blogPosts, heroSlides] = await Promise.all([
@@ -23,24 +24,46 @@ export default async function HomePage() {
   ])
   const bestSellers = await getBestSellingProducts(4, { seedProducts: allProducts })
   const latestPosts = blogPosts.slice(0, 3)
-  const diamondSpotlight = allProducts
-    .filter((product) => {
-      const featureValues = Array.isArray(product.features) ? product.features : []
-      const searchPool = [
-        product.name,
-        product.description,
-        product.slug,
-        product.category,
-        product.categoryLabel,
-        product.collection,
-        ...featureValues,
-      ]
-        .filter((value): value is string => typeof value === "string" && value.length > 0)
-        .map((value) => value.toLowerCase())
+  const isDiamondThemed = (product: (typeof allProducts)[number]): boolean => {
+    const featureValues = Array.isArray(product.features) ? product.features : []
+    const searchPool = [
+      product.name,
+      product.description,
+      product.slug,
+      product.category,
+      product.categoryLabel,
+      product.collection,
+      ...featureValues,
+    ]
+      .filter((value): value is string => typeof value === "string" && value.length > 0)
+      .map((value) => value.toLowerCase())
 
-      return searchPool.some((value) => value.includes("diamond"))
-    })
-    .slice(0, 4)
+    return searchPool.some((value) => DIAMOND_KEYWORDS.some((keyword) => value.includes(keyword)))
+  }
+
+  const diamondCandidates = allProducts.filter(isDiamondThemed)
+  const diamondSpotlight: typeof allProducts = []
+
+  for (const candidate of diamondCandidates) {
+    if (diamondSpotlight.length >= 4) {
+      break
+    }
+    diamondSpotlight.push(candidate)
+  }
+
+  if (diamondSpotlight.length < 4) {
+    const fallbackPool = [...bestSellers, ...allProducts]
+    for (const product of fallbackPool) {
+      if (diamondSpotlight.length >= 4) {
+        break
+      }
+      if (diamondSpotlight.some((existing) => existing.id === product.id)) {
+        continue
+      }
+      diamondSpotlight.push(product)
+    }
+  }
+
   const diamondCategorySlug =
     diamondSpotlight.find((product) => typeof product.category === "string" && product.category.length > 0)?.category ??
     undefined
