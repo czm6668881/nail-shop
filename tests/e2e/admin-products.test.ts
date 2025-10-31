@@ -5,17 +5,38 @@ const ADMIN_EMAIL = "admin@luxenails.com"
 const ADMIN_PASSWORD = "Admin123!"
 
 test.describe("Admin Products Management", () => {
-  test.beforeEach(async ({ page }) => {
-    // Sign in with the admin account
-    await page.goto(`${BASE_URL}/login`)
-    await page.fill('input[type="email"]', ADMIN_EMAIL)
-    await page.fill('input[type="password"]', ADMIN_PASSWORD)
-    await page.click('button[type="submit"]')
-    
-    // Wait for sign-in to complete
-    await page.waitForURL(`${BASE_URL}/`)
-    
-    // Navigate to the admin products page
+  test.beforeEach(async ({ page, request }) => {
+    // Establish an authenticated session via the login API
+    const response = await request.post(`${BASE_URL}/api/auth/login`, {
+      data: {
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    expect(response.ok()).toBeTruthy()
+
+    const cookieHeader = response.headers()["set-cookie"]
+    expect(cookieHeader).toBeTruthy()
+
+    const authMatch = cookieHeader?.match(/nailshop_auth=([^;]+)/)
+    expect(authMatch).toBeTruthy()
+
+    await page.context().addCookies([
+      {
+        name: "nailshop_auth",
+        value: authMatch![1],
+        domain: "localhost",
+        path: "/",
+        httpOnly: true,
+        sameSite: "Lax",
+        expires: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour session for the test
+      },
+    ])
+
     await page.goto(`${BASE_URL}/admin/products`)
     await page.waitForLoadState("networkidle")
   })
@@ -71,8 +92,8 @@ test.describe("Admin Products Management", () => {
     await expect(page.locator('[role="alertdialog"]')).toBeVisible()
     await expect(page.locator('[role="alertdialog"]')).toContainText("Delete Product")
     
-    // Confirm deletion
-    await page.click('button:has-text("Delete")')
+    // Confirm deletion within the dialog
+    await page.locator('[role="alertdialog"] button:has-text("Delete")').click()
     
     // Wait for deletion to finish
     await page.waitForTimeout(1000)
@@ -104,9 +125,12 @@ test.describe("Admin Products Management", () => {
   })
 
   test("should create a new product", async ({ page }) => {
-    // Click the add product button
-    await page.click('button:has-text("Add Product")')
-    await page.waitForURL(`${BASE_URL}/admin/products/new`)
+    // Click the add product button and wait for navigation to the creation form
+    await Promise.all([
+      page.waitForURL(`${BASE_URL}/admin/products/new`, { timeout: 60_000 }),
+      page.click('button:has-text("Add Product")'),
+    ])
+    await page.waitForLoadState("networkidle")
     
     // Fill in the product form
     const timestamp = Date.now()
@@ -118,12 +142,13 @@ test.describe("Admin Products Management", () => {
     
     // Select a category
     await page.click('button[role="combobox"]')
-    await page.click('div[role="option"]:has-text("Press-On Nails")')
+    await page.locator('[role="option"]').first().click()
     
     // Select sizes
-    await page.click('button:has-text("S")')
-    await page.click('button:has-text("M")')
-    await page.click('button:has-text("L")')
+    const form = page.locator("form")
+    await form.getByRole("button", { name: "S", exact: true }).click()
+    await form.getByRole("button", { name: "M", exact: true }).click()
+    await form.getByRole("button", { name: "L", exact: true }).click()
     
     // Submit the form
     await page.click('button[type="submit"]:has-text("Save Product")')
@@ -206,8 +231,3 @@ test.describe("Admin Products Management", () => {
     }
   })
 })
-
-
-
-
-
