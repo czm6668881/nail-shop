@@ -14,10 +14,10 @@ export function ProductCard({ product }: ProductCardProps) {
     : 0
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block h-full">
-      <div className="flex h-full flex-col space-y-3 rounded-2xl border border-border/60 bg-card/95 p-3 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+    <Link href={`/products/${product.slug}`} className="group">
+      <div className="space-y-3 transition-all duration-200 hover:translate-y-[-4px]">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted shadow-sm hover:shadow-lg transition-shadow duration-200">
           <Image
             src={product.images[0] || "/placeholder.svg"}
             alt={product.name}
@@ -34,10 +34,8 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Info */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold leading-snug text-balance transition-colors group-hover:text-primary">
-            {product.name}
-          </h3>
+        <div className="space-y-1">
+          <h3 className="font-medium text-balance group-hover:text-primary transition-colors">{product.name}</h3>
 
           {/* Rating */}
           <div className="flex items-center gap-1">
@@ -55,16 +53,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Price */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-semibold text-foreground">${product.price.toFixed(2)}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">${product.price.toFixed(2)}</span>
             {product.compareAtPrice && (
-              <span className="text-xs text-muted-foreground line-through">${product.compareAtPrice.toFixed(2)}</span>
+              <span className="text-sm text-muted-foreground line-through">${product.compareAtPrice.toFixed(2)}</span>
             )}
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="rounded bg-primary/15 px-1.5 py-0.5 font-semibold uppercase text-primary">Fast ship</span>
-            <span>Free returns available</span>
           </div>
         </div>
       </div>

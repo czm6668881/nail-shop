@@ -83,69 +83,53 @@ export default async function HomePage() {
       <HeroCarousel slides={heroSlides} />
 
       {/* Features */}
-      <section className="border-b border-border bg-background/95 py-12 md:py-16">
+      <section className="py-16 border-b border-border bg-background/95">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/90 p-5 shadow-sm transition hover:shadow-md md:flex-col md:items-center md:text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Sparkles className="h-6 w-6" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-primary" />
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold md:text-xl">Premium Quality</p>
-                <p className="text-sm text-muted-foreground text-pretty">
-                  Gel tips crafted with salon-grade pigments, breathable bases, and comfort-fit curves.
-                </p>
-              </div>
+              <p className="text-xl font-semibold">Premium Quality</p>
+              <p className="text-sm text-muted-foreground text-pretty">
+                Gel tips crafted with salon-grade pigments, breathable bases, and comfort-fit curves.
+              </p>
             </div>
-            <div className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/90 p-5 shadow-sm transition hover:shadow-md md:flex-col md:items-center md:text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Clock className="h-6 w-6" />
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-primary" />
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold md:text-xl">Long-Lasting Wear</p>
-                <p className="text-sm text-muted-foreground text-pretty">
-                  Prep once, wear up to 7 days, and reapply with fresh gel tabs for repeat looks.
-                </p>
-              </div>
+              <p className="text-xl font-semibold">Long-Lasting Wear</p>
+              <p className="text-sm text-muted-foreground text-pretty">
+                Prep once, wear up to 7 days, and reapply with fresh gel tabs for repeat looks.
+              </p>
             </div>
-            <div className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/90 p-5 shadow-sm transition hover:shadow-md md:flex-col md:items-center md:text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Package className="h-6 w-6" />
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Package className="h-6 w-6 text-primary" />
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold md:text-xl">Free Worldwide Delivery</p>
-                <p className="text-sm text-muted-foreground text-pretty">
-                  Complimentary tracked shipping plus eco packaging that cushions every set.
-                </p>
-              </div>
+              <p className="text-xl font-semibold">Free Worldwide Delivery</p>
+              <p className="text-sm text-muted-foreground text-pretty">
+                Complimentary tracked shipping plus eco packaging that cushions every set.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Best Sellers Gel nails */}
-      <section className="bg-background py-16 md:py-20">
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl">Best Sellers Gel nails</h2>
-              <p className="text-sm text-muted-foreground md:max-w-2xl md:text-lg">
-                Our community-favorite sets with the highest reviews and repeat purchases.
-              </p>
-            </div>
-            <Button size="sm" variant="outline" className="hidden rounded-full md:inline-flex" asChild>
-              <Link href="/products?filter=bestsellers">Browse All Best Sellers</Link>
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Best Sellers Gel nails</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Our community-favorite sets with the highest reviews and repeat purchases.
+            </p>
           </div>
           {bestSellers.length > 0 ? (
-            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {bestSellers.map((product) => (
-                <div
-                  key={product.id}
-                  className="min-w-[220px] max-w-[260px] flex-shrink-0 md:min-w-0 md:max-w-none"
-                >
-                  <ProductCard product={product} />
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
@@ -153,34 +137,27 @@ export default async function HomePage() {
               We&apos;re gathering your favorite looks. Explore the catalog to find your next go-to set.
             </div>
           )}
-          <div className="mt-6 text-center md:hidden">
-            <Button size="lg" variant="outline" className="rounded-full" asChild>
-              <Link href="/products?filter=bestsellers">查看更多热销款</Link>
+          <div className="text-center">
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/products?filter=bestsellers">Browse Best Sellers Gel nails</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Diamond Gel Nails */}
-      <section className="border-b border-border bg-muted/20 py-16 md:py-20">
+      <section className="py-20 bg-muted/20 border-b border-border">
         <div className="container mx-auto px-4">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl">Diamond Gel Nails</h2>
-              <p className="text-sm text-muted-foreground md:max-w-2xl md:text-lg">
-                Radiant gemstone-inspired sets with brilliant facets and high-shine gel finishes.
-              </p>
-            </div>
-            <Button size="sm" className="hidden rounded-full md:inline-flex" asChild>
-              <Link href={diamondLink}>Shop Diamond Styles</Link>
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Diamond Gel Nails</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Radiant gemstone-inspired sets with brilliant facets and high-shine gel finishes.
+            </p>
           </div>
           {diamondSpotlight.length > 0 ? (
-            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {diamondSpotlight.map((product) => (
-                <div key={product.id} className="min-w-[220px] max-w-[260px] flex-shrink-0 md:min-w-0 md:max-w-none">
-                  <ProductCard product={product} />
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
@@ -188,35 +165,25 @@ export default async function HomePage() {
               Our diamond capsule is almost here. Subscribe below to be first in line when it drops.
             </div>
           )}
-          <div className="mt-6 text-center md:hidden">
-            <Button size="lg" className="w-full rounded-full" asChild>
-              <Link href={diamondLink}>探索钻石系列</Link>
+          <div className="text-center">
+            <Button size="lg" asChild>
+              <Link href={diamondLink}>Shop Diamond Styles</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Customer Reviews Section */}
-      <section className="bg-background py-16 md:py-20">
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl">What Our Customers Say</h2>
-              <p className="text-sm text-muted-foreground md:text-lg">Real reviews from real customers</p>
-            </div>
-            <Button size="sm" className="hidden rounded-full md:inline-flex" asChild>
-              <Link href="/reviews">View All Reviews</Link>
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">What Our Customers Say</h2>
+            <p className="text-muted-foreground text-lg">Real reviews from real customers</p>
           </div>
           {featuredReviews.length > 0 ? (
-            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto pb-4 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible lg:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {featuredReviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="min-w-[240px] max-w-[300px] flex-shrink-0 md:min-w-0 md:max-w-none"
-                >
-                  <ReviewCard review={review} />
-                </div>
+                <ReviewCard key={review.id} review={review} />
               ))}
             </div>
           ) : (
@@ -224,40 +191,30 @@ export default async function HomePage() {
               New customer stories are on their way. Be the first to share your experience with our designs.
             </div>
           )}
-          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" variant="outline" className="w-full rounded-full sm:w-auto" asChild>
-              <Link href="/products">立即选购</Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/products">Shop Now</Link>
             </Button>
-            <Button size="lg" variant="ghost" className="w-full rounded-full sm:w-auto" asChild>
-              <Link href="/reviews">查看更多评价</Link>
+            <Button size="lg" variant="ghost" asChild>
+              <Link href="/reviews">View All Reviews</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Latest Articles */}
-      <section className="border-t border-border bg-muted/20 py-16 md:py-20">
+      <section className="py-20 bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl">Fresh From the Blog</h2>
-              <p className="text-sm text-muted-foreground md:text-lg">
-                Tutorials, inspiration, and tips from our nail care experts
-              </p>
-            </div>
-            <Button size="sm" variant="outline" className="hidden rounded-full md:inline-flex" asChild>
-              <Link href="/blog">Read All Articles</Link>
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Fresh From the Blog</h2>
+            <p className="text-muted-foreground text-lg">
+              Tutorials, inspiration, and tips from our nail care experts
+            </p>
           </div>
           {latestPosts.length > 0 ? (
-            <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto pb-4 md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               {latestPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="min-w-[240px] max-w-[320px] flex-shrink-0 md:min-w-0 md:max-w-none"
-                >
-                  <BlogCard post={post} variant="compact" />
-                </div>
+                <BlogCard key={post.id} post={post} variant="compact" />
               ))}
             </div>
           ) : (
@@ -265,9 +222,9 @@ export default async function HomePage() {
               We&apos;re preparing new stories for you. Visit our blog for more nail care inspiration.
             </div>
           )}
-          <div className="mt-6 text-center md:hidden">
-            <Button size="lg" variant="outline" className="w-full rounded-full" asChild>
-              <Link href="/blog">阅读更多文章</Link>
+          <div className="text-center">
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/blog">Read All Articles</Link>
             </Button>
           </div>
         </div>

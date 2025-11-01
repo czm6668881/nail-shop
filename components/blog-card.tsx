@@ -24,11 +24,11 @@ export function BlogCard({ post, variant = "default" }: BlogCardProps) {
     post.publishedAt && !Number.isNaN(Date.parse(post.publishedAt)) ? new Date(post.publishedAt) : null
 
   return (
-    <Link href={`/blog/${post.slug}`} className="group block h-full">
+    <Link href={`/blog/${post.slug}`} className="group">
       <article
         className={cn(
-          "flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/90 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
-          isCompact ? "bg-card/80" : "bg-card",
+          "h-full overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:shadow-lg hover:translate-y-[-4px]",
+          isCompact ? "flex flex-col border-border/70 bg-card/60" : "flex flex-col",
         )}
       >
         <div className={cn("relative overflow-hidden", isCompact ? "h-40" : "h-48")}>
