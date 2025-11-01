@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-const MEASUREMENT_IMAGE = "/images/nail-measurement-guide.svg"
+const MEASUREMENT_IMAGE = "/images/nail-measurement-guide.jpeg"
 
 type ProductImageGalleryProps = {
   name: string
