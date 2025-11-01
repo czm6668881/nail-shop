@@ -1,5 +1,4 @@
 ﻿import { notFound } from "next/navigation"
-import Image from "next/image"
 import { Star, Check, Truck, RotateCcw } from "lucide-react"
 import { getProductBySlug, getProducts } from "@/lib/api/products"
 import { getReviewsByProductId } from "@/lib/api/reviews"
@@ -12,6 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Metadata } from "next"
 import { siteConfig, toAbsoluteUrl } from "@/lib/config/site"
+import { ProductImageGallery } from "@/components/product-image-gallery"
 
 const DEFAULT_PRODUCT_IMAGE = toAbsoluteUrl(siteConfig.defaultOgImagePath)
 const ORG_NAME = siteConfig.name
@@ -82,7 +82,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     : 0
 
   const canonicalUrl = toAbsoluteUrl(`/products/${product.slug}`)
-  const productImageUrls = (product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]).map((image) =>
+  const productImages = product.images?.length ? product.images : [DEFAULT_PRODUCT_IMAGE]
+  const productImageUrls = productImages.map((image) =>
     toAbsoluteUrl(image),
   )
 
@@ -121,34 +122,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       {/* Product Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
         {/* Images */}
-        <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-            <Image
-              src={product.images[0] || "/placeholder.svg"}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-            />
-            {discount > 0 && (
-              <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground">
-                Save {discount}%
-              </Badge>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            {product.images.slice(1, 4).map((image, index) => (
-              <div key={index} className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                <Image
-                  src={image || "/placeholder.svg"}
-                  alt={`${product.name} ${index + 2}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProductImageGallery name={product.name} images={productImages} discount={discount} />
 
         {/* Info */}
         <div className="space-y-6">
