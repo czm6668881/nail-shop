@@ -39,11 +39,11 @@ export function ProductImageGallery({ name, images, discount = 0 }: ProductImage
             type="button"
             onClick={() => setIsPreviewOpen(true)}
             className="group relative aspect-square w-full overflow-hidden rounded-lg bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring"
-            aria-label="点击放大查看产品图片"
+            aria-label="Open product image preview"
           >
             <Image
               src={selectedImage}
-              alt={isMeasurementImage ? "Nail measurement tutorial" : `${name} 图片`}
+              alt={isMeasurementImage ? "Nail measurement tutorial" : `${name} image`}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(min-width: 768px) 50vw, 100vw"
@@ -55,15 +55,15 @@ export function ProductImageGallery({ name, images, discount = 0 }: ProductImage
               </Badge>
             )}
             <span className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
-              点击放大
+              View larger
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl border-0 bg-transparent p-0 shadow-none">
-          <div className="relative h-[75vh] w-full overflow-hidden rounded-lg bg-white">
+        <DialogContent className="max-w-[min(95vw,1100px)] border-0 bg-transparent p-4 shadow-none sm:p-6">
+          <div className="relative h-[78vh] w-full overflow-hidden rounded-lg bg-white md:h-[82vh]">
             <Image
               src={selectedImage}
-              alt={isMeasurementImage ? "Nail measurement tutorial" : `${name} 放大图`}
+              alt={isMeasurementImage ? "Nail measurement tutorial full view" : `${name} large image`}
               fill
               className="object-contain"
               sizes="100vw"
@@ -86,18 +86,18 @@ export function ProductImageGallery({ name, images, discount = 0 }: ProductImage
                 "relative aspect-square overflow-hidden rounded-lg bg-muted transition ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring",
                 isActive ? "ring-2 ring-primary" : "hover:ring-2 hover:ring-primary/50",
               )}
-              aria-label={isMeasurement ? "查看指甲尺码测量图" : `查看 ${name} 图片 ${index + 1}`}
+              aria-label={isMeasurement ? "View nail sizing guide" : `View ${name} image ${index + 1}`}
             >
               <Image
                 src={image}
-                alt={isMeasurement ? "Nail measurement tutorial thumbnail" : `${name} 缩略图 ${index + 1}`}
+                alt={isMeasurement ? "Nail measurement tutorial thumbnail" : `${name} thumbnail ${index + 1}`}
                 fill
                 className="object-cover"
                 sizes="(min-width: 768px) 15vw, 30vw"
               />
               {isMeasurement && (
                 <span className="absolute bottom-2 left-2 rounded bg-black/70 px-2 py-0.5 text-xs text-white">
-                  尺码指南
+                  Sizing guide
                 </span>
               )}
             </button>
