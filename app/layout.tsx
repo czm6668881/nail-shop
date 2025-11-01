@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { Toaster } from "@/components/ui/sonner"
@@ -62,6 +63,7 @@ export default function RootLayout({
           <SiteFooter />
         </div>
         <Toaster position="top-center" richColors closeButton />
+        <GoogleAnalytics />
       </body>
     </html>
   )

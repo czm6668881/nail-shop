@@ -19,6 +19,9 @@ if (supabaseUrl) {
 }
 
 const analyticsEndpoint = "https://vitals.vercel-insights.com"
+const googleTagManager = "https://www.googletagmanager.com"
+const googleAnalytics = "https://www.google-analytics.com"
+const googleDoubleClick = "https://stats.g.doubleclick.net"
 
 const directiveValues = {
   "default-src": ["'self'"],
@@ -28,11 +31,11 @@ const directiveValues = {
   "object-src": ["'none'"],
   "manifest-src": ["'self'"],
   "worker-src": ["'self'", "blob:"],
-  "script-src": ["'self'", "'unsafe-inline'", analyticsEndpoint],
+  "script-src": ["'self'", "'unsafe-inline'", analyticsEndpoint, googleTagManager],
   "style-src": ["'self'", "'unsafe-inline'"],
   "font-src": ["'self'", "data:"],
-  "connect-src": ["'self'", analyticsEndpoint],
-  "img-src": ["'self'", "data:", "blob:"],
+  "connect-src": ["'self'", analyticsEndpoint, googleTagManager, googleAnalytics, googleDoubleClick],
+  "img-src": ["'self'", "data:", "blob:", googleAnalytics, googleDoubleClick],
   "media-src": ["'self'"],
 }
 
