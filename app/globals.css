@@ -241,3 +241,12 @@ html {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
