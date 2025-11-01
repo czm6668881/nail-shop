@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { GoogleAnalytics } from "@/components/analytics/google-analytics"
@@ -63,7 +64,9 @@ export default function RootLayout({
           <SiteFooter />
         </div>
         <Toaster position="top-center" richColors closeButton />
-        <GoogleAnalytics />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
       </body>
     </html>
   )
