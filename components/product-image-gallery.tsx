@@ -59,8 +59,8 @@ export function ProductImageGallery({ name, images, discount = 0 }: ProductImage
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-[min(95vw,1100px)] border-0 bg-transparent p-4 shadow-none sm:p-6">
-          <div className="relative h-[78vh] w-full overflow-hidden rounded-lg bg-white md:h-[82vh]">
+        <DialogContent className="max-w-[min(98vw,1280px)] border-0 bg-transparent p-2 shadow-none sm:p-6">
+          <div className="relative h-[85vh] w-full overflow-hidden rounded-lg bg-white md:h-[88vh]">
             <Image
               src={selectedImage}
               alt={isMeasurementImage ? "Nail measurement tutorial full view" : `${name} large image`}
